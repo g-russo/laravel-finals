@@ -9,6 +9,15 @@
 /resources/js/wayfinder
 /storage/*.key
 /storage/pail
+/storage/logs/*.log
+/storage/framework/cache/*
+!/storage/framework/cache/.gitignore
+/storage/framework/sessions/*
+!/storage/framework/sessions/.gitignore
+/storage/framework/testing/*
+!/storage/framework/testing/.gitignore
+/storage/framework/views/*
+!/storage/framework/views/.gitignore
 /vendor
 .DS_Store
 .env
@@ -28,3 +37,6 @@ yarn-error.log
 /.zed
 
 .vercel
+
+# Ignore nested duplicate Laravel installation
+/laravel-finals/
