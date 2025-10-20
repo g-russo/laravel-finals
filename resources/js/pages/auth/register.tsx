@@ -125,7 +125,7 @@ export default function Register() {
                                     autoComplete="name"
                                     name="name"
                                     placeholder="John Doe"
-                                    className="px-4 py-3 rounded-lg border border-gray-200 focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all"
+                                    className="px-4 py-3 rounded-lg border border-gray-200 focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all bg-white text-gray-900 placeholder:text-gray-500 caret-orange-600"
                                 />
                                 <InputError message={errors.name} />
                             </div>
@@ -142,7 +142,7 @@ export default function Register() {
                                     autoComplete="email"
                                     name="email"
                                     placeholder="you@example.com"
-                                    className="px-4 py-3 rounded-lg border border-gray-200 focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all"
+                                    className="px-4 py-3 rounded-lg border border-gray-200 focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all bg-white text-gray-900 placeholder:text-gray-500 caret-orange-600"
                                 />
                                 <InputError message={errors.email} />
                             </div>
@@ -159,7 +159,7 @@ export default function Register() {
                                     autoComplete="new-password"
                                     name="password"
                                     placeholder="••••••••"
-                                    className="px-4 py-3 rounded-lg border border-gray-200 focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all"
+                                    className="px-4 py-3 rounded-lg border border-gray-200 focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all bg-white text-gray-900 placeholder:text-gray-500 caret-orange-600"
                                 />
                                 <InputError message={errors.password} />
                             </div>
@@ -176,7 +176,7 @@ export default function Register() {
                                     autoComplete="new-password"
                                     name="password_confirmation"
                                     placeholder="••••••••"
-                                    className="px-4 py-3 rounded-lg border border-gray-200 focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all"
+                                    className="px-4 py-3 rounded-lg border border-gray-200 focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all bg-white text-gray-900 placeholder:text-gray-500 caret-orange-600"
                                 />
                                 <InputError message={errors.password_confirmation} />
                             </div>
