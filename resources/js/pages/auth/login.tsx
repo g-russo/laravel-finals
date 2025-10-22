@@ -111,59 +111,114 @@ export default function Login({ status, canResetPassword }: LoginProps) {
                                 <p className="text-gray-600">Access your Paradise Resort account</p>
                             </div>
 
-<Form
-  {...store.form()}
-  resetOnSuccess={['password']}
-  className="flex flex-col gap-6"
->
-  {({ processing, errors }) => (
-    <>
-      <div className="grid gap-6">
-        <div className="grid gap-2">
-          <Input
-            id="email"
-            name="email"
-            type="email"
-            required
-            autoFocus
-            autoComplete="email"
-            placeholder="you@example.com"
-            className="px-4 py-3 rounded-lg border border-gray-200 focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all bg-white text-gray-900 placeholder:text-gray-500 caret-orange-600"
-          />
-          <InputError message={errors.email} />
-        </div>
+            <Form
+                {...store.form()}
+                resetOnSuccess={['password']}
+                className="flex flex-col gap-6"
+            >
+                {({ processing, errors }) => (
+                    <>
+                        <div className="grid gap-6">
+                            <div className="grid gap-2">
+                                <Label htmlFor="email" className="text-sm font-semibold text-gray-700">
+                                    Email Address
+                                </Label>
+                                <Input
+                                    id="email"
+                                    type="email"
+                                    name="email"
+                                    required
+                                    autoFocus
+                                    tabIndex={1}
+                                    autoComplete="email"
+                                    placeholder="you@example.com"
+                                    className="px-4 py-3 rounded-lg border border-gray-200 focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all bg-white text-gray-900 placeholder:text-gray-500"
+                                />
+                                <InputError message={errors.email} />
+                            </div>
 
-        <div className="grid gap-2">
-          <Input
-            id="password"
-            name="password"
-            type="password"
-            required
-            autoComplete="current-password"
-            placeholder="••••••••"
-            className="px-4 py-3 rounded-lg border border-gray-200 focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all bg-white text-gray-900 placeholder:text-gray-500 caret-orange-600"
-          />
-          <InputError message={errors.password} />
-        </div>
+                            <div className="grid gap-2">
+                                <div className="flex items-center justify-between">
+                                    <Label htmlFor="password" className="text-sm font-semibold text-gray-700">
+                                        Password
+                                    </Label>
+                                    {canResetPassword && (
+                                        <TextLink
+                                            href={request()}
+                                            className="text-sm text-orange-600 hover:text-orange-700 font-medium transition-colors"
+                                            tabIndex={5}
+                                        >
+                                            Forgot password?
+                                        </TextLink>
+                                    )}
+                                </div>
+                                <Input
+                                    id="password"
+                                    type="password"
+                                    name="password"
+                                    required
+                                    tabIndex={2}
+                                    autoComplete="current-password"
+                                    placeholder="••••••••"
+                                    className="px-4 py-3 rounded-lg border border-gray-200 focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all bg-white text-gray-900 placeholder:text-gray-500"
+                                />
+                                <InputError message={errors.password} />
+                            </div>
 
-        <label className="flex items-center gap-2">
-          <Checkbox id="remember" name="remember" />
-          <span className="text-sm text-gray-700">Remember me</span>
-        </label>
-      </div>
+                            <div className="flex items-center space-x-3">
+                                <Checkbox
+                                    id="remember"
+                                    name="remember"
+                                    tabIndex={3}
+                                    className="w-4 h-4"
+                                />
+                                <Label htmlFor="remember" className="text-sm text-gray-600 font-normal cursor-pointer">
+                                    Keep me logged in
+                                </Label>
+                            </div>
 
-      <Button type="submit" disabled={processing} className="w-full">
-        {processing ? 'Signing in…' : 'Sign in'}
-      </Button>
+                            <Button
+                                type="submit"
+                                className="mt-4 w-full bg-orange-600 hover:bg-orange-700 text-white py-3 rounded-lg font-semibold transition-all duration-300 transform hover:scale-105 disabled:opacity-50"
+                                tabIndex={4}
+                                disabled={processing}
+                                data-test="login-button"
+                            >
+                                {processing && <Spinner />}
+                                {processing ? 'Signing in...' : 'Sign In'}
+                            </Button>
+                        </div>
 
-      {status && (
-        <div className="mt-6 p-4 bg-green-50 border border-green-200 rounded-lg text-center text-sm font-medium text-green-700">
-          {status}
-        </div>
-      )}
-    </>
-  )}
-</Form>
+                        <div className="relative my-6">
+                            <div className="absolute inset-0 flex items-center">
+                                <div className="w-full border-t border-gray-200"></div>
+                            </div>
+                            <div className="relative flex justify-center text-sm">
+                                <span className="px-2 bg-white text-gray-500">Or</span>
+                            </div>
+                        </div>
+
+                        <div className="text-center">
+                            <p className="text-gray-600 mb-4">
+                                Don't have an account yet?
+                            </p>
+                            <Link 
+                                href={register()}
+                                className="inline-block w-full py-3 px-4 rounded-lg border-2 border-orange-600 text-orange-600 font-semibold hover:bg-orange-50 transition-colors duration-300"
+                                tabIndex={5}
+                            >
+                                Create Account
+                            </Link>
+                        </div>
+
+                        {status && (
+                            <div className="mt-6 p-4 bg-green-50 border border-green-200 rounded-lg text-center text-sm font-medium text-green-700">
+                                {status}
+                            </div>
+                        )}
+                    </>
+                )}
+            </Form>
                         </div>
                     </div>
                 </div>

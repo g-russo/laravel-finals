@@ -155,3 +155,20 @@
 .animate-float {
     animation: float 6s ease-in-out infinite;
 }
+
+/* Fix autofill styling */
+input:-webkit-autofill,
+input:-webkit-autofill:hover,
+input:-webkit-autofill:focus,
+input:-webkit-autofill:active {
+    -webkit-box-shadow: 0 0 0 30px white inset !important;
+    -webkit-text-fill-color: #111827 !important; /* gray-900 */
+    border-radius: 8px !important;
+    transition: background-color 5000s ease-in-out 0s;
+}
+
+/* Firefox autofill */
+input:-moz-autofill {
+    background-color: white !important;
+    color: #111827 !important; /* gray-900 */
+}

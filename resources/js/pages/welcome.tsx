@@ -1,11 +1,43 @@
-import { Head } from '@inertiajs/react';
+import { Head, Link } from '@inertiajs/react';
 import { useState, useEffect } from 'react';
 import Navigation from '@/components/Navigation';
 import Footer from '@/components/Footer';
+import { AmenitiesSection } from '@/components/amenities-section';
 import AOS from 'aos';
 import 'aos/dist/aos.css';
 
-export default function Welcome() {
+interface Accommodation {
+    id: number;
+    title: string;
+    description: string;
+    price: string;
+    image: string;
+    capacity: number;
+    formatted_price: number;
+}
+
+interface Amenity {
+    amenity_id: number;
+    amenity_name: string;
+    description: string;
+    price_per_use: string;
+    image_path: string | null;
+}
+
+interface Stats {
+    total_accommodations: number;
+    available_accommodations: number;
+    premium_suites: number;
+    years_experience: number;
+}
+
+interface WelcomeProps {
+    accommodations: Accommodation[];
+    amenities: Amenity[];
+    stats: Stats;
+}
+
+export default function Welcome({ accommodations, amenities, stats }: WelcomeProps) {
     const [currentSlide, setCurrentSlide] = useState(0);
     const [showModal, setShowModal] = useState(false);
 
@@ -27,66 +59,6 @@ export default function Welcome() {
             title: "Luxury Pool Suites",
             description: "Indulge in our premium suites featuring private pools and personalized concierge service",
             cta: "View Suites"
-        }
-    ];
-
-    const accommodations = [
-        {
-            image: "https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=500&q=80",
-            title: "Ocean View Suite",
-            description: "Spacious suite with panoramic ocean views",
-            price: "From ₱13,000/night"
-        },
-        {
-            image: "https://images.unsplash.com/photo-1618773928121-c32242e63f39?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=500&q=80",
-            title: "Private Villa",
-            description: "Exclusive villa with private beach access",
-            price: "From ₱27,000/night"
-        },
-        {
-            image: "https://images.unsplash.com/photo-1631049307264-da0ec9d70304?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=500&q=80",
-            title: "Garden Bungalow",
-            description: "Cozy bungalow surrounded by tropical gardens",
-            price: "From ₱8,999/night"
-        },
-        {
-            image: "https://images.unsplash.com/photo-1590490360182-c33d57733427?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=500&q=80",
-            title: "Penthouse Suite",
-            description: "Ultimate luxury with rooftop infinity pool",
-            price: "From ₱50,000/night"
-        }
-    ];
-
-    const amenities = [
-        {
-            icon: "bi-water",
-            title: "Infinity Pool",
-            description: "Multiple infinity pools with ocean views"
-        },
-        {
-            icon: "bi-cup-hot",
-            title: "Fine Dining",
-            description: "Michelin-starred restaurants and bars"
-        },
-        {
-            icon: "bi-heart-pulse",
-            title: "Spa & Wellness",
-            description: "World-class spa and wellness center"
-        },
-        {
-            icon: "bi-flag",
-            title: "Golf Course",
-            description: "Championship 18-hole golf course"
-        },
-        {
-            icon: "bi-tsunami",
-            title: "Water Sports",
-            description: "Diving, surfing, and water activities"
-        },
-        {
-            icon: "bi-airplane",
-            title: "Helicopter Tours",
-            description: "Scenic helicopter tours and transfers"
         }
     ];
 
@@ -193,6 +165,13 @@ export default function Welcome() {
                         0% { background-position: 0% 50%; }
                         50% { background-position: 100% 50%; }
                         100% { background-position: 0% 50%; }
+                    }
+                    
+                    .line-clamp-2 {
+                        display: -webkit-box;
+                        -webkit-line-clamp: 2;
+                        -webkit-box-orient: vertical;
+                        overflow: hidden;
                     }
                 `}</style>
             </Head>
@@ -322,10 +301,10 @@ export default function Welcome() {
                         ></div>
                     </div>
 
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
                         {accommodations.map((accommodation, index) => (
                             <div
-                                key={index}
+                                key={accommodation.id}
                                 className="bg-white rounded-2xl overflow-hidden shadow-lg hover-lift group shimmer-effect"
                                 data-aos="fade-up"
                                 data-aos-delay={index * 100}
@@ -336,11 +315,26 @@ export default function Welcome() {
                                         src={accommodation.image}
                                         alt={accommodation.title}
                                         className="w-full h-64 object-cover group-hover:scale-110 transition-transform duration-700"
+                                        onError={(e) => {
+                                            (e.target as HTMLImageElement).src = 'https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=500&q=80';
+                                        }}
                                     />
                                     <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-                                    <div className="absolute top-4 right-4 bg-orange-600 text-white px-3 py-1 rounded-full text-sm font-medium opacity-0 group-hover:opacity-100 transform translate-x-2 group-hover:translate-x-0 transition-all duration-300">
-                                        Premium
+                                    
+                                    {/* Premium Badge for high-end accommodations */}
+                                    {accommodation.formatted_price > 15000 && (
+                                        <div className="absolute top-4 right-4 bg-gradient-to-r from-orange-600 to-orange-700 text-white px-3 py-1 rounded-full text-sm font-medium opacity-0 group-hover:opacity-100 transform translate-x-2 group-hover:translate-x-0 transition-all duration-300 shadow-lg">
+                                            Premium
+                                        </div>
+                                    )}
+
+                                    {/* Capacity Badge */}
+                                    <div className="absolute top-4 left-4 bg-black/70 text-white px-3 py-1 rounded-full text-sm font-medium backdrop-blur-sm">
+                                        <i className="bi bi-people mr-1"></i>
+                                        {accommodation.capacity} guests
                                     </div>
+
+                                    {/* Rating Stars */}
                                     <div className="absolute bottom-4 left-4 opacity-0 group-hover:opacity-100 transform translate-y-2 group-hover:translate-y-0 transition-all duration-300 delay-100">
                                         <div className="flex space-x-1">
                                             {[...Array(5)].map((_, i) => (
@@ -350,95 +344,108 @@ export default function Welcome() {
                                             ))}
                                         </div>
                                     </div>
+
+                                    {/* Quick Action Buttons */}
+                                    <div className="absolute bottom-4 right-4 opacity-0 group-hover:opacity-100 transform translate-y-2 group-hover:translate-y-0 transition-all duration-300 delay-200 flex space-x-2">
+                                        <button className="w-8 h-8 bg-white/90 hover:bg-white text-orange-600 rounded-full flex items-center justify-center transition-all duration-300 hover:scale-110 shadow-lg">
+                                            <i className="bi bi-heart text-sm"></i>
+                                        </button>
+                                        <button className="w-8 h-8 bg-white/90 hover:bg-white text-orange-600 rounded-full flex items-center justify-center transition-all duration-300 hover:scale-110 shadow-lg">
+                                            <i className="bi bi-share text-sm"></i>
+                                        </button>
+                                    </div>
                                 </div>
+
                                 <div className="p-6">
-                                    <h3 className="text-xl font-semibold text-gray-900 mb-2 group-hover:text-orange-600 transition-colors duration-300">
-                                        {accommodation.title}
-                                    </h3>
-                                    <p className="text-gray-600 mb-4 group-hover:text-gray-700 transition-colors duration-300">
+                                    <div className="flex items-start justify-between mb-2">
+                                        <h3 className="text-xl font-semibold text-gray-900 group-hover:text-orange-600 transition-colors duration-300 flex-1">
+                                            {accommodation.title}
+                                        </h3>
+                                        <div className="ml-2 text-right">
+                                            <div className="text-orange-600 font-bold text-lg group-hover:pulse-glow">
+                                                ₱{accommodation.formatted_price.toLocaleString()}
+                                            </div>
+                                            <div className="text-xs text-gray-500">per night</div>
+                                        </div>
+                                    </div>
+                                    
+                                    <p className="text-gray-600 mb-4 group-hover:text-gray-700 transition-colors duration-300 line-clamp-2">
                                         {accommodation.description}
                                     </p>
+
+                                    {/* Amenities Preview */}
+                                    <div className="flex items-center space-x-4 mb-4 text-sm text-gray-500">
+                                        <div className="flex items-center">
+                                            <i className="bi bi-wifi mr-1"></i>
+                                            <span>Free WiFi</span>
+                                        </div>
+                                        <div className="flex items-center">
+                                            <i className="bi bi-cup-hot mr-1"></i>
+                                            <span>Breakfast</span>
+                                        </div>
+                                        <div className="flex items-center">
+                                            <i className="bi bi-p-circle mr-1"></i>
+                                            <span>Parking</span>
+                                        </div>
+                                    </div>
+                                    
                                     <div className="flex items-center justify-between">
-                                        <span className="text-orange-600 font-bold text-lg group-hover:pulse-glow">
-                                            {accommodation.price}
-                                        </span>
-                                        <button className="text-orange-600 hover:text-orange-700 font-medium transition-all duration-300 hover:translate-x-1">
-                                            View Details →
-                                        </button>
+                                        <div className="flex items-center space-x-2">
+                                            <div className="flex items-center">
+                                                <i className="bi bi-star-fill text-yellow-400 text-sm mr-1"></i>
+                                                <span className="text-sm font-medium text-gray-700">4.9</span>
+                                                <span className="text-xs text-gray-500 ml-1">(127 reviews)</span>
+                                            </div>
+                                        </div>
+                                        <Link
+                                            href={`/accommodations/${accommodation.id}`}
+                                            className="bg-gradient-to-r from-orange-600 to-orange-700 hover:from-orange-700 hover:to-orange-800 text-white px-4 py-2 rounded-lg font-medium transition-all duration-300 hover:scale-105 shadow-sm hover:shadow-md text-sm"
+                                        >
+                                            View Details
+                                        </Link>
                                     </div>
                                 </div>
                             </div>
                         ))}
                     </div>
+
+
+                    {/* View All Button */}
+                    {accommodations.length > 0 && (
+                        <div className="text-center mt-12" data-aos="fade-up" data-aos-delay="500">
+                            <Link
+                                href="/accommodations"
+                                className="inline-flex items-center bg-gradient-to-r from-orange-600 to-orange-700 hover:from-orange-700 hover:to-orange-800 text-white px-8 py-4 rounded-full text-lg font-semibold transition-all duration-300 hover:scale-105 shadow-lg hover:shadow-xl group"
+                            >
+                                <span>Explore All Accommodations</span>
+                                <i className="bi bi-arrow-right ml-2 transition-transform duration-300 group-hover:translate-x-1"></i>
+                            </Link>
+                        </div>
+                    )}
+
+                    {/* Empty State */}
+                    {accommodations.length === 0 && (
+                        <div className="text-center py-16" data-aos="fade-up">
+                            <div className="w-24 h-24 mx-auto mb-6 bg-gradient-to-br from-gray-100 to-gray-200 rounded-full flex items-center justify-center">
+                                <i className="bi bi-building text-4xl text-gray-400"></i>
+                            </div>
+                            <h3 className="text-2xl font-bold text-gray-900 mb-4">No Accommodations Available</h3>
+                            <p className="text-gray-600 mb-8 max-w-md mx-auto">
+                                We're currently updating our accommodations. Please check back soon for amazing deals and luxury stays.
+                            </p>
+                            <button
+                                onClick={() => setShowModal(true)}
+                                className="bg-gradient-to-r from-orange-600 to-orange-700 hover:from-orange-700 hover:to-orange-800 text-white px-8 py-3 rounded-full font-semibold transition-all duration-300 hover:scale-105"
+                            >
+                                Get Notified
+                            </button>
+                        </div>
+                    )}
                 </div>
             </section>
 
             {/* Amenities Section */}
-            <section id="amenities" className="py-20 bg-gray-50 relative overflow-hidden">
-                <div className="absolute inset-0 bg-gradient-to-r from-orange-50 to-blue-50 opacity-30"></div>
-                <div className="container mx-auto px-4 lg:px-8 relative z-10">
-                    <div className="text-center mb-16">
-                        <div 
-                            className="inline-block w-16 h-0.5 bg-orange-600 mb-4"
-                            data-aos="zoom-in"
-                            data-aos-duration="600"
-                        ></div>
-                        <h2 
-                            className="text-4xl md:text-5xl font-bold text-gray-900 mb-4"
-                            data-aos="fade-up"
-                            data-aos-duration="800"
-                        >
-                            World-Class Amenities
-                        </h2>
-                        <p 
-                            className="text-xl text-gray-600 max-w-3xl mx-auto"
-                            data-aos="fade-up"
-                            data-aos-delay="200"
-                            data-aos-duration="800"
-                        >
-                            Experience unparalleled luxury with our extensive range of premium facilities and services designed to exceed your expectations.
-                        </p>
-                        <div 
-                            className="inline-block w-16 h-0.5 bg-orange-600 mt-4"
-                            data-aos="zoom-in"
-                            data-aos-delay="400"
-                            data-aos-duration="600"
-                        ></div>
-                    </div>
-
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-                        {amenities.map((amenity, index) => (
-                            <div
-                                key={index}
-                                className="text-center p-8 bg-white rounded-2xl shadow-lg hover-lift group relative overflow-hidden"
-                                data-aos="flip-up"
-                                data-aos-delay={index * 100}
-                                data-aos-duration="800"
-                            >
-                                <div className="absolute inset-0 bg-gradient-to-br from-orange-50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
-                                <div className="relative z-10">
-                                    <div className="w-20 h-20 mx-auto mb-6 bg-gradient-to-br from-orange-100 to-orange-200 rounded-full flex items-center justify-center group-hover:bg-gradient-to-br group-hover:from-orange-200 group-hover:to-orange-300 transition-all duration-500">
-                                        <i className={`${amenity.icon} text-3xl text-orange-600 group-hover:text-orange-700 transition-all duration-300`}></i>
-                                    </div>
-                                    <h3 className="text-xl font-semibold text-gray-900 mb-3 group-hover:text-orange-600 transition-colors duration-300">
-                                        {amenity.title}
-                                    </h3>
-                                    <p className="text-gray-600 group-hover:text-gray-700 transition-colors duration-300">
-                                        {amenity.description}
-                                    </p>
-                                    <div className="mt-4 opacity-0 group-hover:opacity-100 transform translate-y-2 group-hover:translate-y-0 transition-all duration-300 delay-100">
-                                        <div className="flex justify-center space-x-1">
-                                            {[...Array(3)].map((_, i) => (
-                                                <div key={i} className="w-2 h-2 bg-orange-600 rounded-full pulse-glow" style={{ animationDelay: `${i * 100}ms` }}></div>
-                                            ))}
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        ))}
-                    </div>
-                </div>
-            </section>
+            <AmenitiesSection amenities={amenities} />
 
             {/* Video Experience Section */}
             <section id="experiences" className="py-20 bg-gray-900 relative overflow-hidden">
