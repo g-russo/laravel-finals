@@ -98,5 +98,10 @@ class DatabaseSeeder extends Seeder
             'email' => 'alice@gmail.com',
             'password' => Hash::make('password123'),
         ]);
+
+        // Seed logs
+        $this->call([
+            LogSeeder::class,
+        ]);
     }
 }

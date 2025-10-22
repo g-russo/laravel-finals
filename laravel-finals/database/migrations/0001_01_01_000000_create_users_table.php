@@ -15,10 +15,11 @@ return new class extends Migration
             $table->id('user_id');
             $table->string('full_name');
             $table->string('role')->default('customer');
-            $table->string('username');
+            $table->string('username')->unique();
             $table->string('email')->unique();
             $table->timestamp('email_verified_at')->nullable();
             $table->string('password');
+            $table->string('avatar_path')->nullable();
             $table->rememberToken();
             $table->timestamps();
         });
@@ -37,6 +38,13 @@ return new class extends Migration
             $table->longText('payload');
             $table->integer('last_activity')->index();
         });
+
+        Schema::create('logs', function (Blueprint $table) {
+            $table->id('log_id');
+            $table->foreignId('user_id')->nullable()->constrained('users', 'user_id')->onDelete('set null');
+            $table->text('action');
+            $table->timestamp('created_at')->useCurrent();
+        });
     }
 
     /**
@@ -47,5 +55,6 @@ return new class extends Migration
         Schema::dropIfExists('users');
         Schema::dropIfExists('password_reset_tokens');
         Schema::dropIfExists('sessions');
+        Schema::dropIfExists('logs');
     }
 };

@@ -1,7 +1,7 @@
 import { Link, useForm } from '@inertiajs/react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { LayoutDashboard, Users, Package, DollarSign, LogOut, Menu } from 'lucide-react';
+import { LayoutDashboard, Users, Package, DollarSign, LogOut, Menu, ScrollText } from 'lucide-react';
 import { useState } from 'react';
 
 export default function Dashboard({ auth, stats }) {
@@ -23,6 +23,7 @@ export default function Dashboard({ auth, stats }) {
         { icon: LayoutDashboard, label: 'Dashboard', href: '/dashboard', active: true },
         { icon: Users, label: 'Users', href: '/users' },
         { icon: Package, label: 'Products', href: '/products' },
+        { icon: ScrollText, label: 'Activity Logs', href: '/admin/logs', roles: ['admin', 'employee'] },
     ];
 
     const getRoleBadgeColor = (role) => {
@@ -55,21 +56,23 @@ export default function Dashboard({ auth, stats }) {
 
                 <nav className="flex-1 p-4">
                     <ul className="space-y-2">
-                        {menuItems.map((item) => (
-                            <li key={item.href}>
-                                <Link
-                                    href={item.href}
-                                    className={`flex items-center space-x-3 p-3 rounded-lg transition ${
-                                        item.active
-                                            ? 'bg-primary text-primary-foreground'
-                                            : 'hover:bg-accent hover:text-accent-foreground'
-                                    }`}
-                                >
-                                    <item.icon className="h-5 w-5" />
-                                    {sidebarOpen && <span>{item.label}</span>}
-                                </Link>
-                            </li>
-                        ))}
+                        {menuItems
+                            .filter(item => !item.roles || item.roles.includes(auth?.user?.role))
+                            .map((item) => (
+                                <li key={item.href}>
+                                    <Link
+                                        href={item.href}
+                                        className={`flex items-center space-x-3 p-3 rounded-lg transition ${
+                                            item.active
+                                                ? 'bg-primary text-primary-foreground'
+                                                : 'hover:bg-accent hover:text-accent-foreground'
+                                        }`}
+                                    >
+                                        <item.icon className="h-5 w-5" />
+                                        {sidebarOpen && <span>{item.label}</span>}
+                                    </Link>
+                                </li>
+                            ))}
                     </ul>
                 </nav>
 
