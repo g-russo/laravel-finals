@@ -9,6 +9,7 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, Di
 import { Badge } from '@/components/ui/badge';
 import { Upload, Image as ImageIcon } from 'lucide-react';
 import { Alert } from '@/components/ui/alert';
+import { adminStyles } from '@/lib/admin-styles';
 
 interface Amenity {
   amenity_id: number;
@@ -107,22 +108,22 @@ export default function AdminAmenities({ amenities }: PageProps) {
     <AppLayout>
       <Head title="Manage Amenities" />
       
-      <div className="py-12">
-        <div className="max-w-7xl mx-auto sm:px-6 lg:px-8">
-          <div className="bg-background overflow-hidden shadow-sm sm:rounded-lg">
+      <div className={adminStyles.page.container}>
+        <div className={adminStyles.page.innerContainer}>
+          <div className="bg-transparent overflow-hidden">
             <div className="p-6">
               {/* Header */}
               <div className="mb-8">
-                <h2 className="text-3xl font-bold">Manage Amenities</h2>
-                <p className="text-muted-foreground mt-1">
+                <h2 className={adminStyles.text.heading}>Manage Amenities</h2>
+                <p className={`${adminStyles.text.muted} mt-1`}>
                   Update amenity images. Changes will reflect on the homepage immediately.
                 </p>
               </div>
 
               {/* Success/Error Message */}
               {message && (
-                <Alert className={`mb-6 ${message.type === 'success' ? 'border-green-500 bg-green-50' : 'border-red-500 bg-red-50'}`}>
-                  <p className={message.type === 'success' ? 'text-green-800' : 'text-red-800'}>
+                <Alert className={`mb-6 ${message.type === 'success' ? adminStyles.alert.success : adminStyles.alert.error}`}>
+                  <p className={message.type === 'success' ? 'text-green-800 dark:text-green-300' : 'text-red-800 dark:text-red-300'}>
                     {message.text}
                   </p>
                 </Alert>
@@ -131,8 +132,8 @@ export default function AdminAmenities({ amenities }: PageProps) {
               {/* Amenities Grid */}
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 {amenities.map((amenity) => (
-                  <Card key={amenity.amenity_id} className="overflow-hidden">
-                    <div className="relative h-48 overflow-hidden bg-muted">
+                  <Card key={amenity.amenity_id} className={`${adminStyles.card.base} overflow-hidden`}>
+                    <div className="relative h-48 overflow-hidden bg-gray-100 dark:bg-gray-700">
                       <img
                         src={getImageUrl(amenity.image_path)}
                         alt={amenity.amenity_name}
@@ -142,7 +143,7 @@ export default function AdminAmenities({ amenities }: PageProps) {
                         }}
                       />
                       <div className="absolute top-2 right-2">
-                        <Badge variant="secondary" className="bg-background/90 backdrop-blur-sm">
+                        <Badge variant="secondary" className="bg-white/90 dark:bg-gray-800/90 backdrop-blur-sm text-gray-900 dark:text-white">
                           ₱{parseFloat(amenity.price_per_use).toLocaleString('en-PH', { 
                             minimumFractionDigits: 2, 
                             maximumFractionDigits: 2 
@@ -150,16 +151,16 @@ export default function AdminAmenities({ amenities }: PageProps) {
                         </Badge>
                       </div>
                     </div>
-                    <CardHeader>
-                      <CardTitle className="text-xl">{amenity.amenity_name}</CardTitle>
-                      <CardDescription className="line-clamp-2">
+                    <CardHeader className="p-6">
+                      <CardTitle className={`${adminStyles.text.subheading} text-xl`}>{amenity.amenity_name}</CardTitle>
+                      <CardDescription className={`${adminStyles.text.muted} line-clamp-2`}>
                         {amenity.description}
                       </CardDescription>
                     </CardHeader>
-                    <CardContent>
+                    <CardContent className="p-6 pt-0">
                       <Button 
                         onClick={() => handleEditClick(amenity)}
-                        className="w-full"
+                        className={`${adminStyles.button.outline} w-full`}
                         variant="outline"
                       >
                         <ImageIcon className="mr-2 h-4 w-4" />
@@ -172,12 +173,12 @@ export default function AdminAmenities({ amenities }: PageProps) {
 
               {/* Image Upload Dialog */}
               <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-                <DialogContent className="max-w-2xl">
-                  <DialogHeader>
-                    <DialogTitle>
+                <DialogContent className={`${adminStyles.dialog.content} max-w-2xl`}>
+                  <DialogHeader className={adminStyles.dialog.header}>
+                    <DialogTitle className={adminStyles.dialog.title}>
                       Update Image for {selectedAmenity?.amenity_name}
                     </DialogTitle>
-                    <DialogDescription>
+                    <DialogDescription className={adminStyles.dialog.description}>
                       Upload a new image to replace the current one. Changes will be visible on the homepage.
                     </DialogDescription>
                   </DialogHeader>
@@ -185,8 +186,8 @@ export default function AdminAmenities({ amenities }: PageProps) {
                   <form onSubmit={handleSubmit} className="space-y-6">
                     {/* Current Image */}
                     <div>
-                      <Label className="text-sm font-medium mb-2 block">Current Image</Label>
-                      <div className="relative h-48 rounded-lg overflow-hidden bg-muted">
+                      <Label className={`${adminStyles.input.label} mb-2 block`}>Current Image</Label>
+                      <div className="relative h-48 rounded-lg overflow-hidden bg-gray-100 dark:bg-gray-700">
                         <img
                           src={getImageUrl(selectedAmenity?.image_path || null)}
                           alt={selectedAmenity?.amenity_name}
@@ -197,13 +198,13 @@ export default function AdminAmenities({ amenities }: PageProps) {
 
                     {/* New Image Upload */}
                     <div>
-                      <Label htmlFor="image" className="text-sm font-medium mb-2 block">
+                      <Label htmlFor="image" className={`${adminStyles.input.label} mb-2 block`}>
                         New Image
                       </Label>
                       <div className="flex items-center justify-center w-full">
                         <label
                           htmlFor="image"
-                          className="flex flex-col items-center justify-center w-full h-48 border-2 border-dashed rounded-lg cursor-pointer bg-muted hover:bg-muted/80 transition-colors"
+                          className="flex flex-col items-center justify-center w-full h-48 border-2 border-dashed rounded-lg cursor-pointer bg-gray-50 dark:bg-gray-800 hover:bg-gray-100 dark:hover:bg-gray-700 border-gray-300 dark:border-gray-600 transition-colors"
                         >
                           {imagePreview ? (
                             <img
@@ -213,11 +214,11 @@ export default function AdminAmenities({ amenities }: PageProps) {
                             />
                           ) : (
                             <div className="flex flex-col items-center justify-center pt-5 pb-6">
-                              <Upload className="w-10 h-10 mb-3 text-muted-foreground" />
-                              <p className="mb-2 text-sm text-muted-foreground">
+                              <Upload className={`w-10 h-10 mb-3 ${adminStyles.text.muted}`} />
+                              <p className={`mb-2 text-sm ${adminStyles.text.muted}`}>
                                 <span className="font-semibold">Click to upload</span> or drag and drop
                               </p>
-                              <p className="text-xs text-muted-foreground">
+                              <p className={`text-xs ${adminStyles.text.muted}`}>
                                 PNG, JPG, GIF, WEBP (MAX. 2MB)
                               </p>
                             </div>
@@ -232,7 +233,7 @@ export default function AdminAmenities({ amenities }: PageProps) {
                           />
                         </label>
                       </div>
-                      <p className="text-sm text-muted-foreground mt-2">
+                      <p className={`text-sm ${adminStyles.text.muted} mt-2`}>
                         Recommended: 800x600px or larger, 4:3 aspect ratio
                       </p>
                     </div>

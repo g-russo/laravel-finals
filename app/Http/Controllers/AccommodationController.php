@@ -5,6 +5,8 @@ namespace App\Http\Controllers;
 use App\Models\Accommodation;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
+use Intervention\Image\ImageManager;
+use Intervention\Image\Drivers\Gd\Driver;
 use Inertia\Inertia;
 
 class AccommodationController extends Controller
@@ -21,10 +23,10 @@ class AccommodationController extends Controller
             $search = $request->search;
             $query->where(function ($q) use ($search) {
                 $q->where('accommodation_name', 'like', "%{$search}%")
-                  ->orWhere('description', 'like', "%{$search}%")
-                  ->orWhere('availability_status', 'like', "%{$search}%")
-                  ->orWhere('capacity', $search)
-                  ->orWhere('price_per_night', $search);
+                    ->orWhere('description', 'like', "%{$search}%")
+                    ->orWhere('availability_status', 'like', "%{$search}%")
+                    ->orWhere('capacity', $search)
+                    ->orWhere('price_per_night', $search);
             });
         }
 
@@ -33,17 +35,10 @@ class AccommodationController extends Controller
             $query->where('availability_status', $request->status);
         }
 
-        $accommodations = $query->orderBy('accommodation_name')->paginate(10)->withQueryString();
+        $accommodations = $query->orderBy('accommodation_name')->get();
 
-        return Inertia::render('Accommodations/Index', [
+        return Inertia::render('admin/accommodation', [
             'accommodations' => $accommodations,
-            'filters' => $request->only(['search', 'status']),
-            'stats' => [
-                'total' => Accommodation::count(),
-                'available' => Accommodation::available()->count(),
-                'occupied' => Accommodation::occupied()->count(),
-                'maintenance' => Accommodation::where('availability_status', 'maintenance')->count(),
-            ]
         ]);
     }
 
@@ -66,15 +61,24 @@ class AccommodationController extends Controller
             'capacity' => 'required|integer|min:1|max:20',
             'price_per_night' => 'required|numeric|min:0',
             'availability_status' => 'required|in:available,occupied,maintenance,reserved',
-            'image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:5120', // 5MB max
+            'image' => 'nullable|image|mimes:jpeg,png,jpg,webp|max:5120', // 5MB max
         ]);
 
-        // Handle image upload
+        // Handle image upload with WebP conversion
         if ($request->hasFile('image')) {
             $image = $request->file('image');
-            $imageName = time() . '_' . $image->getClientOriginalName();
-            $imagePath = $image->storeAs('accommodations', $imageName, 'public');
-            $validated['image_url'] = '/storage/' . $imagePath;
+            $filename = time() . '_' . str_replace(' ', '_', $validated['accommodation_name']) . '.webp';
+            $destinationPath = public_path('accommodations/' . $filename);
+
+            // Ensure accommodations directory exists
+            if (!file_exists(public_path('accommodations'))) {
+                mkdir(public_path('accommodations'), 0755, true);
+            }
+
+            // Convert image to WebP
+            $this->convertToWebp($image->getRealPath(), $destinationPath);
+
+            $validated['image_url'] = '/accommodations/' . $filename;
         }
 
         // Remove 'image' from validated data since we're storing 'image_url'
@@ -82,7 +86,7 @@ class AccommodationController extends Controller
 
         Accommodation::create($validated);
 
-        return redirect()->route('accommodations.index')
+        return redirect()->route('admin.accommodations.index')
             ->with('success', 'Accommodation created successfully.');
     }
 
@@ -117,21 +121,32 @@ class AccommodationController extends Controller
             'capacity' => 'required|integer|min:1|max:20',
             'price_per_night' => 'required|numeric|min:0',
             'availability_status' => 'required|in:available,occupied,maintenance,reserved',
-            'image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:5120', // 5MB max
+            'image' => 'nullable|image|mimes:jpeg,png,jpg,webp|max:5120', // 5MB max
         ]);
 
-        // Handle image upload
+        // Handle image upload with WebP conversion
         if ($request->hasFile('image')) {
             // Delete old image if exists
             if ($accommodation->image_url) {
-                $oldImagePath = str_replace('/storage/', '', $accommodation->image_url);
-                Storage::disk('public')->delete($oldImagePath);
+                $oldImagePath = public_path($accommodation->image_url);
+                if (file_exists($oldImagePath)) {
+                    unlink($oldImagePath);
+                }
             }
 
             $image = $request->file('image');
-            $imageName = time() . '_' . $image->getClientOriginalName();
-            $imagePath = $image->storeAs('accommodations', $imageName, 'public');
-            $validated['image_url'] = '/storage/' . $imagePath;
+            $filename = time() . '_' . str_replace(' ', '_', $validated['accommodation_name']) . '.webp';
+            $destinationPath = public_path('accommodations/' . $filename);
+
+            // Ensure accommodations directory exists
+            if (!file_exists(public_path('accommodations'))) {
+                mkdir(public_path('accommodations'), 0755, true);
+            }
+
+            // Convert image to WebP
+            $this->convertToWebp($image->getRealPath(), $destinationPath);
+
+            $validated['image_url'] = '/accommodations/' . $filename;
         }
 
         // Remove 'image' from validated data since we're storing 'image_url'
@@ -139,7 +154,7 @@ class AccommodationController extends Controller
 
         $accommodation->update($validated);
 
-        return redirect()->route('accommodations.index')
+        return redirect()->route('admin.accommodations.index')
             ->with('success', 'Accommodation updated successfully.');
     }
 
@@ -150,13 +165,34 @@ class AccommodationController extends Controller
     {
         // Delete associated image if exists
         if ($accommodation->image_url) {
-            $imagePath = str_replace('/storage/', '', $accommodation->image_url);
-            Storage::disk('public')->delete($imagePath);
+            $imagePath = public_path($accommodation->image_url);
+            if (file_exists($imagePath)) {
+                unlink($imagePath);
+            }
         }
 
         $accommodation->delete();
 
-        return redirect()->route('accommodations.index')
+        return redirect()->route('admin.accommodations.index')
             ->with('success', 'Accommodation deleted successfully.');
+    }
+
+    /**
+     * Convert image to WebP format using Intervention Image
+     */
+    private function convertToWebp($sourcePath, $destinationPath)
+    {
+        try {
+            // Create image manager instance with GD driver
+            $manager = new ImageManager(new Driver());
+
+            // Load and convert the image
+            $image = $manager->read($sourcePath);
+
+            // Encode to WebP with quality 90 and save
+            $image->toWebp(90)->save($destinationPath);
+        } catch (\Exception $e) {
+            throw new \Exception('Failed to convert image to WebP: ' . $e->getMessage());
+        }
     }
 }

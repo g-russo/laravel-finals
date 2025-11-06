@@ -10,10 +10,12 @@ import {
     SidebarMenuButton,
     SidebarMenuItem,
 } from '@/components/ui/sidebar';
+import { Button } from '@/components/ui/button';
 import { dashboard } from '@/routes';
 import { type NavItem } from '@/types';
 import { Link } from '@inertiajs/react';
-import { BookOpen, Folder, HomeIcon, LayoutGrid, Building, TreePalm, Waves } from 'lucide-react';
+import { BookOpen, Folder, HomeIcon, LayoutGrid, Building, TreePalm, Waves, Users, Sun, Moon } from 'lucide-react';
+import { useAppearance } from '@/hooks/use-appearance';
 import AppLogo from './app-logo';
 
 const mainNavItems: NavItem[] = [
@@ -21,6 +23,11 @@ const mainNavItems: NavItem[] = [
         title: 'Dashboard',
         href: '/admin/dashboard',
         icon: LayoutGrid,
+    },
+    {
+        title: 'Users',
+        href: '/admin/users',
+        icon: Users,
     },
     {
         title: 'Accommodations',
@@ -68,3 +75,4 @@ export function AppSidebar() {
         </Sidebar>
     );
 }
+

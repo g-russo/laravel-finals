@@ -28,6 +28,30 @@ class FortifyServiceProvider extends ServiceProvider
     {
         $this->configureViews();
         $this->configureRateLimiting();
+        $this->configureAuthentication();
+    }
+
+    /**
+     * Configure custom authentication logic.
+     */
+    private function configureAuthentication(): void
+    {
+        // Customize the authentication process to restrict customer login
+        Fortify::authenticateUsing(function (Request $request) {
+            $user = \App\Models\User::where('email', $request->email)->first();
+
+            if ($user && \Illuminate\Support\Facades\Hash::check($request->password, $user->password)) {
+                // If user is admin or employee trying to use customer login
+                if ($user->role === 'admin' || $user->role === 'employee') {
+                    // Return null to fail authentication
+                    return null;
+                }
+
+                return $user;
+            }
+
+            return null;
+        });
     }
 
     /**
@@ -35,18 +59,18 @@ class FortifyServiceProvider extends ServiceProvider
      */
     private function configureViews(): void
     {
-        Fortify::loginView(fn (Request $request) => Inertia::render('auth/login', [
+        Fortify::loginView(fn(Request $request) => Inertia::render('auth/login', [
             'canResetPassword' => Features::enabled(Features::resetPasswords()),
             'status' => $request->session()->get('status'),
         ]));
 
-        Fortify::verifyEmailView(fn (Request $request) => Inertia::render('auth/verify-email', [
+        Fortify::verifyEmailView(fn(Request $request) => Inertia::render('auth/verify-email', [
             'status' => $request->session()->get('status'),
         ]));
 
-        Fortify::twoFactorChallengeView(fn () => Inertia::render('auth/two-factor-challenge'));
+        Fortify::twoFactorChallengeView(fn() => Inertia::render('auth/two-factor-challenge'));
 
-        Fortify::confirmPasswordView(fn () => Inertia::render('auth/confirm-password'));
+        Fortify::confirmPasswordView(fn() => Inertia::render('auth/confirm-password'));
     }
 
     /**
@@ -59,7 +83,7 @@ class FortifyServiceProvider extends ServiceProvider
         });
 
         RateLimiter::for('login', function (Request $request) {
-            $throttleKey = Str::transliterate(Str::lower($request->input(Fortify::username())).'|'.$request->ip());
+            $throttleKey = Str::transliterate(Str::lower($request->input(Fortify::username())) . '|' . $request->ip());
 
             return Limit::perMinute(5)->by($throttleKey);
         });

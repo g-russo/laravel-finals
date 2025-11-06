@@ -67,3 +67,4 @@ export default function ForgotPassword({ status }: { status?: string }) {
         </AuthLayout>
     );
 }
+

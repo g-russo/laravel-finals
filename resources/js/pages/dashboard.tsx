@@ -6,6 +6,8 @@ import { Head, router } from '@inertiajs/react';
 import { useState } from 'react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
+import { adminStyles } from '@/lib/admin-styles';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 
 const breadcrumbs: BreadcrumbItem[] = [
     {
@@ -29,7 +31,29 @@ type Paginated<T> = {
   // minimal fields we use
 };
 
-export default function Dashboard({ users, filters }: { users: Paginated<UserRow>; filters?: { search?: string } }) {
+interface DashboardStats {
+  // User stats
+  total_users: number;
+  admin_users: number;
+  regular_users: number;
+  
+  // Accommodation stats
+  total_accommodations: number;
+  available_accommodations: number;
+  occupied_accommodations: number;
+  maintenance_accommodations: number;
+  
+  // Amenity stats
+  total_amenities: number;
+  active_amenities: number;
+  premium_amenities: number;
+  
+  // Package stats (placeholder for future)
+  total_packages?: number;
+  active_packages?: number;
+}
+
+export default function Dashboard({ users, filters, stats }: { users: Paginated<UserRow>; filters?: { search?: string }; stats: DashboardStats }) {
   const [search, setSearch] = useState(filters?.search ?? '');
 
   const onSubmit = (e: React.FormEvent) => {
@@ -51,200 +75,312 @@ export default function Dashboard({ users, filters }: { users: Paginated<UserRow
         href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css"
       />
       
-      <div className="flex h-full flex-1 flex-col gap-6 p-6 bg-gray-50 min-h-screen">
+      <div className={adminStyles.page.container}>
         {/* Header Section */}
-        <div className="bg-white rounded-lg border border-gray-200 p-6">
-          <div className="flex items-center justify-between mb-6">
-            <div>
-              <h1 className="text-3xl font-bold text-gray-900 mb-2">
-                <i className="bi bi-speedometer2 text-orange-600 mr-3"></i>
-                Paradise Resort Dashboard
-              </h1>
-              <p className="text-gray-600">Manage your resort operations and guest accounts</p>
-            </div>
-            <div className="hidden md:flex items-center space-x-4">
-              <div className="bg-orange-100 rounded-lg p-3">
-                <i className="bi bi-people text-orange-600 text-xl"></i>
-              </div>
-              <div>
-                <p className="text-sm text-gray-500">Total Users</p>
-                <p className="text-2xl font-bold text-gray-900">{users?.data?.length || 0}</p>
-              </div>
-            </div>
-          </div>
-
-          {/* Search Section */}
-          <form onSubmit={onSubmit} className="flex flex-col sm:flex-row gap-3">
-            <div className="relative flex-1">
-              <i className="bi bi-search absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
-              <Input
-                value={search}
-                onChange={(e) => setSearch(e.target.value)}
-                placeholder="Search by ID, name, email, username, role, or date..."
-                className="pl-10 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-colors bg-white text-gray-900 placeholder:text-gray-500"
-              />
-            </div>
-            <div className="flex gap-2">
-              <Button 
-                type="submit"
-                className="bg-orange-600 hover:bg-orange-700 text-white px-6 py-3 rounded-lg font-semibold transition-colors"
-              >
-                <i className="bi bi-search mr-2"></i>
-                Search
-              </Button>
-              {search && (
-                <Button 
-                  type="button" 
-                  variant="secondary" 
-                  onClick={onClear}
-                  className="px-6 py-3 rounded-lg border border-gray-300 text-gray-700 hover:bg-gray-50 transition-colors"
-                >
-                  <i className="bi bi-arrow-clockwise mr-2"></i>
-                  Reset
-                </Button>
-              )}
-            </div>
-          </form>
+        <div className="mb-8">
+          <h1 className="text-3xl font-bold text-gray-900 mb-2">Dashboard Overview</h1>
+          <p className="text-gray-600">Welcome back! Here's what's happening with your resort.</p>
         </div>
 
-        {/* Users Table */}
-        <div className="bg-white rounded-lg border border-gray-200">
-          <div className="p-6 border-b border-gray-200">
-            <div className="flex items-center justify-between">
-              <h2 className="text-xl font-semibold text-gray-900">
-                <i className="bi bi-table text-orange-600 mr-2"></i>
-                User Management
-              </h2>
-              <div className="flex items-center space-x-2 text-sm text-gray-500">
-                <i className="bi bi-info-circle"></i>
-                <span>Showing {users?.data?.length || 0} users</span>
+        {/* USER MANAGEMENT SECTION */}
+        <div className="mb-8">
+          <div className="flex items-center gap-3 mb-4">
+            <div className="w-10 h-10 bg-purple-100 rounded-lg flex items-center justify-center">
+              <i className="bi bi-people-fill text-purple-600 text-xl"></i>
+            </div>
+            <h2 className="text-xl font-semibold text-gray-900">User Management</h2>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div className={adminStyles.statsCard.container}>
+              <div className="flex items-center">
+                <div className="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center">
+                  <i className="bi bi-people-fill text-purple-600 text-xl"></i>
+                </div>
+                <div className="ml-4">
+                  <p className={adminStyles.statsCard.label}>Total Users</p>
+                  <p className={adminStyles.statsCard.value}>{stats.total_users}</p>
+                  <p className="text-xs text-gray-500">All registered</p>
+                </div>
               </div>
             </div>
-          </div>
 
-          <div className="overflow-x-auto">
-            <table className="min-w-full">
-              <thead className="bg-gray-50">
-                <tr>
-                  <th className="px-6 py-4 text-left text-sm font-semibold text-gray-700 uppercase tracking-wider">
-                    <i className="bi bi-hash mr-1"></i>ID
-                  </th>
-                  <th className="px-6 py-4 text-left text-sm font-semibold text-gray-700 uppercase tracking-wider">
-                    <i className="bi bi-person mr-1"></i>Name
-                  </th>
-                  <th className="px-6 py-4 text-left text-sm font-semibold text-gray-700 uppercase tracking-wider">
-                    <i className="bi bi-envelope mr-1"></i>Email
-                  </th>
-                  <th className="px-6 py-4 text-left text-sm font-semibold text-gray-700 uppercase tracking-wider">
-                    <i className="bi bi-at mr-1"></i>Username
-                  </th>
-                  <th className="px-6 py-4 text-left text-sm font-semibold text-gray-700 uppercase tracking-wider">
-                    <i className="bi bi-shield mr-1"></i>Role
-                  </th>
-                  <th className="px-6 py-4 text-left text-sm font-semibold text-gray-700 uppercase tracking-wider">
-                    <i className="bi bi-calendar mr-1"></i>Created
-                  </th>
-                </tr>
-              </thead>
-              <tbody className="bg-white divide-y divide-gray-200">
-                {users?.data?.length > 0 ? (
-                  users.data.map((u, index) => (
-                    <tr key={u.id} className="hover:bg-gray-50 transition-colors">
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <div className="flex items-center">
-                          <div className="w-8 h-8 bg-orange-100 rounded-lg flex items-center justify-center mr-3">
-                            <span className="text-orange-600 font-semibold text-sm">{u.id}</span>
-                          </div>
-                        </div>
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <div className="flex items-center">
-                          <div className="w-10 h-10 bg-orange-500 rounded-lg flex items-center justify-center mr-3">
-                            <span className="text-white font-semibold">
-                              {u.name.charAt(0).toUpperCase()}
-                            </span>
-                          </div>
-                          <div>
-                            <div className="text-sm font-medium text-gray-900">{u.name}</div>
-                          </div>
-                        </div>
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <div className="text-sm text-gray-900">{u.email}</div>
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <span className="inline-flex items-center px-2.5 py-0.5 rounded-lg text-xs font-medium bg-gray-100 text-gray-800">
-                          {u.username || '-'}
-                        </span>
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <span className={`inline-flex items-center px-2.5 py-0.5 rounded-lg text-xs font-medium ${
-                          u.role 
-                            ? 'bg-orange-100 text-orange-800' 
-                            : 'bg-gray-100 text-gray-800'
-                        }`}>
-                          <i className="bi bi-dot mr-1"></i>
-                          {u.role || 'Guest'}
-                        </span>
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                        {u.created_at ? new Date(u.created_at).toLocaleDateString() : '-'}
-                      </td>
-                    </tr>
-                  ))
-                ) : (
-                  <tr>
-                    <td colSpan={6} className="px-6 py-12 text-center">
-                      <div className="flex flex-col items-center justify-center text-gray-500">
-                        <i className="bi bi-inbox text-4xl mb-4 text-gray-300"></i>
-                        <h3 className="text-lg font-medium text-gray-900 mb-1">No users found</h3>
-                        <p className="text-sm">Try adjusting your search criteria</p>
-                      </div>
-                    </td>
-                  </tr>
-                )}
-              </tbody>
-            </table>
+            <div className={adminStyles.statsCard.container}>
+              <div className="flex items-center">
+                <div className="w-12 h-12 bg-orange-100 rounded-lg flex items-center justify-center">
+                  <i className="bi bi-shield-fill-check text-orange-600 text-xl"></i>
+                </div>
+                <div className="ml-4">
+                  <p className={adminStyles.statsCard.label}>Admins</p>
+                  <p className={adminStyles.statsCard.value}>{stats.admin_users}</p>
+                  <p className="text-xs text-gray-500">Admin accounts</p>
+                </div>
+              </div>
+            </div>
+
+            <div className={adminStyles.statsCard.container}>
+              <div className="flex items-center">
+                <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
+                  <i className="bi bi-person-fill text-blue-600 text-xl"></i>
+                </div>
+                <div className="ml-4">
+                  <p className={adminStyles.statsCard.label}>Regular Users</p>
+                  <p className={adminStyles.statsCard.value}>{stats.regular_users}</p>
+                  <p className="text-xs text-gray-500">Standard accounts</p>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
 
-        {/* Statistics Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-6">
-          <div className="bg-white rounded-lg border border-gray-200 p-6">
-            <div className="flex items-center">
-              <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
-                <i className="bi bi-people text-blue-600 text-xl"></i>
+        {/* ACCOMMODATION MANAGEMENT SECTION */}
+        <div className="mb-8">
+          <div className="flex items-center gap-3 mb-4">
+            <div className="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center">
+              <i className="bi bi-building text-blue-600 text-xl"></i>
+            </div>
+            <h2 className="text-xl font-semibold text-gray-900">Accommodation Management</h2>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-6">
+            <div className={adminStyles.statsCard.container}>
+              <div className="flex items-center">
+                <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
+                  <i className="bi bi-building text-blue-600 text-xl"></i>
+                </div>
+                <div className="ml-4">
+                  <p className={adminStyles.statsCard.label}>Total Units</p>
+                  <p className={adminStyles.statsCard.value}>{stats.total_accommodations}</p>
+                  <p className="text-xs text-gray-500">All accommodations</p>
+                </div>
               </div>
-              <div className="ml-4">
-                <p className="text-sm font-medium text-gray-500">Total Users</p>
-                <p className="text-2xl font-bold text-gray-900">{users?.data?.length || 0}</p>
+            </div>
+
+            <div className={adminStyles.statsCard.container}>
+              <div className="flex items-center">
+                <div className="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center">
+                  <i className="bi bi-check-circle-fill text-green-600 text-xl"></i>
+                </div>
+                <div className="ml-4">
+                  <p className={adminStyles.statsCard.label}>Available</p>
+                  <p className={adminStyles.statsCard.value}>{stats.available_accommodations}</p>
+                  <p className="text-xs text-gray-500">Ready for booking</p>
+                </div>
+              </div>
+            </div>
+
+            <div className={adminStyles.statsCard.container}>
+              <div className="flex items-center">
+                <div className="w-12 h-12 bg-red-100 rounded-lg flex items-center justify-center">
+                  <i className="bi bi-person-fill-check text-red-600 text-xl"></i>
+                </div>
+                <div className="ml-4">
+                  <p className={adminStyles.statsCard.label}>Occupied</p>
+                  <p className={adminStyles.statsCard.value}>{stats.occupied_accommodations}</p>
+                  <p className="text-xs text-gray-500">Currently in use</p>
+                </div>
+              </div>
+            </div>
+
+            <div className={adminStyles.statsCard.container}>
+              <div className="flex items-center">
+                <div className="w-12 h-12 bg-yellow-100 rounded-lg flex items-center justify-center">
+                  <i className="bi bi-tools text-yellow-600 text-xl"></i>
+                </div>
+                <div className="ml-4">
+                  <p className={adminStyles.statsCard.label}>Maintenance</p>
+                  <p className={adminStyles.statsCard.value}>{stats.maintenance_accommodations}</p>
+                  <p className="text-xs text-gray-500">Under repair</p>
+                </div>
               </div>
             </div>
           </div>
 
-          <div className="bg-white rounded-lg border border-gray-200 p-6">
-            <div className="flex items-center">
-              <div className="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center">
-                <i className="bi bi-shield-check text-green-600 text-xl"></i>
-              </div>
-              <div className="ml-4">
-                <p className="text-sm font-medium text-gray-500">Active Sessions</p>
-                <p className="text-2xl font-bold text-gray-900">1</p>
-              </div>
-            </div>
-          </div>
+          {/* Accommodation Status Chart */}
+          <Card className="bg-white border-gray-200">
+            <CardHeader>
+              <CardTitle className="text-gray-900">Accommodation Status Distribution</CardTitle>
+              <CardDescription>Visual breakdown of accommodation availability</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-4">
+                {/* Available */}
+                <div>
+                  <div className="flex items-center justify-between mb-2">
+                    <span className="text-sm font-medium text-gray-700">Available</span>
+                    <span className="text-sm text-gray-600">
+                      {stats.available_accommodations} ({stats.total_accommodations > 0 ? ((stats.available_accommodations / stats.total_accommodations) * 100).toFixed(1) : 0}%)
+                    </span>
+                  </div>
+                  <div className="w-full bg-gray-200 rounded-full h-3">
+                    <div 
+                      className="bg-green-500 h-3 rounded-full transition-all duration-500" 
+                      style={{ width: `${stats.total_accommodations > 0 ? (stats.available_accommodations / stats.total_accommodations) * 100 : 0}%` }}
+                    ></div>
+                  </div>
+                </div>
 
-          <div className="bg-white rounded-lg border border-gray-200 p-6">
-            <div className="flex items-center">
-              <div className="w-12 h-12 bg-orange-100 rounded-lg flex items-center justify-center">
-                <i className="bi bi-star text-orange-600 text-xl"></i>
+                {/* Occupied */}
+                <div>
+                  <div className="flex items-center justify-between mb-2">
+                    <span className="text-sm font-medium text-gray-700">Occupied</span>
+                    <span className="text-sm text-gray-600">
+                      {stats.occupied_accommodations} ({stats.total_accommodations > 0 ? ((stats.occupied_accommodations / stats.total_accommodations) * 100).toFixed(1) : 0}%)
+                    </span>
+                  </div>
+                  <div className="w-full bg-gray-200 rounded-full h-3">
+                    <div 
+                      className="bg-red-500 h-3 rounded-full transition-all duration-500" 
+                      style={{ width: `${stats.total_accommodations > 0 ? (stats.occupied_accommodations / stats.total_accommodations) * 100 : 0}%` }}
+                    ></div>
+                  </div>
+                </div>
+
+                {/* Maintenance */}
+                <div>
+                  <div className="flex items-center justify-between mb-2">
+                    <span className="text-sm font-medium text-gray-700">Maintenance</span>
+                    <span className="text-sm text-gray-600">
+                      {stats.maintenance_accommodations} ({stats.total_accommodations > 0 ? ((stats.maintenance_accommodations / stats.total_accommodations) * 100).toFixed(1) : 0}%)
+                    </span>
+                  </div>
+                  <div className="w-full bg-gray-200 rounded-full h-3">
+                    <div 
+                      className="bg-yellow-500 h-3 rounded-full transition-all duration-500" 
+                      style={{ width: `${stats.total_accommodations > 0 ? (stats.maintenance_accommodations / stats.total_accommodations) * 100 : 0}%` }}
+                    ></div>
+                  </div>
+                </div>
               </div>
-              <div className="ml-4">
-                <p className="text-sm font-medium text-gray-500">System Status</p>
-                <p className="text-lg font-bold text-green-600">Online</p>
+            </CardContent>
+          </Card>
+        </div>
+
+        {/* AMENITY MANAGEMENT SECTION */}
+        <div className="mb-8">
+          <div className="flex items-center gap-3 mb-4">
+            <div className="w-10 h-10 bg-cyan-100 rounded-lg flex items-center justify-center">
+              <i className="bi bi-water text-cyan-600 text-xl"></i>
+            </div>
+            <h2 className="text-xl font-semibold text-gray-900">Amenity Management</h2>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div className={adminStyles.statsCard.container}>
+              <div className="flex items-center">
+                <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
+                  <i className="bi bi-water text-blue-600 text-xl"></i>
+                </div>
+                <div className="ml-4">
+                  <p className={adminStyles.statsCard.label}>Total Amenities</p>
+                  <p className={adminStyles.statsCard.value}>{stats.total_amenities}</p>
+                  <p className="text-xs text-gray-500">All amenities</p>
+                </div>
+              </div>
+            </div>
+
+            <div className={adminStyles.statsCard.container}>
+              <div className="flex items-center">
+                <div className="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center">
+                  <i className="bi bi-check-circle-fill text-green-600 text-xl"></i>
+                </div>
+                <div className="ml-4">
+                  <p className={adminStyles.statsCard.label}>Active</p>
+                  <p className={adminStyles.statsCard.value}>{stats.active_amenities}</p>
+                  <p className="text-xs text-gray-500">Available for use</p>
+                </div>
+              </div>
+            </div>
+
+            <div className={adminStyles.statsCard.container}>
+              <div className="flex items-center">
+                <div className="w-12 h-12 bg-yellow-100 rounded-lg flex items-center justify-center">
+                  <i className="bi bi-star-fill text-yellow-600 text-xl"></i>
+                </div>
+                <div className="ml-4">
+                  <p className={adminStyles.statsCard.label}>Premium</p>
+                  <p className={adminStyles.statsCard.value}>{stats.premium_amenities}</p>
+                  <p className="text-xs text-gray-500">High-end facilities</p>
+                </div>
               </div>
             </div>
           </div>
+        </div>
+
+        {/* PACKAGES SECTION (Coming Soon) */}
+        <div className="mb-8">
+          <div className="flex items-center gap-3 mb-4">
+            <div className="w-10 h-10 bg-gradient-to-br from-orange-500 to-pink-500 rounded-lg flex items-center justify-center">
+              <i className="bi bi-box-seam text-white text-xl"></i>
+            </div>
+            <h2 className="text-xl font-semibold text-gray-900">Package Management</h2>
+            <span className="text-xs bg-orange-100 text-orange-600 px-3 py-1 rounded-full font-semibold">
+              Coming Soon
+            </span>
+          </div>
+          <Card className="bg-gradient-to-br from-orange-50 to-pink-50 border-orange-200">
+            <CardHeader>
+              <CardTitle className="text-gray-900 flex items-center gap-2">
+                <i className="bi bi-box-seam text-orange-600"></i>
+                Resort Packages
+              </CardTitle>
+              <CardDescription>Create bundled packages combining accommodations and amenities</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                {/* Package Features Preview */}
+                <div className="space-y-3">
+                  <h3 className="font-semibold text-gray-900 mb-3">Package Features:</h3>
+                  <div className="flex items-start gap-3">
+                    <div className="w-8 h-8 bg-orange-100 rounded-lg flex items-center justify-center flex-shrink-0">
+                      <i className="bi bi-house-check-fill text-orange-600"></i>
+                    </div>
+                    <div>
+                      <p className="font-medium text-gray-900">Bundle Accommodations</p>
+                      <p className="text-sm text-gray-600">Combine multiple room types</p>
+                    </div>
+                  </div>
+                  <div className="flex items-start gap-3">
+                    <div className="w-8 h-8 bg-pink-100 rounded-lg flex items-center justify-center flex-shrink-0">
+                      <i className="bi bi-water text-pink-600"></i>
+                    </div>
+                    <div>
+                      <p className="font-medium text-gray-900">Include Amenities</p>
+                      <p className="text-sm text-gray-600">Add pools, spa, activities</p>
+                    </div>
+                  </div>
+                  <div className="flex items-start gap-3">
+                    <div className="w-8 h-8 bg-purple-100 rounded-lg flex items-center justify-center flex-shrink-0">
+                      <i className="bi bi-tag-fill text-purple-600"></i>
+                    </div>
+                    <div>
+                      <p className="font-medium text-gray-900">Special Pricing</p>
+                      <p className="text-sm text-gray-600">Discounted package rates</p>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Package Stats Placeholder */}
+                <div className="bg-white rounded-xl p-6 border border-gray-200">
+                  <h3 className="font-semibold text-gray-900 mb-4">Package Statistics</h3>
+                  <div className="space-y-4">
+                    <div className="flex items-center justify-between">
+                      <span className="text-gray-600">Total Packages</span>
+                      <span className="text-2xl font-bold text-gray-900">{stats.total_packages || 0}</span>
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <span className="text-gray-600">Active Packages</span>
+                      <span className="text-2xl font-bold text-green-600">{stats.active_packages || 0}</span>
+                    </div>
+                    <Button 
+                      className="w-full bg-gradient-to-r from-orange-600 to-pink-600 hover:from-orange-700 hover:to-pink-700 text-white"
+                      disabled
+                    >
+                      <i className="bi bi-plus-circle mr-2"></i>
+                      Create Package (Coming Soon)
+                    </Button>
+                  </div>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
         </div>
 
         {/* ...existing code... */}
@@ -252,3 +388,4 @@ export default function Dashboard({ users, filters }: { users: Paginated<UserRow
     </AppLayout>
   );
 }
+
