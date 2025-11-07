@@ -39,6 +39,12 @@ class DatabaseSeeder extends Seeder
             $attrs = $this->mapUserAttributes($user);
             User::updateOrCreate(['email' => $attrs['email']], $attrs);
         }
+
+        // THIS SHOULD BE HERE, NOT INSIDE mapUserAttributes()
+        $this->call([
+            AccommodationSeeder::class,
+            AmenitySeeder::class,
+        ]);
     }
 
     protected function mapUserAttributes(array $u): array
@@ -68,5 +74,7 @@ class DatabaseSeeder extends Seeder
         }
 
         return $attrs;
+        
+        // REMOVED THE $this->call() FROM HERE - it was never being reached!
     }
 }

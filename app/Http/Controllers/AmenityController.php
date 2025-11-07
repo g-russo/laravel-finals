@@ -10,54 +10,17 @@ use Inertia\Inertia;
 class AmenityController extends Controller
 {
     /**
-     * Display the admin amenities management page.
-     */
-    public function manage(Request $request)
-    {
-        $query = Amenity::query();
-
-        // Search functionality
-        if ($request->has('search') && $request->search) {
-            $search = $request->search;
-            $query->where(function ($q) use ($search) {
-                $q->where('amenity_name', 'LIKE', "%{$search}%")
-                    ->orWhere('description', 'LIKE', "%{$search}%")
-                    ->orWhere('price_per_use', 'LIKE', "%{$search}%");
-            });
-        }
-
-        // Get paginated amenities
-        $amenities = $query->orderBy('amenity_name')->paginate(15);
-
-        // Calculate statistics
-        $stats = [
-            'total' => Amenity::count(),
-            'active' => Amenity::count(), // All amenities are active in this context
-            'premium' => Amenity::where('price_per_use', '>', 1000)->count(),
-        ];
-
-        return Inertia::render('admin/amenities-management', [
-            'amenities' => $amenities,
-            'filters' => [
-                'search' => $request->search,
-            ],
-            'stats' => $stats,
-        ]);
-    }
-
-    /**
-     * Display a listing of the amenities.
+     * Display a listing of amenities (API)
      */
     public function index(Request $request)
     {
         $query = Amenity::query();
 
-        // Search functionality
-        if ($request->has('search') && $request->search) {
+        if ($request->has('search')) {
             $search = $request->search;
-            $query->where(function ($q) use ($search) {
-                $q->where('amenity_name', 'LIKE', "%{$search}%")
-                    ->orWhere('description', 'LIKE', "%{$search}%");
+            $query->where(function($q) use ($search) {
+                $q->where('amenity_name', 'like', "%{$search}%")
+                  ->orWhere('description', 'like', "%{$search}%");
             });
         }
 
@@ -67,7 +30,29 @@ class AmenityController extends Controller
     }
 
     /**
-     * Store a newly created amenity.
+     * Display admin amenities management page
+     */
+    public function manage()
+    {
+        $amenities = Amenity::orderBy('amenity_name')->get()->map(function ($amenity) {
+            return [
+                'amenity_id' => $amenity->amenity_id,
+                'amenity_name' => $amenity->amenity_name,
+                'description' => $amenity->description,
+                'price_per_use' => $amenity->price_per_use,
+                'image_path' => $amenity->image_path,
+                'image_url' => $amenity->image_url,
+                'formatted_price' => $amenity->formatted_price,
+            ];
+        });
+
+        return Inertia::render('admin/amenities', [
+            'amenities' => $amenities
+        ]);
+    }
+
+    /**
+     * Store a newly created amenity
      */
     public function store(Request $request)
     {
@@ -75,63 +60,69 @@ class AmenityController extends Controller
             'amenity_name' => 'required|string|max:255',
             'description' => 'required|string',
             'price_per_use' => 'required|numeric|min:0',
-            'image' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:2048',
+            'image' => 'nullable|image|mimes:jpeg,jpg,png,webp|max:5120',
         ]);
 
+        $imagePath = null;
         if ($request->hasFile('image')) {
-            $path = $request->file('image')->store('amenities', 'public');
-            $validated['image_path'] = $path;
+            $imagePath = $request->file('image')->store('amenities', 'public');
         }
 
-        $amenity = Amenity::create($validated);
+        Amenity::create([
+            'amenity_name' => $validated['amenity_name'],
+            'description' => $validated['description'],
+            'price_per_use' => $validated['price_per_use'],
+            'image_path' => $imagePath,
+        ]);
 
-        return back()->with('success', 'Amenity created successfully!');
+        return redirect()->route('admin.amenities.index')->with('success', 'Amenity created successfully!');
     }
 
     /**
-     * Display the specified amenity.
+     * Display the specified amenity
      */
-    public function show($id)
+    public function show(Amenity $amenity)
     {
-        $amenity = Amenity::findOrFail($id);
         return response()->json($amenity);
     }
 
     /**
-     * Update the specified amenity.
+     * Update the specified amenity
      */
-    public function update(Request $request, $id)
+    public function update(Request $request, Amenity $amenity)
     {
-        $amenity = Amenity::findOrFail($id);
-        
         $validated = $request->validate([
-            'amenity_name' => 'sometimes|required|string|max:255',
-            'description' => 'sometimes|required|string',
-            'price_per_use' => 'sometimes|required|numeric|min:0',
-            'image' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:2048',
+            'amenity_name' => 'required|string|max:255',
+            'description' => 'required|string',
+            'price_per_use' => 'required|numeric|min:0',
+            'image' => 'nullable|image|mimes:jpeg,jpg,png,webp|max:5120',
         ]);
 
+        // Handle image upload
         if ($request->hasFile('image')) {
             // Delete old image if exists
             if ($amenity->image_path) {
                 Storage::disk('public')->delete($amenity->image_path);
             }
-            $path = $request->file('image')->store('amenities', 'public');
-            $validated['image_path'] = $path;
+            
+            $validated['image_path'] = $request->file('image')->store('amenities', 'public');
         }
 
-        $amenity->update($validated);
+        $amenity->update([
+            'amenity_name' => $validated['amenity_name'],
+            'description' => $validated['description'],
+            'price_per_use' => $validated['price_per_use'],
+            'image_path' => $validated['image_path'] ?? $amenity->image_path,
+        ]);
 
-        return back()->with('success', 'Amenity updated successfully!');
+        return redirect()->route('admin.amenities.index')->with('success', 'Amenity updated successfully!');
     }
 
     /**
-     * Remove the specified amenity.
+     * Remove the specified amenity
      */
-    public function destroy($id)
+    public function destroy(Amenity $amenity)
     {
-        $amenity = Amenity::findOrFail($id);
-        
         // Delete image if exists
         if ($amenity->image_path) {
             Storage::disk('public')->delete($amenity->image_path);
@@ -139,6 +130,6 @@ class AmenityController extends Controller
 
         $amenity->delete();
 
-        return back()->with('success', 'Amenity deleted successfully!');
+        return redirect()->route('admin.amenities.index')->with('success', 'Amenity deleted successfully!');
     }
 }

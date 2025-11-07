@@ -40,6 +40,7 @@ Route::middleware(['auth', 'verified', 'admin'])->prefix('admin')->name('admin.'
     Route::post('amenities', [AmenityController::class, 'store'])->name('amenities.store');
     Route::get('amenities/{amenity}', [AmenityController::class, 'show'])->name('amenities.show');
     Route::put('amenities/{amenity}', [AmenityController::class, 'update'])->name('amenities.update');
+    Route::post('amenities/{amenity}', [AmenityController::class, 'update'])->name('amenities.update.post');
     Route::delete('amenities/{amenity}', [AmenityController::class, 'destroy'])->name('amenities.destroy');
 
     // API routes for amenities (for AJAX calls)
