@@ -34,6 +34,7 @@ class AmenityController extends Controller
      */
     public function manage()
     {
+        // Get only non-deleted amenities
         $amenities = Amenity::orderBy('amenity_name')->get()->map(function ($amenity) {
             return [
                 'amenity_id' => $amenity->amenity_id,
@@ -46,8 +47,23 @@ class AmenityController extends Controller
             ];
         });
 
+        // Get trashed (soft deleted) amenities
+        $trashedAmenities = Amenity::onlyTrashed()->orderBy('deleted_at', 'desc')->get()->map(function ($amenity) {
+            return [
+                'amenity_id' => $amenity->amenity_id,
+                'amenity_name' => $amenity->amenity_name,
+                'description' => $amenity->description,
+                'price_per_use' => $amenity->price_per_use,
+                'image_path' => $amenity->image_path,
+                'image_url' => $amenity->image_url,
+                'formatted_price' => $amenity->formatted_price,
+                'deleted_at' => $amenity->deleted_at,
+            ];
+        });
+
         return Inertia::render('admin/amenities', [
-            'amenities' => $amenities
+            'amenities' => $amenities,
+            'trashedAmenities' => $trashedAmenities,
         ]);
     }
 
@@ -119,17 +135,41 @@ class AmenityController extends Controller
     }
 
     /**
-     * Remove the specified amenity
+     * Soft delete the specified amenity
      */
     public function destroy(Amenity $amenity)
     {
+        // Soft delete (does not remove from database)
+        $amenity->delete();
+
+        return redirect()->route('admin.amenities.index')->with('success', 'Amenity moved to trash!');
+    }
+
+    /**
+     * Restore a soft deleted amenity
+     */
+    public function restore($id)
+    {
+        $amenity = Amenity::onlyTrashed()->findOrFail($id);
+        $amenity->restore();
+
+        return redirect()->route('admin.amenities.index')->with('success', 'Amenity restored successfully!');
+    }
+
+    /**
+     * Permanently delete an amenity
+     */
+    public function forceDelete($id)
+    {
+        $amenity = Amenity::onlyTrashed()->findOrFail($id);
+        
         // Delete image if exists
         if ($amenity->image_path) {
             Storage::disk('public')->delete($amenity->image_path);
         }
 
-        $amenity->delete();
+        $amenity->forceDelete();
 
-        return redirect()->route('admin.amenities.index')->with('success', 'Amenity deleted successfully!');
+        return redirect()->route('admin.amenities.index')->with('success', 'Amenity permanently deleted!');
     }
 }

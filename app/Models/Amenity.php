@@ -4,10 +4,11 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Amenity extends Model
 {
-    use HasFactory;
+    use HasFactory, SoftDeletes;
 
     protected $primaryKey = 'amenity_id';
 
@@ -21,6 +22,8 @@ class Amenity extends Model
     protected $casts = [
         'price_per_use' => 'decimal:2',
     ];
+
+    protected $dates = ['deleted_at'];
 
     public function getFormattedPriceAttribute()
     {
