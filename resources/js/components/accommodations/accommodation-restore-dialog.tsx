@@ -6,7 +6,7 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
-import { Archive } from 'lucide-react';
+import { RotateCcw } from 'lucide-react';
 
 interface Accommodation {
   accommodation_id: number;
@@ -18,7 +18,7 @@ interface Accommodation {
   image_url?: string;
 }
 
-interface AccommodationDeleteDialogProps {
+interface AccommodationRestoreDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   accommodation: Accommodation | null;
@@ -26,13 +26,13 @@ interface AccommodationDeleteDialogProps {
   processing?: boolean;
 }
 
-export function AccommodationDeleteDialog({
+export function AccommodationRestoreDialog({
   open,
   onOpenChange,
   accommodation,
   onConfirm,
   processing = false,
-}: AccommodationDeleteDialogProps) {
+}: AccommodationRestoreDialogProps) {
   if (!accommodation) return null;
 
   const formatPrice = (price: number) => {
@@ -43,12 +43,12 @@ export function AccommodationDeleteDialog({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle className="flex items-center gap-2 text-orange-600">
-            <Archive className="h-5 w-5" />
-            Archive Accommodation
+          <DialogTitle className="flex items-center gap-2 text-green-600">
+            <RotateCcw className="h-5 w-5" />
+            Restore Accommodation
           </DialogTitle>
           <DialogDescription>
-            Are you sure you want to archive this accommodation? It will be moved to the archive and can be restored later.
+            Are you sure you want to restore this accommodation? It will be moved back to the active accommodations list.
           </DialogDescription>
         </DialogHeader>
 
@@ -83,12 +83,12 @@ export function AccommodationDeleteDialog({
           </div>
         </div>
 
-        <div className="bg-orange-50 border border-orange-200 rounded-lg p-3 mb-4">
+        <div className="bg-green-50 border border-green-200 rounded-lg p-3 mb-4">
           <div className="flex items-start gap-2">
-            <Archive className="h-4 w-4 text-orange-500 mt-0.5 flex-shrink-0" />
-            <div className="text-sm text-orange-700">
-              <p className="font-medium">This accommodation will be archived</p>
-              <p className="mt-1">The accommodation will be moved to the archive where it can be restored or permanently deleted later.</p>
+            <RotateCcw className="h-4 w-4 text-green-500 mt-0.5 flex-shrink-0" />
+            <div className="text-sm text-green-700">
+              <p className="font-medium">This accommodation will be restored</p>
+              <p className="mt-1">The accommodation will be moved back to the active list and will be available for bookings.</p>
             </div>
           </div>
         </div>
@@ -104,15 +104,14 @@ export function AccommodationDeleteDialog({
           </Button>
           <Button
             onClick={onConfirm}
-            className="bg-orange-600 hover:bg-orange-700 text-white"
+            className="bg-green-600 hover:bg-green-700 text-white"
             disabled={processing}
           >
-            <Archive className="mr-2 h-4 w-4" />
-            {processing ? 'Archiving...' : 'Archive Accommodation'}
+            <RotateCcw className="mr-2 h-4 w-4" />
+            {processing ? 'Restoring...' : 'Restore Accommodation'}
           </Button>
         </div>
       </DialogContent>
     </Dialog>
   );
 }
-

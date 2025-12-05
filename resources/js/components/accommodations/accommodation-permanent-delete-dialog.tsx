@@ -6,7 +6,7 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
-import { Archive } from 'lucide-react';
+import { AlertTriangle } from 'lucide-react';
 
 interface Accommodation {
   accommodation_id: number;
@@ -18,7 +18,7 @@ interface Accommodation {
   image_url?: string;
 }
 
-interface AccommodationDeleteDialogProps {
+interface AccommodationPermanentDeleteDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   accommodation: Accommodation | null;
@@ -26,13 +26,13 @@ interface AccommodationDeleteDialogProps {
   processing?: boolean;
 }
 
-export function AccommodationDeleteDialog({
+export function AccommodationPermanentDeleteDialog({
   open,
   onOpenChange,
   accommodation,
   onConfirm,
   processing = false,
-}: AccommodationDeleteDialogProps) {
+}: AccommodationPermanentDeleteDialogProps) {
   if (!accommodation) return null;
 
   const formatPrice = (price: number) => {
@@ -43,12 +43,12 @@ export function AccommodationDeleteDialog({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle className="flex items-center gap-2 text-orange-600">
-            <Archive className="h-5 w-5" />
-            Archive Accommodation
+          <DialogTitle className="flex items-center gap-2 text-red-600">
+            <AlertTriangle className="h-5 w-5" />
+            Permanently Delete Accommodation
           </DialogTitle>
           <DialogDescription>
-            Are you sure you want to archive this accommodation? It will be moved to the archive and can be restored later.
+            Are you sure you want to permanently delete this accommodation? This action cannot be undone and all data will be lost forever.
           </DialogDescription>
         </DialogHeader>
 
@@ -83,12 +83,12 @@ export function AccommodationDeleteDialog({
           </div>
         </div>
 
-        <div className="bg-orange-50 border border-orange-200 rounded-lg p-3 mb-4">
+        <div className="bg-red-50 border border-red-200 rounded-lg p-3 mb-4">
           <div className="flex items-start gap-2">
-            <Archive className="h-4 w-4 text-orange-500 mt-0.5 flex-shrink-0" />
-            <div className="text-sm text-orange-700">
-              <p className="font-medium">This accommodation will be archived</p>
-              <p className="mt-1">The accommodation will be moved to the archive where it can be restored or permanently deleted later.</p>
+            <AlertTriangle className="h-4 w-4 text-red-500 mt-0.5 flex-shrink-0" />
+            <div className="text-sm text-red-700">
+              <p className="font-medium">This action is irreversible!</p>
+              <p className="mt-1">Permanently deleting this accommodation will remove all data including images and cannot be recovered.</p>
             </div>
           </div>
         </div>
@@ -104,15 +104,14 @@ export function AccommodationDeleteDialog({
           </Button>
           <Button
             onClick={onConfirm}
-            className="bg-orange-600 hover:bg-orange-700 text-white"
+            variant="destructive"
             disabled={processing}
           >
-            <Archive className="mr-2 h-4 w-4" />
-            {processing ? 'Archiving...' : 'Archive Accommodation'}
+            <AlertTriangle className="mr-2 h-4 w-4" />
+            {processing ? 'Deleting...' : 'Permanently Delete'}
           </Button>
         </div>
       </DialogContent>
     </Dialog>
   );
 }
-

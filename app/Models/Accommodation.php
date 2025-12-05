@@ -4,10 +4,11 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Accommodation extends Model
 {
-    use HasFactory;
+    use HasFactory, SoftDeletes;
 
     protected $primaryKey = 'accommodation_id';
 
@@ -23,6 +24,7 @@ class Accommodation extends Model
     protected $casts = [
         'price_per_night' => 'decimal:2',
         'capacity' => 'integer',
+        'deleted_at' => 'datetime',
     ];
 
     // Scope for available accommodations

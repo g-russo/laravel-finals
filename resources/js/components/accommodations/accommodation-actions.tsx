@@ -1,5 +1,5 @@
 import { Button } from '@/components/ui/button';
-import { Eye, Edit, Trash2 } from 'lucide-react';
+import { Eye, Edit, Trash2, Archive } from 'lucide-react';
 
 interface AccommodationActionsProps {
   accommodationId: number;
@@ -51,10 +51,10 @@ export function AccommodationActions({
           variant="outline"
           size="sm"
           onClick={() => onDelete(accommodationId)}
-          className="hover:bg-red-50 text-red-600"
+          className="hover:bg-orange-50 text-orange-600"
         >
-          <Trash2 className="h-4 w-4 mr-1" />
-          Delete
+          <Archive className="h-4 w-4 mr-1" />
+          Archive
         </Button>
       )}
     </div>

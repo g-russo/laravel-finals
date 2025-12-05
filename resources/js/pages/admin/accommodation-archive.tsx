@@ -1,15 +1,8 @@
 import { useState, useMemo } from 'react';
-import { Head, useForm, Link } from '@inertiajs/react';
+import { Head, useForm } from '@inertiajs/react';
 import AppLayout from '@/layouts/app-layout';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import {
-    Dialog,
-    DialogContent,
-    DialogHeader,
-    DialogTitle,
-    DialogTrigger,
-} from '@/components/ui/dialog';
 import {
     useReactTable,
     getCoreRowModel,
@@ -19,19 +12,19 @@ import {
     type ColumnDef,
     type SortingState,
 } from '@tanstack/react-table';
-import { ChevronUp, ChevronDown, ChevronsUpDown, Plus, Search } from 'lucide-react';
+import { ChevronUp, ChevronDown, ChevronsUpDown, Search, Archive } from 'lucide-react';
 import { adminStyles } from '@/lib/admin-styles';
 import {
-    AccommodationActions,
+    AccommodationArchiveActions,
     AccommodationViewDialog,
-    AccommodationEditDialog,
-    AccommodationDeleteDialog,
-    AccommodationForm,
+    AccommodationRestoreDialog,
+    AccommodationPermanentDeleteDialog,
 } from '@/components/accommodations';
 
 const breadcrumbs = [
     { title: 'Dashboard', href: '/admin/dashboard' },
     { title: 'Accommodations', href: '/admin/accommodations' },
+    { title: 'Archive', href: '/admin/accommodations/archive' },
 ];
 
 interface Accommodation {
@@ -42,54 +35,25 @@ interface Accommodation {
     price_per_night: number;
     availability_status: 'available' | 'occupied' | 'maintenance' | 'reserved';
     image_url?: string;
-    created_at?: string;
+    deleted_at?: string;
 }
 
-interface AccommodationManagementProps {
+interface AccommodationArchiveProps {
     accommodations: Accommodation[];
-    editingAccommodation?: Accommodation;
-    openEditDialog?: boolean;
 }
 
-export default function AccommodationManagement({ accommodations, editingAccommodation: initialEditingAccommodation, openEditDialog: initialOpenEditDialog }: AccommodationManagementProps) {
-    const [isModalOpen, setIsModalOpen] = useState(false);
+export default function AccommodationArchive({ accommodations }: AccommodationArchiveProps) {
     const [globalFilter, setGlobalFilter] = useState('');
     const [sorting, setSorting] = useState<SortingState>([]);
-    const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
+    const [isRestoreDialogOpen, setIsRestoreDialogOpen] = useState(false);
+    const [isPermanentDeleteDialogOpen, setIsPermanentDeleteDialogOpen] = useState(false);
     const [isViewDialogOpen, setIsViewDialogOpen] = useState(false);
-    const [isEditDialogOpen, setIsEditDialogOpen] = useState(initialOpenEditDialog || false);
+    const [accommodationToRestore, setAccommodationToRestore] = useState<Accommodation | null>(null);
     const [accommodationToDelete, setAccommodationToDelete] = useState<Accommodation | null>(null);
     const [viewingAccommodation, setViewingAccommodation] = useState<Accommodation | null>(null);
-    const [editingAccommodation, setEditingAccommodation] = useState<Accommodation | null>(initialEditingAccommodation || null);
 
-    const { data, setData, post, processing, errors, reset } = useForm<{
-        accommodation_name: string;
-        description: string;
-        capacity: string;
-        price_per_night: string;
-        availability_status: 'available' | 'occupied' | 'maintenance' | 'reserved';
-        image: File | null;
-    }>({
-        accommodation_name: '',
-        description: '',
-        capacity: '',
-        price_per_night: '',
-        availability_status: 'available',
-        image: null,
-    });
-
-    const { delete: deleteAccommodation, processing: deleteProcessing } = useForm();
-
-    const handleSubmit = (e: React.FormEvent) => {
-        e.preventDefault();
-        post('/admin/accommodations', {
-            forceFormData: true,
-            onSuccess: () => {
-                reset();
-                setIsModalOpen(false);
-            },
-        });
-    };
+    const { post: restoreAccommodation, processing: restoreProcessing } = useForm();
+    const { delete: permanentDeleteAccommodation, processing: deleteProcessing } = useForm();
 
     const handleView = (accommodationId: number) => {
         const accommodation = accommodations.find(a => a.accommodation_id === accommodationId);
@@ -99,25 +63,33 @@ export default function AccommodationManagement({ accommodations, editingAccommo
         }
     };
 
-    const handleEdit = (accommodationId: number) => {
-        const accommodation = accommodations.find(a => a.accommodation_id === accommodationId);
-        if (accommodation) {
-            setEditingAccommodation(accommodation);
-            setIsEditDialogOpen(true);
-        }
+    const handleRestoreClick = (accommodation: Accommodation) => {
+        setAccommodationToRestore(accommodation);
+        setIsRestoreDialogOpen(true);
     };
 
-    const handleDeleteClick = (accommodation: Accommodation) => {
+    const handleRestoreConfirm = () => {
+        if (!accommodationToRestore) return;
+
+        restoreAccommodation(`/admin/accommodations/${accommodationToRestore.accommodation_id}/restore`, {
+            onSuccess: () => {
+                setIsRestoreDialogOpen(false);
+                setAccommodationToRestore(null);
+            },
+        });
+    };
+
+    const handlePermanentDeleteClick = (accommodation: Accommodation) => {
         setAccommodationToDelete(accommodation);
-        setIsDeleteDialogOpen(true);
+        setIsPermanentDeleteDialogOpen(true);
     };
 
-    const handleDeleteConfirm = () => {
+    const handlePermanentDeleteConfirm = () => {
         if (!accommodationToDelete) return;
 
-        deleteAccommodation(`/admin/accommodations/${accommodationToDelete.accommodation_id}`, {
+        permanentDeleteAccommodation(`/admin/accommodations/${accommodationToDelete.accommodation_id}/force-delete`, {
             onSuccess: () => {
-                setIsDeleteDialogOpen(false);
+                setIsPermanentDeleteDialogOpen(false);
                 setAccommodationToDelete(null);
             },
         });
@@ -142,6 +114,16 @@ export default function AccommodationManagement({ accommodations, editingAccommo
         );
     };
 
+    const formatDate = (dateString: string) => {
+        return new Date(dateString).toLocaleDateString('en-US', {
+            year: 'numeric',
+            month: 'short',
+            day: 'numeric',
+            hour: '2-digit',
+            minute: '2-digit',
+        });
+    };
+
     const columns = useMemo<ColumnDef<Accommodation>[]>(
         () => [
             {
@@ -158,7 +140,7 @@ export default function AccommodationManagement({ accommodations, editingAccommo
                             <img
                                 src={row.original.image_url}
                                 alt={row.original.accommodation_name}
-                                className="h-10 w-10 rounded-lg object-cover"
+                                className="h-10 w-10 rounded-lg object-cover opacity-60"
                                 onError={(e) => {
                                     e.currentTarget.src = 'https://images.unsplash.com/photo-1566073771259-6a8506099945?w=400&h=300&fit=crop';
                                 }}
@@ -177,7 +159,7 @@ export default function AccommodationManagement({ accommodations, editingAccommo
                 header: 'Name',
                 cell: (info: any) => (
                     <div className="max-w-xs">
-                        <div className="font-medium text-gray-900 truncate">
+                        <div className="font-medium text-gray-600 truncate">
                             {info.getValue() as string}
                         </div>
                     </div>
@@ -188,7 +170,7 @@ export default function AccommodationManagement({ accommodations, editingAccommo
                 header: 'Description',
                 cell: (info: any) => (
                     <div className="max-w-sm">
-                        <p className="text-sm text-gray-500 truncate">
+                        <p className="text-sm text-gray-400 truncate">
                             {(info.getValue() as string) || '-'}
                         </p>
                     </div>
@@ -199,7 +181,7 @@ export default function AccommodationManagement({ accommodations, editingAccommo
                 accessorKey: 'capacity',
                 header: 'Capacity',
                 cell: (info: any) => (
-                    <span className="text-sm text-gray-900">
+                    <span className="text-sm text-gray-600">
                         {info.getValue()} guests
                     </span>
                 ),
@@ -208,7 +190,7 @@ export default function AccommodationManagement({ accommodations, editingAccommo
                 accessorKey: 'price_per_night',
                 header: 'Price/Night',
                 cell: (info: any) => (
-                    <span className="text-sm font-medium text-gray-900">
+                    <span className="text-sm font-medium text-gray-600">
                         {formatPrice(info.getValue() as number)}
                     </span>
                 ),
@@ -216,23 +198,30 @@ export default function AccommodationManagement({ accommodations, editingAccommo
             {
                 accessorKey: 'availability_status',
                 header: 'Status',
-                cell: (info: any) => getStatusBadge(info.getValue() as 'available' | 'occupied' | 'maintenance' | 'reserved'),
-                sortingFn: (rowA: any, rowB: any) => {
-                    const statusOrder: Record<string, number> = { available: 1, reserved: 2, occupied: 3, maintenance: 4 };
-                    const statusA = statusOrder[rowA.original.availability_status as string] || 999;
-                    const statusB = statusOrder[rowB.original.availability_status as string] || 999;
-                    return statusA - statusB;
-                },
+                cell: (info: any) => (
+                    <div className="opacity-60">
+                        {getStatusBadge(info.getValue() as 'available' | 'occupied' | 'maintenance' | 'reserved')}
+                    </div>
+                ),
+            },
+            {
+                accessorKey: 'deleted_at',
+                header: 'Archived At',
+                cell: (info: any) => (
+                    <span className="text-sm text-gray-500">
+                        {info.getValue() ? formatDate(info.getValue() as string) : '-'}
+                    </span>
+                ),
             },
             {
                 accessorKey: 'actions',
                 header: 'Actions',
                 cell: ({ row }: any) => (
-                    <AccommodationActions
+                    <AccommodationArchiveActions
                         accommodationId={row.original.accommodation_id}
                         onView={handleView}
-                        onEdit={handleEdit}
-                        onDelete={() => handleDeleteClick(row.original)}
+                        onRestore={() => handleRestoreClick(row.original)}
+                        onPermanentDelete={() => handlePermanentDeleteClick(row.original)}
                     />
                 ),
                 enableSorting: false,
@@ -257,7 +246,7 @@ export default function AccommodationManagement({ accommodations, editingAccommo
 
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
-            <Head title="Accommodation Management" />
+            <Head title="Accommodation Archive" />
 
             {/* Bootstrap Icons CDN */}
             <link 
@@ -271,67 +260,27 @@ export default function AccommodationManagement({ accommodations, editingAccommo
                     <div className="max-w-full px-8 py-6">
                         <div className="flex items-center justify-between">
                             <div className="flex items-center space-x-4">
-                                <div className="w-12 h-12 bg-gradient-to-br from-orange-500 to-orange-600 rounded-xl flex items-center justify-center shadow-lg">
-                                    <i className="bi bi-building text-white text-2xl"></i>
+                                <div className="w-12 h-12 bg-gradient-to-br from-gray-500 to-gray-600 rounded-xl flex items-center justify-center shadow-lg">
+                                    <Archive className="text-white h-6 w-6" />
                                 </div>
                                 <div>
                                     <h1 className="text-2xl font-bold text-gray-900 tracking-tight">
-                                        Accommodation Management
+                                        Accommodation Archive
                                     </h1>
                                     <p className="text-sm text-gray-500 mt-0.5">
-                                        Manage resort rooms, suites, and villas
+                                        Manage archived accommodations - restore or permanently delete
                                     </p>
                                 </div>
                             </div>
-                            <div className="flex gap-3">
-                                <Button 
-                                    asChild
-                                    variant="outline"
-                                    className="border-gray-300 hover:bg-gray-50 px-4 py-3 rounded-xl font-medium transition-all duration-200 inline-flex items-center"
-                                >
-                                    <Link href="/admin/accommodations/archive">
-                                        <i className="bi bi-archive mr-2 text-sm"></i>
-                                        View Archive
-                                    </Link>
-                                </Button>
-                                <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
-                                    <DialogTrigger asChild>
-                                        <Button className="bg-gradient-to-r from-orange-600 to-orange-700 hover:from-orange-700 hover:to-orange-800 text-white px-6 py-3 rounded-xl font-semibold transition-all duration-200 inline-flex items-center shadow-lg hover:shadow-xl transform hover:-translate-y-0.5">
-                                            <Plus className="mr-2 h-5 w-5" />
-                                            Add Accommodation
-                                        </Button>
-                                    </DialogTrigger>
-                                    <DialogContent className={`${adminStyles.dialog.content} max-w-2xl max-h-[90vh] overflow-y-auto`}>
-                                        <DialogHeader className={adminStyles.dialog.header}>
-                                            <DialogTitle className={adminStyles.dialog.title}>Create New Accommodation</DialogTitle>
-                                        </DialogHeader>
-
-                                        <form onSubmit={handleSubmit} className="space-y-4">
-                                            <AccommodationForm
-                                                mode="create"
-                                                data={data}
-                                                setData={setData}
-                                                errors={errors}
-                                                idPrefix="create_"
-                                            />
-
-                                            <div className={`flex justify-end gap-2 pt-4 border-t ${adminStyles.dialog.header}`}>
-                                                <Button
-                                                    type="button"
-                                                    variant="outline"
-                                                    onClick={() => setIsModalOpen(false)}
-                                                    disabled={processing}
-                                                >
-                                                    Cancel
-                                                </Button>
-                                                <Button type="submit" disabled={processing} className="bg-orange-600 hover:bg-orange-700">
-                                                    {processing ? 'Creating...' : 'Create Accommodation'}
-                                                </Button>
-                                            </div>
-                                        </form>
-                                    </DialogContent>
-                                </Dialog>
-                            </div>
+                            <Button 
+                                asChild 
+                                className="bg-gradient-to-r from-orange-600 to-orange-700 hover:from-orange-700 hover:to-orange-800 text-white px-6 py-3 rounded-xl font-semibold transition-all duration-200 inline-flex items-center shadow-lg hover:shadow-xl transform hover:-translate-y-0.5"
+                            >
+                                <a href="/admin/accommodations">
+                                    <i className="bi bi-arrow-left mr-2"></i>
+                                    Back to Accommodations
+                                </a>
+                            </Button>
                         </div>
                     </div>
                 </div>
@@ -341,10 +290,10 @@ export default function AccommodationManagement({ accommodations, editingAccommo
                     <div className="bg-white rounded-2xl shadow-sm border border-gray-100">
                         <div className="p-6">
                             <div className="flex items-center mb-5">
-                                <div className="w-8 h-8 bg-orange-100 rounded-lg flex items-center justify-center mr-3">
-                                    <Search className="text-orange-600 h-4 w-4" />
+                                <div className="w-8 h-8 bg-gray-100 rounded-lg flex items-center justify-center mr-3">
+                                    <Search className="text-gray-600 h-4 w-4" />
                                 </div>
-                                <h2 className="text-lg font-semibold text-gray-900">Search Accommodations</h2>
+                                <h2 className="text-lg font-semibold text-gray-900">Search Archived Accommodations</h2>
                             </div>
                             
                             <div className="flex items-center gap-2">
@@ -404,7 +353,7 @@ export default function AccommodationManagement({ accommodations, editingAccommo
                                     <tr>
                                         <td colSpan={columns.length} className="px-6 py-12 text-center">
                                             <div className={`text-sm ${adminStyles.text.muted}`}>
-                                                {globalFilter ? 'No accommodations found matching your search.' : 'No accommodations yet.'}
+                                                {globalFilter ? 'No archived accommodations found matching your search.' : 'No archived accommodations.'}
                                             </div>
                                         </td>
                                     </tr>
@@ -412,7 +361,7 @@ export default function AccommodationManagement({ accommodations, editingAccommo
                                     table.getRowModel().rows.map((row) => (
                                         <tr
                                             key={row.id}
-                                            className={`${adminStyles.table.row} hover:bg-gray-50`}
+                                            className={`${adminStyles.table.row} hover:bg-gray-50 bg-gray-50/50`}
                                         >
                                             {row.getVisibleCells().map((cell) => (
                                                 <td key={cell.id} className="px-6 py-4 whitespace-nowrap">
@@ -433,25 +382,26 @@ export default function AccommodationManagement({ accommodations, editingAccommo
                 open={isViewDialogOpen}
                 onOpenChange={setIsViewDialogOpen}
                 accommodation={viewingAccommodation}
-                onEdit={handleEdit}
+                onEdit={() => {}} // Disable edit for archived items
             />
 
-            {/* Edit Accommodation Dialog */}
-            <AccommodationEditDialog
-                open={isEditDialogOpen}
-                onOpenChange={setIsEditDialogOpen}
-                accommodation={editingAccommodation}
+            {/* Restore Accommodation Dialog */}
+            <AccommodationRestoreDialog
+                open={isRestoreDialogOpen}
+                onOpenChange={setIsRestoreDialogOpen}
+                accommodation={accommodationToRestore}
+                onConfirm={handleRestoreConfirm}
+                processing={restoreProcessing}
             />
 
-            {/* Archive Accommodation Dialog */}
-            <AccommodationDeleteDialog
-                open={isDeleteDialogOpen}
-                onOpenChange={setIsDeleteDialogOpen}
+            {/* Permanent Delete Accommodation Dialog */}
+            <AccommodationPermanentDeleteDialog
+                open={isPermanentDeleteDialogOpen}
+                onOpenChange={setIsPermanentDeleteDialogOpen}
                 accommodation={accommodationToDelete}
-                onConfirm={handleDeleteConfirm}
+                onConfirm={handlePermanentDeleteConfirm}
                 processing={deleteProcessing}
             />
         </AppLayout>
     );
 }
-

@@ -43,6 +43,32 @@ class AccommodationController extends Controller
     }
 
     /**
+     * Display a listing of the archived accommodations.
+     */
+    public function archive(Request $request)
+    {
+        $query = Accommodation::onlyTrashed();
+
+        // Search functionality for archived items
+        if ($request->filled('search')) {
+            $search = $request->search;
+            $query->where(function ($q) use ($search) {
+                $q->where('accommodation_name', 'like', "%{$search}%")
+                    ->orWhere('description', 'like', "%{$search}%")
+                    ->orWhere('availability_status', 'like', "%{$search}%")
+                    ->orWhere('capacity', $search)
+                    ->orWhere('price_per_night', $search);
+            });
+        }
+
+        $archivedAccommodations = $query->orderBy('deleted_at', 'desc')->get();
+
+        return Inertia::render('admin/accommodation-archive', [
+            'accommodations' => $archivedAccommodations,
+        ]);
+    }
+
+    /**
      * Show the form for creating a new accommodation.
      */
     public function create()
@@ -86,7 +112,7 @@ class AccommodationController extends Controller
 
         Accommodation::create($validated);
 
-        return redirect()->route('admin.accommodations.index')
+        return redirect()->route('accommodations.index')
             ->with('success', 'Accommodation created successfully.');
     }
 
@@ -159,10 +185,35 @@ class AccommodationController extends Controller
     }
 
     /**
-     * Remove the specified accommodation from storage.
+     * Soft delete the specified accommodation.
      */
     public function destroy(Accommodation $accommodation)
     {
+        $accommodation->delete();
+
+        return redirect()->route('admin.accommodations.index')
+            ->with('success', 'Accommodation archived successfully.');
+    }
+
+    /**
+     * Restore the specified accommodation from archive.
+     */
+    public function restore($id)
+    {
+        $accommodation = Accommodation::onlyTrashed()->findOrFail($id);
+        $accommodation->restore();
+
+        return redirect()->route('admin.accommodations.archive')
+            ->with('success', 'Accommodation restored successfully.');
+    }
+
+    /**
+     * Permanently delete the specified accommodation.
+     */
+    public function forceDelete($id)
+    {
+        $accommodation = Accommodation::onlyTrashed()->findOrFail($id);
+        
         // Delete associated image if exists
         if ($accommodation->image_url) {
             $imagePath = public_path($accommodation->image_url);
@@ -171,10 +222,10 @@ class AccommodationController extends Controller
             }
         }
 
-        $accommodation->delete();
+        $accommodation->forceDelete();
 
-        return redirect()->route('admin.accommodations.index')
-            ->with('success', 'Accommodation deleted successfully.');
+        return redirect()->route('admin.accommodations.archive')
+            ->with('success', 'Accommodation permanently deleted.');
     }
 
     /**
