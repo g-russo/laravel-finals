@@ -8,46 +8,45 @@ use Illuminate\Auth\Events\Registered;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\Rules;
 use Inertia\Inertia;
 use Inertia\Response;
 
 class RegisteredUserController extends Controller
 {
-    /**
-     * Show the registration page.
-     */
     public function create(): Response
     {
         return Inertia::render('auth/register');
     }
 
-    /**
-     * Handle an incoming registration request.
-     *
-     * @throws \Illuminate\Validation\ValidationException
-     */
     public function store(Request $request): RedirectResponse
     {
         $request->validate([
-            'name' => 'required|string|max:255',
-            'email' => 'required|string|lowercase|email|max:255|unique:' . User::class,
+            'full_name' => 'required|string|max:255',
+            'username' => 'required|string|max:255|unique:users',
+            'email' => 'required|string|lowercase|email|max:255|unique:'.User::class,
             'password' => ['required', 'confirmed', Rules\Password::defaults()],
         ]);
 
         $user = User::create([
-            'name' => $request->name,
+            'full_name' => $request->full_name,
+            'username' => $request->username,
             'email' => $request->email,
-            'password' => $request->password,
-            'role' => 'customer', // Always register as customer
+            'password' => Hash::make($request->password),
+            'role' => 'customer',
+            'is_admin' => false,
         ]);
 
         event(new Registered($user));
 
         Auth::login($user);
 
-        $request->session()->regenerate();
+        // Redirect based on role
+        if ($user->canAccessAdmin()) {
+            return redirect()->route('admin.dashboard');
+        }
 
-        return redirect('/');
+        return redirect()->route('dashboard');
     }
 }
