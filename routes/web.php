@@ -6,6 +6,7 @@ use Inertia\Inertia;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\AccommodationController;
 use App\Http\Controllers\AmenityController;
+use App\Http\Controllers\PackageController;
 use App\Http\Controllers\WelcomeController;
 use App\Http\Controllers\PublicAccommodationController;
 use App\Http\Controllers\UserController;
@@ -42,6 +43,19 @@ Route::middleware(['auth', 'verified', 'admin'])->prefix('admin')->group(functio
     Route::delete('accommodations/{accommodation}', [AccommodationController::class, 'destroy'])->name('admin.accommodations.destroy');
     Route::post('accommodations/{id}/restore', [AccommodationController::class, 'restore'])->name('admin.accommodations.restore');
     Route::delete('accommodations/{id}/force-delete', [AccommodationController::class, 'forceDelete'])->name('admin.accommodations.force-delete');
+
+    // Package routes
+    Route::get('packages', [PackageController::class, 'index'])->name('admin.packages.index');
+    Route::get('packages/create', [PackageController::class, 'create'])->name('admin.packages.create');
+    Route::get('packages/archive', [PackageController::class, 'archive'])->name('admin.packages.archive');
+    Route::post('packages', [PackageController::class, 'store'])->name('admin.packages.store');
+    Route::get('packages/{package}', [PackageController::class, 'show'])->name('admin.packages.show');
+    Route::get('packages/{package}/edit', [PackageController::class, 'edit'])->name('admin.packages.edit');
+    Route::put('packages/{package}', [PackageController::class, 'update'])->name('admin.packages.update');
+    Route::post('packages/{package}', [PackageController::class, 'update'])->name('admin.packages.update.post'); // For file uploads with _method
+    Route::delete('packages/{package}', [PackageController::class, 'destroy'])->name('admin.packages.destroy');
+    Route::post('packages/{id}/restore', [PackageController::class, 'restore'])->name('admin.packages.restore');
+    Route::delete('packages/{id}/force-delete', [PackageController::class, 'forceDelete'])->name('admin.packages.force-delete');
 
     // User management routes
     Route::get('users', [UserController::class, 'index'])->name('admin.users.index');

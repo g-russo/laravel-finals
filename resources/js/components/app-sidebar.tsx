@@ -14,7 +14,7 @@ import { Button } from '@/components/ui/button';
 import { dashboard } from '@/routes';
 import { type NavItem } from '@/types';
 import { Link } from '@inertiajs/react';
-import { BookOpen, Folder, HomeIcon, LayoutGrid, Building, TreePalm, Waves, Users, Sun, Moon } from 'lucide-react';
+import { BookOpen, Folder, HomeIcon, LayoutGrid, Building, TreePalm, Waves, Users, Sun, Moon, Package } from 'lucide-react';
 import { useAppearance } from '@/hooks/use-appearance';
 import AppLogo from './app-logo';
 
@@ -38,6 +38,11 @@ const mainNavItems: NavItem[] = [
         title: 'Amenities',
         href: '/admin/amenities',
         icon: Waves,
+    },
+    {
+        title: 'Packages',
+        href: '/admin/packages',
+        icon: Package,
     },
 ];
 
