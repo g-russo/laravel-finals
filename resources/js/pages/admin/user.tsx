@@ -20,7 +20,7 @@ import {
     type ColumnDef,
     type SortingState,
 } from '@tanstack/react-table';
-import { ChevronUp, ChevronDown, ChevronsUpDown, Plus, Search } from 'lucide-react';
+import { ChevronUp, ChevronDown, ChevronsUpDown, Plus, Search, Trash2, RotateCcw } from 'lucide-react';
 import { adminStyles } from '@/lib/admin-styles';
 import {
     UserActions,
@@ -50,9 +50,11 @@ interface UserManagementProps {
     users: User[];
     editingUser?: User;
     openEditDialog?: boolean;
+    currentUser: User;
+    showingTrashed?: boolean;
 }
 
-export default function UserManagement({ users, editingUser: initialEditingUser, openEditDialog: initialOpenEditDialog }: UserManagementProps) {
+export default function UserManagement({ users, editingUser: initialEditingUser, openEditDialog: initialOpenEditDialog, currentUser, showingTrashed = false }: UserManagementProps) {
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [globalFilter, setGlobalFilter] = useState('');
     const [sorting, setSorting] = useState<SortingState>([]);
@@ -80,6 +82,15 @@ export default function UserManagement({ users, editingUser: initialEditingUser,
     });
 
     const { delete: deleteUser, processing: deleteProcessing } = useForm();
+    const { post: restoreUser, processing: restoreProcessing } = useForm();
+
+    const handleRestore = (userId: number) => {
+        restoreUser(`/admin/users/${userId}/restore`, {
+            onSuccess: () => {
+                // Redirect handled by controller
+            },
+        });
+    };
 
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
@@ -109,6 +120,15 @@ export default function UserManagement({ users, editingUser: initialEditingUser,
     };
 
     const handleDeleteClick = (user: User) => {
+        // Check permissions before showing delete dialog
+        if (currentUser.role === 'employee') {
+            alert('Employees are not authorized to delete users!');
+            return;
+        }
+        if (currentUser.role === 'admin' && user.role === 'admin') {
+            alert('Admins cannot delete other admin accounts!');
+            return;
+        }
         setUserToDelete(user);
         setIsDeleteDialogOpen(true);
     };
@@ -183,12 +203,28 @@ export default function UserManagement({ users, editingUser: initialEditingUser,
                 accessorKey: 'actions',
                 header: 'Actions',
                 cell: ({ row }: any) => (
-                    <UserActions
-                        userId={row.original.id}
-                        onView={handleView}
-                        onEdit={handleEdit}
-                        onDelete={() => handleDeleteClick(row.original)}
-                    />
+                    showingTrashed ? (
+                        <div className="flex gap-2">
+                            {currentUser.role === 'admin' && (
+                                <Button
+                                    onClick={() => handleRestore(row.original.id)}
+                                    disabled={restoreProcessing}
+                                    size="sm"
+                                    className="bg-green-600 hover:bg-green-700 text-white"
+                                >
+                                    <RotateCcw className="mr-1 h-4 w-4" />
+                                    Restore
+                                </Button>
+                            )}
+                        </div>
+                    ) : (
+                        <UserActions
+                            userId={row.original.id}
+                            onView={handleView}
+                            onEdit={handleEdit}
+                            onDelete={() => handleDeleteClick(row.original)}
+                        />
+                    )
                 ),
                 enableSorting: false,
             },
@@ -231,20 +267,32 @@ export default function UserManagement({ users, editingUser: initialEditingUser,
                                 </div>
                                 <div>
                                     <h1 className="text-2xl font-bold text-gray-900 tracking-tight">
-                                        User Management
+                                        {showingTrashed ? 'Deleted Users' : 'User Management'}
                                     </h1>
                                     <p className="text-sm text-gray-500 mt-0.5">
-                                        Manage admin and employee accounts
+                                        {showingTrashed ? 'View and restore deleted users' : 'Manage admin and employee accounts'}
                                     </p>
                                 </div>
                             </div>
-                            <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
-                                <DialogTrigger asChild>
-                                    <Button className="bg-gradient-to-r from-purple-600 to-purple-700 hover:from-purple-700 hover:to-purple-800 text-white px-6 py-3 rounded-xl font-semibold transition-all duration-200 inline-flex items-center shadow-lg hover:shadow-xl transform hover:-translate-y-0.5">
-                                        <Plus className="mr-2 h-5 w-5" />
-                                        Add New User
+                            <div className="flex gap-3">
+                                {currentUser.role === 'admin' && (
+                                    <Button
+                                        onClick={() => router.visit(showingTrashed ? '/admin/users' : '/admin/users/trashed')}
+                                        variant="outline"
+                                        className="px-6 py-3 rounded-xl font-semibold"
+                                    >
+                                        <i className={`bi ${showingTrashed ? 'bi-people' : 'bi-trash'} mr-2`}></i>
+                                        {showingTrashed ? 'View Active Users' : 'View Deleted Users'}
                                     </Button>
-                                </DialogTrigger>
+                                )}
+                                {!showingTrashed && (
+                                    <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
+                                        <DialogTrigger asChild>
+                                            <Button className="bg-gradient-to-r from-purple-600 to-purple-700 hover:from-purple-700 hover:to-purple-800 text-white px-6 py-3 rounded-xl font-semibold transition-all duration-200 inline-flex items-center shadow-lg hover:shadow-xl transform hover:-translate-y-0.5">
+                                                <Plus className="mr-2 h-5 w-5" />
+                                                Add New User
+                                            </Button>
+                                        </DialogTrigger>
                                 <DialogContent className={`${adminStyles.dialog.content} max-w-md max-h-[90vh] overflow-y-auto`}>
                                     <DialogHeader className={adminStyles.dialog.header}>
                                         <DialogTitle className={adminStyles.dialog.title}>Create New User</DialogTitle>
@@ -282,7 +330,9 @@ export default function UserManagement({ users, editingUser: initialEditingUser,
                                         </div>
                                     </form>
                                 </DialogContent>
-                            </Dialog>
+                                    </Dialog>
+                                )}
+                            </div>
                         </div>
                     </div>
                 </div>

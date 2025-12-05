@@ -29,10 +29,12 @@ Route::middleware(['auth', 'verified', 'admin'])->prefix('admin')->name('admin.'
 
     // User management routes
     Route::get('users', [UserController::class, 'index'])->name('users.index');
+    Route::get('users/trashed', [UserController::class, 'trashed'])->name('users.trashed');
     Route::post('users', [UserController::class, 'store'])->name('users.store');
     Route::get('users/{id}/edit', [UserController::class, 'edit'])->name('users.edit');
     Route::put('users/{id}', [UserController::class, 'update'])->name('users.update');
     Route::post('users/{id}', [UserController::class, 'update'])->name('users.update.post'); // For file uploads with _method
+    Route::post('users/{id}/restore', [UserController::class, 'restore'])->name('users.restore');
     Route::delete('users/{id}', [UserController::class, 'destroy'])->name('users.destroy');
 
     // Amenities management routes

@@ -23,7 +23,48 @@ class UserController extends Controller
 
         return Inertia::render('admin/user', [
             'users' => $users,
+            'currentUser' => Auth::user(),
         ]);
+    }
+
+    /**
+     * Display a listing of soft-deleted users
+     */
+    public function trashed()
+    {
+        $trashedUsers = User::onlyTrashed()
+            ->orderBy('deleted_at', 'desc')
+            ->get(['id', 'full_name', 'username', 'email', 'role', 'avatar_path', 'deleted_at']);
+
+        return Inertia::render('admin/user', [
+            'users' => $trashedUsers,
+            'currentUser' => Auth::user(),
+            'showingTrashed' => true,
+        ]);
+    }
+
+    /**
+     * Restore a soft-deleted user
+     */
+    public function restore($id)
+    {
+        // Only admins can restore users
+        if (Auth::user()->role !== 'admin') {
+            return redirect()->route('admin.users.index')->with('error', 'Unauthorized action!');
+        }
+
+        $user = User::onlyTrashed()->findOrFail($id);
+        $user->restore();
+
+        // Create activity log
+        $currentUser = Auth::user();
+        Log::create([
+            'user_id' => $currentUser->id,
+            'action' => "Restored {$user->role} account: {$user->full_name} ({$user->username})",
+            'created_at' => now(),
+        ]);
+
+        return redirect()->route('admin.users.trashed')->with('success', 'User restored successfully!');
     }
 
     /**
@@ -212,15 +253,27 @@ class UserController extends Controller
     }
 
     /**
-     * Remove the specified user
+     * Remove the specified user (soft delete)
      */
     public function destroy($id)
     {
         $user = User::findOrFail($id);
+        $currentUser = Auth::user();
 
         // Prevent deleting yourself
-        if ($user->id === Auth::id()) {
+        if ($user->id === $currentUser->id) {
             return redirect()->route('admin.users.index')->with('error', 'You cannot delete your own account!');
+        }
+
+        // Authorization rules:
+        // - Employees cannot delete anyone
+        // - Admins can only delete employees and customers, not other admins
+        if ($currentUser->role === 'employee') {
+            return redirect()->route('admin.users.index')->with('error', 'Employees are not authorized to delete users!');
+        }
+
+        if ($currentUser->role === 'admin' && $user->role === 'admin') {
+            return redirect()->route('admin.users.index')->with('error', 'Admins cannot delete other admin accounts!');
         }
 
         // Delete avatar if it exists and is not an initials placeholder
@@ -236,11 +289,10 @@ class UserController extends Controller
         $userUsername = $user->username;
         $userRole = $user->role;
 
-        // Delete the user
+        // Soft delete the user
         $user->delete();
 
-        // Create activity log
-        $currentUser = Auth::user();
+        // Create activity log (currentUser already declared above)
         Log::create([
             'user_id' => $currentUser->id,
             'action' => "Deleted {$userRole} account: {$userName} ({$userUsername})",
