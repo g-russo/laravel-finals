@@ -16,6 +16,7 @@ class Package extends Model
         'package_name',
         'description',
         'price',
+        'discount_percentage',
         'inclusion_details',
         'image_path',
         'status',
@@ -23,6 +24,7 @@ class Package extends Model
 
     protected $casts = [
         'price' => 'decimal:2',
+        'discount_percentage' => 'decimal:2',
         'deleted_at' => 'datetime',
     ];
 

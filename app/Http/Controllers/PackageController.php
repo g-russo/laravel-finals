@@ -44,8 +44,18 @@ class PackageController extends Controller
         // Get count of archived packages
         $archivedCount = Package::onlyTrashed()->count();
 
+        // Get available accommodations and amenities
+        $accommodations = Accommodation::where('availability_status', 'available')
+            ->orderBy('accommodation_name')
+            ->get(['accommodation_id', 'accommodation_name', 'description', 'capacity', 'price_per_night', 'availability_status']);
+        
+        $amenities = Amenity::orderBy('amenity_name')
+            ->get(['amenity_id', 'amenity_name', 'description', 'price_per_use']);
+
         return Inertia::render('admin/packages', [
             'packages' => $packages,
+            'accommodations' => $accommodations,
+            'amenities' => $amenities,
             'archivedCount' => $archivedCount,
         ]);
     }
@@ -99,6 +109,7 @@ class PackageController extends Controller
             'package_name' => 'required|string|max:255',
             'description' => 'required|string',
             'price' => 'required|numeric|min:0',
+            'discount_percentage' => 'nullable|numeric|min:0|max:100',
             'inclusion_details' => 'required|string',
             'status' => 'required|in:active,inactive',
             'image' => 'nullable|image|mimes:jpeg,png,jpg,webp|max:5120', // 5MB max
@@ -202,6 +213,7 @@ class PackageController extends Controller
             'package_name' => 'required|string|max:255',
             'description' => 'required|string',
             'price' => 'required|numeric|min:0',
+            'discount_percentage' => 'nullable|numeric|min:0|max:100',
             'inclusion_details' => 'required|string',
             'status' => 'required|in:active,inactive',
             'image' => 'nullable|image|mimes:jpeg,png,jpg,webp|max:5120',

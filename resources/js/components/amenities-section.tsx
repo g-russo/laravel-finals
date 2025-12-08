@@ -37,6 +37,7 @@ export function AmenitiesSection({ amenities }: AmenitiesSectionProps) {
   const [filteredAmenities, setFilteredAmenities] = useState(amenities);
   const [selectedAmenity, setSelectedAmenity] = useState<Amenity | null>(null);
   const [isDetailModalOpen, setIsDetailModalOpen] = useState(false);
+  const [showAll, setShowAll] = useState(false);
 
   // Update items per view based on screen size
   useEffect(() => {
@@ -191,65 +192,70 @@ export function AmenitiesSection({ amenities }: AmenitiesSectionProps) {
               {/* Carousel Container */}
               <div className="overflow-hidden" data-aos="fade-up" data-aos-delay="400">
                 <div
-                    className="flex transition-transform duration-500 ease-out"
-                    style={{
+                    className={`flex ${showAll ? 'flex-wrap' : 'transition-transform duration-500 ease-out'}`}
+                    style={!showAll ? {
                         transform: `translateX(-${currentIndex * (100 / itemsPerView)}%)`
-                    }}
+                    } : {}}
                 >
-                  {filteredAmenities.map((amenity, index) => (
-                    <div
-                        key={amenity.amenity_id}
-                        className="flex-shrink-0 px-4"
-                        style={{ width: `${100 / itemsPerView}%` }}
-                    >
-                      <div className="bg-white rounded-2xl overflow-hidden shadow-lg hover:shadow-2xl transition-all duration-300 hover:-translate-y-2 group h-full">
-                        <div className="relative overflow-hidden h-56">
-                          <img
-                              src={getImageUrl(amenity.image_path)}
-                              alt={amenity.amenity_name}
-                              className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
-                              onError={(e) => {
-                                  (e.target as HTMLImageElement).src = 'https://images.unsplash.com/photo-1566073771259-6a8506099945?w=400&h=300&fit=crop';
-                              }}
-                          />
-                          <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent"></div>
-                          
-                          {/* Price Badge */}
-                          <div className="absolute top-4 right-4 bg-orange-600 text-white px-4 py-2 rounded-full font-bold text-lg shadow-lg transform group-hover:scale-110 transition-transform duration-300">
-                              {formatPrice(amenity.price_per_use)}
-                          </div>
-
-                          {/* Amenity Name Overlay */}
-                          <div className="absolute bottom-0 left-0 right-0 p-4">
-                            <h3 className="text-white text-2xl font-bold drop-shadow-lg">
-                                {amenity.amenity_name}
-                            </h3>
-                          </div>
-                        </div>
-                        
-                        <div className="p-6">
-                          <p className="text-gray-600 leading-relaxed line-clamp-3 mb-4">
-                              {amenity.description}
-                          </p>
-                          
-                          <div className="flex items-center justify-between pt-4 border-t border-gray-100">
-                            <div className="flex items-center text-sm text-gray-500">
-                                <i className="bi bi-clock mr-2"></i>
-                                <span>Per use</span>
+                  {(showAll ? filteredAmenities : filteredAmenities).map((amenity, index) => {
+                    if (!showAll && (index < currentIndex || index >= currentIndex + itemsPerView)) {
+                      return null;
+                    }
+                    return (
+                      <div
+                          key={amenity.amenity_id}
+                          className={`flex-shrink-0 px-4 ${showAll ? 'w-full md:w-1/2 lg:w-1/3 mb-8' : ''}`}
+                          style={!showAll ? { width: `${100 / itemsPerView}%` } : {}}
+                      >
+                        <div className="bg-white rounded-2xl overflow-hidden shadow-lg hover:shadow-2xl transition-all duration-300 hover:-translate-y-2 group h-full">
+                          <div className="relative overflow-hidden h-56">
+                            <img
+                                src={getImageUrl(amenity.image_path)}
+                                alt={amenity.amenity_name}
+                                className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
+                                onError={(e) => {
+                                    (e.target as HTMLImageElement).src = 'https://images.unsplash.com/photo-1566073771259-6a8506099945?w=400&h=300&fit=crop';
+                                }}
+                            />
+                            <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent"></div>
+                            
+                            {/* Price Badge */}
+                            <div className="absolute top-4 right-4 bg-orange-600 text-white px-4 py-2 rounded-full font-bold text-lg shadow-lg transform group-hover:scale-110 transition-transform duration-300">
+                                {formatPrice(amenity.price_per_use)}
                             </div>
-                            <button className="bg-gradient-to-r from-orange-600 to-orange-700 hover:from-orange-700 hover:to-orange-800 text-white px-6 py-2 rounded-full font-medium transition-all duration-300 hover:scale-105 shadow-sm hover:shadow-md text-sm group-hover:shadow-lg">
-                                Book Now
-                            </button>
+
+                            {/* Amenity Name Overlay */}
+                            <div className="absolute bottom-0 left-0 right-0 p-4">
+                              <h3 className="text-white text-2xl font-bold drop-shadow-lg">
+                                  {amenity.amenity_name}
+                              </h3>
+                            </div>
+                          </div>
+                          
+                          <div className="p-6">
+                            <p className="text-gray-600 leading-relaxed line-clamp-3 mb-4">
+                                {amenity.description}
+                            </p>
+                            
+                            <div className="flex items-center justify-between pt-4 border-t border-gray-100">
+                              <div className="flex items-center text-sm text-gray-500">
+                                  <i className="bi bi-clock mr-2"></i>
+                                  <span>Per use</span>
+                              </div>
+                              <button className="bg-gradient-to-r from-orange-600 to-orange-700 hover:from-orange-700 hover:to-orange-800 text-white px-6 py-2 rounded-full font-medium transition-all duration-300 hover:scale-105 shadow-sm hover:shadow-md text-sm group-hover:shadow-lg">
+                                  Book Now
+                              </button>
+                            </div>
                           </div>
                         </div>
                       </div>
-                    </div>
-                  ))}
+                    );
+                  })}
                 </div>
               </div>
 
               {/* Navigation Arrows - Only show if there are more items than visible */}
-              {filteredAmenities.length > itemsPerView && (
+              {!showAll && filteredAmenities.length > itemsPerView && (
                 <>
                   <button
                       onClick={prevSlide}
@@ -275,7 +281,7 @@ export function AmenitiesSection({ amenities }: AmenitiesSectionProps) {
               )}
 
               {/* Carousel Indicators - Only show if there are more items than visible */}
-              {filteredAmenities.length > itemsPerView && (
+              {!showAll && filteredAmenities.length > itemsPerView && (
                 <div className="flex justify-center mt-8 space-x-2" data-aos="fade-up" data-aos-delay="600">
                   {Array.from({ length: maxIndex + 1 }).map((_, idx) => (
                     <button
@@ -295,13 +301,20 @@ export function AmenitiesSection({ amenities }: AmenitiesSectionProps) {
               {/* View All Button */}
               <div className="text-center mt-12" data-aos="fade-up" data-aos-delay="700">
                 <div className="inline-flex items-center space-x-4 bg-white rounded-full shadow-lg px-6 py-3">
-                  <span className="text-gray-600 font-medium">
-                    Showing {currentIndex + 1}-{Math.min(currentIndex + itemsPerView, filteredAmenities.length)} of {filteredAmenities.length}
-                  </span>
-                  <div className="w-px h-6 bg-gray-300"></div>
-                  <button className="text-orange-600 hover:text-orange-700 font-semibold transition-colors duration-300 flex items-center group">
-                    View All Amenities
-                    <i className="bi bi-arrow-right ml-2 transition-transform duration-300 group-hover:translate-x-1"></i>
+                  {!showAll && (
+                    <>
+                      <span className="text-gray-600 font-medium">
+                        Showing {currentIndex + 1}-{Math.min(currentIndex + itemsPerView, filteredAmenities.length)} of {filteredAmenities.length}
+                      </span>
+                      <div className="w-px h-6 bg-gray-300"></div>
+                    </>
+                  )}
+                  <button 
+                    onClick={() => setShowAll(!showAll)}
+                    className="text-orange-600 hover:text-orange-700 font-semibold transition-colors duration-300 flex items-center group"
+                  >
+                    {showAll ? 'Show Less' : 'View All Amenities'}
+                    <i className={`bi ${showAll ? 'bi-arrow-up' : 'bi-arrow-right'} ml-2 transition-transform duration-300 group-hover:translate-x-1`}></i>
                   </button>
                 </div>
               </div>

@@ -41,6 +41,7 @@ interface PackageItem {
     package_name: string;
     description: string;
     price: number;
+    discount_percentage?: number;
     inclusion_details: string;
     status: 'active' | 'inactive';
     image_path: string | null;
@@ -100,6 +101,7 @@ export default function PackagesManagement({ packages = [], accommodations = [],
         image: null as File | null,
         accommodations: [] as Array<{ accommodation_id: number; quantity: number }>,
         amenities: [] as Array<{ amenity_id: number; quantity: number }>,
+        discount_percentage: '',
     });
 
     const { data: editData, setData: setEditData, post: editPost, processing: editProcessing, errors: editErrors, reset: resetEdit } = useForm({
@@ -112,6 +114,7 @@ export default function PackagesManagement({ packages = [], accommodations = [],
         _method: 'PUT',
         accommodations: [] as Array<{ accommodation_id: number; quantity: number }>,
         amenities: [] as Array<{ amenity_id: number; quantity: number }>,
+        discount_percentage: '',
     });
 
 
@@ -268,6 +271,7 @@ export default function PackagesManagement({ packages = [], accommodations = [],
             package_name: pkg.package_name,
             description: pkg.description,
             price: pkg.price.toString(),
+            discount_percentage: pkg.discount_percentage?.toString() || '',
             inclusion_details: pkg.inclusion_details,
             status: pkg.status,
             image: null,
@@ -287,6 +291,63 @@ export default function PackagesManagement({ packages = [], accommodations = [],
     const handleArchive = (pkg: PackageItem) => {
         setSelectedPackage(pkg);
         setIsArchiveModalOpen(true);
+    };
+
+    // Calculate total price from selected accommodations and amenities
+    const calculateTotalPrice = (selectedAccommodations: Array<{ accommodation_id: number; quantity: number }>, selectedAmenities: Array<{ amenity_id: number; quantity: number }>, discountPercentage: string) => {
+        let total = 0;
+        
+        // Add accommodation prices
+        selectedAccommodations.forEach(selected => {
+            const accommodation = accommodations.find(acc => acc.accommodation_id === selected.accommodation_id);
+            if (accommodation) {
+                total += accommodation.price_per_night * selected.quantity;
+            }
+        });
+        
+        // Add amenity prices
+        selectedAmenities.forEach(selected => {
+            const amenity = amenities.find(amen => amen.amenity_id === selected.amenity_id);
+            if (amenity) {
+                total += amenity.price_per_use * selected.quantity;
+            }
+        });
+        
+        // Apply discount if percentage is provided
+        const discount = parseFloat(discountPercentage) || 0;
+        if (discount > 0) {
+            total = total - (total * (discount / 100));
+        }
+        
+        return total.toFixed(2);
+    };
+
+    // Generate inclusion details from selected accommodations and amenities
+    const generateInclusionDetails = (selectedAccommodations: Array<{ accommodation_id: number; quantity: number }>, selectedAmenities: Array<{ amenity_id: number; quantity: number }>) => {
+        const details: string[] = [];
+        
+        if (selectedAccommodations.length > 0) {
+            details.push('Accommodations:');
+            selectedAccommodations.forEach(selected => {
+                const accommodation = accommodations.find(acc => acc.accommodation_id === selected.accommodation_id);
+                if (accommodation) {
+                    details.push(`- ${selected.quantity}x ${accommodation.accommodation_name}`);
+                }
+            });
+        }
+        
+        if (selectedAmenities.length > 0) {
+            if (details.length > 0) details.push('');
+            details.push('Amenities:');
+            selectedAmenities.forEach(selected => {
+                const amenity = amenities.find(amen => amen.amenity_id === selected.amenity_id);
+                if (amenity) {
+                    details.push(`- ${selected.quantity}x ${amenity.amenity_name}`);
+                }
+            });
+        }
+        
+        return details.join('\n');
     };
 
     const handleCreateSubmit = (e: React.FormEvent) => {
@@ -389,7 +450,7 @@ export default function PackagesManagement({ packages = [], accommodations = [],
                                             Add Package
                                         </Button>
                                     </DialogTrigger>
-                                    <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+                                    <DialogContent className="!max-w-[90vw] w-full max-h-[95vh] overflow-hidden">
                                         <DialogHeader>
                                             <DialogTitle>Add New Package</DialogTitle>
                                             <DialogDescription>
@@ -397,8 +458,8 @@ export default function PackagesManagement({ packages = [], accommodations = [],
                                             </DialogDescription>
                                         </DialogHeader>
                                         
-                                        <form onSubmit={handleCreateSubmit} className="space-y-4">
-                                            <div className="grid grid-cols-2 gap-4">
+                                        <form onSubmit={handleCreateSubmit} className="space-y-4 overflow-y-auto max-h-[calc(95vh-180px)]">
+                                            <div className="grid grid-cols-3 gap-4">
                                                 <div>
                                                     <Label htmlFor="package_name">Package Name</Label>
                                                     <Input
@@ -412,47 +473,191 @@ export default function PackagesManagement({ packages = [], accommodations = [],
                                                 </div>
                                                 
                                                 <div>
-                                                    <Label htmlFor="price">Price</Label>
+                                                    <Label htmlFor="discount_percentage">Discount %</Label>
+                                                    <Input
+                                                        id="discount_percentage"
+                                                        type="number"
+                                                        step="0.01"
+                                                        min="0"
+                                                        max="100"
+                                                        value={createData.discount_percentage}
+                                                        onChange={(e) => {
+                                                            setCreateData('discount_percentage', e.target.value);
+                                                            const calculatedPrice = calculateTotalPrice(createData.accommodations, createData.amenities, e.target.value);
+                                                            setCreateData('price', calculatedPrice);
+                                                        }}
+                                                        placeholder="0.00"
+                                                        className={createErrors.discount_percentage ? 'border-red-500' : ''}
+                                                    />
+                                                    {createErrors.discount_percentage && <p className="text-red-500 text-sm mt-1">{createErrors.discount_percentage}</p>}
+                                                </div>
+
+                                                <div>
+                                                    <Label htmlFor="price">Total Price (Auto-calculated)</Label>
                                                     <Input
                                                         id="price"
                                                         type="number"
                                                         step="0.01"
                                                         value={createData.price}
-                                                        onChange={(e) => setCreateData('price', e.target.value)}
+                                                        readOnly
                                                         placeholder="0.00"
-                                                        className={createErrors.price ? 'border-red-500' : ''}
+                                                        className="bg-gray-50"
                                                     />
                                                     {createErrors.price && <p className="text-red-500 text-sm mt-1">{createErrors.price}</p>}
                                                 </div>
                                             </div>
                                             
-                                            <div>
-                                                <Label htmlFor="description">Description</Label>
-                                                <Textarea
-                                                    id="description"
-                                                    value={createData.description}
-                                                    onChange={(e) => setCreateData('description', e.target.value)}
-                                                    placeholder="Enter package description"
-                                                    rows={3}
-                                                    className={createErrors.description ? 'border-red-500' : ''}
-                                                />
-                                                {createErrors.description && <p className="text-red-500 text-sm mt-1">{createErrors.description}</p>}
-                                            </div>
-                                            
-                                            <div>
-                                                <Label htmlFor="inclusion_details">Inclusion Details</Label>
-                                                <Textarea
-                                                    id="inclusion_details"
-                                                    value={createData.inclusion_details}
-                                                    onChange={(e) => setCreateData('inclusion_details', e.target.value)}
-                                                    placeholder="Enter what's included in this package"
-                                                    rows={3}
-                                                    className={createErrors.inclusion_details ? 'border-red-500' : ''}
-                                                />
-                                                {createErrors.inclusion_details && <p className="text-red-500 text-sm mt-1">{createErrors.inclusion_details}</p>}
-                                            </div>
-                                            
                                             <div className="grid grid-cols-2 gap-4">
+                                                <div>
+                                                    <Label htmlFor="description">Description</Label>
+                                                    <Textarea
+                                                        id="description"
+                                                        value={createData.description}
+                                                        onChange={(e) => setCreateData('description', e.target.value)}
+                                                        placeholder="Enter package description"
+                                                        rows={2}
+                                                        className={createErrors.description ? 'border-red-500' : ''}
+                                                    />
+                                                    {createErrors.description && <p className="text-red-500 text-sm mt-1">{createErrors.description}</p>}
+                                                </div>
+                                                
+                                                <div>
+                                                    <Label htmlFor="inclusion_details">Inclusion Details</Label>
+                                                    <Textarea
+                                                        id="inclusion_details"
+                                                        value={createData.inclusion_details}
+                                                        onChange={(e) => setCreateData('inclusion_details', e.target.value)}
+                                                        placeholder="Enter what's included in this package"
+                                                        rows={2}
+                                                        className={createErrors.inclusion_details ? 'border-red-500' : ''}
+                                                    />
+                                                    {createErrors.inclusion_details && <p className="text-red-500 text-sm mt-1">{createErrors.inclusion_details}</p>}
+                                                </div>
+                                            </div>
+
+                                            <div className="grid grid-cols-2 gap-4">
+                                                {/* Accommodations Selection */}
+                                                <div>
+                                                    <Label>Accommodations</Label>
+                                                    <div className="mt-2 space-y-2 max-h-64 overflow-y-auto border rounded-lg p-3">
+                                                        {accommodations && accommodations.length > 0 ? (
+                                                            accommodations.map((accommodation) => (
+                                                                <div key={accommodation.accommodation_id} className="flex items-center justify-between p-2 hover:bg-gray-50 rounded">
+                                                                    <div className="flex items-center space-x-2">
+                                                                        <input
+                                                                            type="checkbox"
+                                                                            id={`create-accommodation-${accommodation.accommodation_id}`}
+                                                                            checked={createData.accommodations.some(a => a.accommodation_id === accommodation.accommodation_id)}
+                                                                            onChange={(e) => {
+                                                                                let newAccommodations;
+                                                                                if (e.target.checked) {
+                                                                                    newAccommodations = [...createData.accommodations, { accommodation_id: accommodation.accommodation_id, quantity: 1 }];
+                                                                                } else {
+                                                                                    newAccommodations = createData.accommodations.filter(a => a.accommodation_id !== accommodation.accommodation_id);
+                                                                                }
+                                                                                setCreateData('accommodations', newAccommodations);
+                                                                                const calculatedPrice = calculateTotalPrice(newAccommodations, createData.amenities, createData.discount_percentage);
+                                                                                setCreateData('price', calculatedPrice);
+                                                                                const inclusionDetails = generateInclusionDetails(newAccommodations, createData.amenities);
+                                                                                setCreateData('inclusion_details', inclusionDetails);
+                                                                            }}
+                                                                            className="rounded"
+                                                                        />
+                                                                    <label htmlFor={`create-accommodation-${accommodation.accommodation_id}`} className="text-sm font-medium cursor-pointer">
+                                                                        {accommodation.accommodation_name}
+                                                                        <span className="text-gray-500 ml-2 text-xs">₱{accommodation.price_per_night?.toLocaleString()}/night</span>
+                                                                    </label>
+                                                                </div>
+                                                                    {createData.accommodations.some(a => a.accommodation_id === accommodation.accommodation_id) && (
+                                                                        <Input
+                                                                            type="number"
+                                                                            min="1"
+                                                                            value={createData.accommodations.find(a => a.accommodation_id === accommodation.accommodation_id)?.quantity || 1}
+                                                                            onChange={(e) => {
+                                                                                const newAccommodations = createData.accommodations.map(a =>
+                                                                                    a.accommodation_id === accommodation.accommodation_id
+                                                                                        ? { ...a, quantity: parseInt(e.target.value) || 1 }
+                                                                                        : a
+                                                                                );
+                                                                                setCreateData('accommodations', newAccommodations);
+                                                                                const calculatedPrice = calculateTotalPrice(newAccommodations, createData.amenities, createData.discount_percentage);
+                                                                                setCreateData('price', calculatedPrice);
+                                                                                const inclusionDetails = generateInclusionDetails(newAccommodations, createData.amenities);
+                                                                                setCreateData('inclusion_details', inclusionDetails);
+                                                                            }}
+                                                                            className="w-20 h-8 text-sm"
+                                                                            placeholder="Qty"
+                                                                        />
+                                                                    )}
+                                                            </div>
+                                                        ))
+                                                        ) : (
+                                                            <p className="text-sm text-gray-500">No available accommodations</p>
+                                                        )}
+                                                    </div>
+                                                </div>
+
+                                                {/* Amenities Selection */}
+                                                <div>
+                                                    <Label>Amenities</Label>
+                                                    <div className="mt-2 space-y-2 max-h-64 overflow-y-auto border rounded-lg p-3">
+                                                        {amenities && amenities.length > 0 ? (
+                                                            amenities.map((amenity) => (
+                                                                <div key={amenity.amenity_id} className="flex items-center justify-between p-2 hover:bg-gray-50 rounded">
+                                                                    <div className="flex items-center space-x-2">
+                                                                        <input
+                                                                            type="checkbox"
+                                                                            id={`create-amenity-${amenity.amenity_id}`}
+                                                                            checked={createData.amenities.some(a => a.amenity_id === amenity.amenity_id)}
+                                                                            onChange={(e) => {
+                                                                                let newAmenities;
+                                                                                if (e.target.checked) {
+                                                                                    newAmenities = [...createData.amenities, { amenity_id: amenity.amenity_id, quantity: 1 }];
+                                                                                } else {
+                                                                                    newAmenities = createData.amenities.filter(a => a.amenity_id !== amenity.amenity_id);
+                                                                                }
+                                                                                setCreateData('amenities', newAmenities);
+                                                                                const calculatedPrice = calculateTotalPrice(createData.accommodations, newAmenities, createData.discount_percentage);
+                                                                                setCreateData('price', calculatedPrice);
+                                                                                const inclusionDetails = generateInclusionDetails(createData.accommodations, newAmenities);
+                                                                                setCreateData('inclusion_details', inclusionDetails);
+                                                                            }}
+                                                                            className="rounded"
+                                                                        />
+                                                                    <label htmlFor={`create-amenity-${amenity.amenity_id}`} className="text-sm font-medium cursor-pointer">
+                                                                        {amenity.amenity_name}
+                                                                        <span className="text-gray-500 ml-2 text-xs">₱{amenity.price_per_use?.toLocaleString()}/use</span>
+                                                                    </label>
+                                                                </div>
+                                                                    {createData.amenities.some(a => a.amenity_id === amenity.amenity_id) && (
+                                                                        <Input
+                                                                            type="number"
+                                                                            min="1"
+                                                                            value={createData.amenities.find(a => a.amenity_id === amenity.amenity_id)?.quantity || 1}
+                                                                            onChange={(e) => {
+                                                                                const newAmenities = createData.amenities.map(a =>
+                                                                                    a.amenity_id === amenity.amenity_id
+                                                                                        ? { ...a, quantity: parseInt(e.target.value) || 1 }
+                                                                                        : a
+                                                                                );
+                                                                                setCreateData('amenities', newAmenities);
+                                                                                const calculatedPrice = calculateTotalPrice(createData.accommodations, newAmenities, createData.discount_percentage);
+                                                                                setCreateData('price', calculatedPrice);
+                                                                                const inclusionDetails = generateInclusionDetails(createData.accommodations, newAmenities);
+                                                                                setCreateData('inclusion_details', inclusionDetails);
+                                                                            }}
+                                                                            className="w-20 h-8 text-sm"
+                                                                            placeholder="Qty"
+                                                                        />
+                                                                    )}
+                                                            </div>
+                                                            ))
+                                                        ) : (
+                                                            <p className="text-sm text-gray-500">No amenities available</p>
+                                                        )}
+                                                    </div>
+                                                </div>
+                                            </div>                                            <div className="grid grid-cols-2 gap-4">
                                                 <div>
                                                     <Label htmlFor="status">Status</Label>
                                                     <Select value={createData.status} onValueChange={(value) => setCreateData('status', value as 'active' | 'inactive')}>
@@ -557,7 +762,7 @@ export default function PackagesManagement({ packages = [], accommodations = [],
 
                 {/* View Package Modal */}
                 <Dialog open={isViewModalOpen} onOpenChange={setIsViewModalOpen}>
-                    <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+                    <DialogContent className="!max-w-4xl w-full max-h-[90vh] overflow-y-auto">
                         <DialogHeader>
                             <DialogTitle>Package Details</DialogTitle>
                         </DialogHeader>
@@ -629,7 +834,7 @@ export default function PackagesManagement({ packages = [], accommodations = [],
 
                 {/* Edit Package Modal */}
                 <Dialog open={isEditModalOpen} onOpenChange={setIsEditModalOpen}>
-                    <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+                    <DialogContent className="!max-w-[90vw] w-full max-h-[95vh] overflow-hidden">
                         <DialogHeader>
                             <DialogTitle>Edit Package</DialogTitle>
                             <DialogDescription>
@@ -637,9 +842,8 @@ export default function PackagesManagement({ packages = [], accommodations = [],
                             </DialogDescription>
                         </DialogHeader>
                         {selectedPackage && (
-                            <form onSubmit={handleEditSubmit} className="space-y-6">
-                                <div className="grid grid-cols-2 gap-4">
-                                    <div>
+                            <form onSubmit={handleEditSubmit} className="space-y-6 overflow-y-auto max-h-[calc(95vh-180px)]">
+                                <div className="grid grid-cols-2 gap-4">\n                                    <div>
                                         <Label htmlFor="edit_package_name">Package Name</Label>
                                         <Input
                                             id="edit_package_name"
