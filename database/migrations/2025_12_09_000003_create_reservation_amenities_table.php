@@ -17,7 +17,7 @@ return new class extends Migration
             $table->time('start_time')->nullable();
             $table->time('end_time')->nullable();
             $table->timestamps();
-            
+
             // Prevent duplicate amenity bookings for same reservation and date
             $table->unique(['reservation_id', 'amenity_id', 'booking_date'], 'reservation_amenity_unique');
         });

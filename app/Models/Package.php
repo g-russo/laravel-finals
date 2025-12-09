@@ -91,7 +91,7 @@ class Package extends Model
 
     public function getStatusColorAttribute()
     {
-        return match($this->status) {
+        return match ($this->status) {
             'active' => 'green',
             'inactive' => 'red',
             default => 'gray'

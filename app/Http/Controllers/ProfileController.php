@@ -19,7 +19,7 @@ class ProfileController extends Controller
     {
         /** @var User $user */
         $user = Auth::user();
-        
+
         // Get user's reservations with accommodation details
         $reservations = $user->reservations()
             ->with('accommodation')
@@ -29,7 +29,7 @@ class ProfileController extends Controller
                 $checkInDate = \Carbon\Carbon::parse($reservation->check_in_date);
                 $checkOutDate = \Carbon\Carbon::parse($reservation->check_out_date);
                 $now = \Carbon\Carbon::now();
-                
+
                 return [
                     'id' => $reservation->id,
                     'accommodation' => [
@@ -73,7 +73,7 @@ class ProfileController extends Controller
     {
         /** @var User $user */
         $user = Auth::user();
-        
+
         $validated = $request->validate([
             'full_name' => ['required', 'string', 'max:255', 'regex:/^[a-zA-Z\s]+$/'],
             'username' => ['required', 'string', 'max:255', 'alpha_dash', 'unique:users,username,' . $user->id],

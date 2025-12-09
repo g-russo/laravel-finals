@@ -17,7 +17,7 @@ class PaymentController extends Controller
     {
         /** @var \App\Models\User $user */
         $user = Auth::user();
-        
+
         // Get the user's most recent pending reservation
         $reservation = Reservation::where('user_id', $user->id)
             ->where('status', 'pending')
@@ -50,7 +50,7 @@ class PaymentController extends Controller
     {
         /** @var \App\Models\User $user */
         $user = Auth::user();
-        
+
         // Verify the reservation belongs to the user
         if ($reservation->user_id !== $user->id) {
             return back()->withErrors(['error' => 'Unauthorized access to reservation.']);

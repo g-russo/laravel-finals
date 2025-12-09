@@ -21,18 +21,18 @@ Route::get('/accommodations/{id}', [PublicAccommodationController::class, 'show'
 // Admin routes - only admins and employees
 Route::middleware(['auth', 'verified', 'admin'])->prefix('admin')->group(function () {
     Route::get('/dashboard', DashboardController::class)->name('admin.dashboard');
-    
+
     // Amenities
     Route::get('/amenities', [AmenityController::class, 'manage'])->name('admin.amenities.index');
     Route::post('/amenities', [AmenityController::class, 'store'])->name('admin.amenities.store');
     Route::put('/amenities/{amenity}', [AmenityController::class, 'update'])->name('admin.amenities.update');
     Route::post('/amenities/{amenity}', [AmenityController::class, 'update'])->name('admin.amenities.update.post');
     Route::delete('/amenities/{amenity}', [AmenityController::class, 'destroy'])->name('admin.amenities.destroy');
-    
+
     // Soft delete routes
     Route::post('/amenities/{id}/restore', [AmenityController::class, 'restore'])->name('admin.amenities.restore');
     Route::delete('/amenities/{id}/force-delete', [AmenityController::class, 'forceDelete'])->name('admin.amenities.force-delete');
-    
+
     // Accommodation routes
     Route::get('accommodations', [AccommodationController::class, 'index'])->name('admin.accommodations.index');
     Route::get('accommodations/archive', [AccommodationController::class, 'archive'])->name('admin.accommodations.archive');
@@ -74,7 +74,7 @@ Route::middleware(['auth', 'verified', 'admin'])->prefix('admin')->group(functio
     // Reservation management routes
     Route::get('reservations', [ReservationController::class, 'admin'])->name('admin.reservations.index');
     Route::post('reservations/{reservation}/confirm', [ReservationController::class, 'confirm'])->name('admin.reservations.confirm');
-    
+
     // Logs management route
     Route::get('logs', [\App\Http\Controllers\Admin\LogController::class, 'index'])->name('admin.logs.index');
 });

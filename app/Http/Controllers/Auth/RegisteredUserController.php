@@ -36,7 +36,7 @@ class RegisteredUserController extends Controller
                 'unique:users',
                 'alpha_dash', // Letters, numbers, dashes, and underscores only
             ],
-            'email' => 'required|string|lowercase|email|max:255|unique:'.User::class,
+            'email' => 'required|string|lowercase|email|max:255|unique:' . User::class,
             'phone_number' => [
                 'required',
                 'string',

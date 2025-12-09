@@ -128,19 +128,19 @@ class Reservation extends Model
     public function calculateTotalPrice(): float
     {
         $total = 0;
-        
+
         if ($this->accommodation_price) {
             $total += $this->accommodation_price;
         }
-        
+
         if ($this->package_price) {
             $total += $this->package_price;
         }
-        
+
         if ($this->amenities_price) {
             $total += $this->amenities_price;
         }
-        
+
         return $total;
     }
 }

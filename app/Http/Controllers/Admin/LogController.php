@@ -17,7 +17,7 @@ class LogController extends Controller
     {
         /** @var \App\Models\User $user */
         $user = Auth::user();
-        
+
         if (!$user->canAccessAdmin()) {
             abort(403);
         }

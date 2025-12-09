@@ -22,16 +22,16 @@ class BookingValidationService
         ?int $excludeReservationId = null
     ): array {
         $times = Reservation::BOOKING_TYPES[$bookingType];
-        
+
         $query = Reservation::where('accommodation_id', $accommodationId)
             ->whereIn('status', ['pending', 'confirmed'])
             ->where(function ($q) use ($checkInDate, $checkOutDate) {
                 $q->whereBetween('check_in_date', [$checkInDate, $checkOutDate])
-                  ->orWhereBetween('check_out_date', [$checkInDate, $checkOutDate])
-                  ->orWhere(function ($q2) use ($checkInDate, $checkOutDate) {
-                      $q2->where('check_in_date', '<=', $checkInDate)
-                         ->where('check_out_date', '>=', $checkOutDate);
-                  });
+                    ->orWhereBetween('check_out_date', [$checkInDate, $checkOutDate])
+                    ->orWhere(function ($q2) use ($checkInDate, $checkOutDate) {
+                        $q2->where('check_in_date', '<=', $checkInDate)
+                            ->where('check_out_date', '>=', $checkOutDate);
+                    });
             });
 
         if ($excludeReservationId) {
@@ -43,7 +43,7 @@ class BookingValidationService
         // Check for time overlaps
         foreach ($conflictingReservations as $reservation) {
             if ($this->timeSlotsOverlap(
-                $times['start'], 
+                $times['start'],
                 $times['end'],
                 $reservation->start_time,
                 $reservation->end_time,
@@ -83,7 +83,7 @@ class BookingValidationService
 
         // Check if dates overlap
         $datesOverlap = !($date1End->lt($date2Start) || $date1Start->gt($date2End));
-        
+
         if (!$datesOverlap) {
             return false;
         }
@@ -113,12 +113,12 @@ class BookingValidationService
     {
         // Check if it's a pool amenity
         $isPool = stripos($amenity->amenity_name, 'pool') !== false;
-        
+
         if ($isPool && $date->isMonday()) {
             $maintenanceStart = Carbon::parse('08:00:00');
             $maintenanceEnd = Carbon::parse('14:00:00');
             $bookingStart = Carbon::parse($startTime);
-            
+
             if ($bookingStart->between($maintenanceStart, $maintenanceEnd)) {
                 return [
                     'available' => false,
@@ -136,7 +136,7 @@ class BookingValidationService
     public function validateGuestCapacity(int $accommodationId, int $numberOfGuests): array
     {
         $accommodation = Accommodation::find($accommodationId);
-        
+
         if (!$accommodation) {
             return [
                 'valid' => false,
@@ -160,7 +160,7 @@ class BookingValidationService
     public function validatePackageGuestCapacity(int $packageId, int $numberOfGuests): array
     {
         $package = Package::find($packageId);
-        
+
         if (!$package) {
             return [
                 'valid' => false,
@@ -188,7 +188,7 @@ class BookingValidationService
         }
 
         $package = Package::find($packageId);
-        
+
         if (!$package) {
             return false;
         }
@@ -206,7 +206,7 @@ class BookingValidationService
         // Validate dates
         $checkIn = Carbon::parse($data['check_in_date']);
         $checkOut = Carbon::parse($data['check_out_date']);
-        
+
         if ($checkIn->lt(Carbon::today())) {
             $errors[] = 'Check-in date cannot be in the past.';
         }
@@ -255,7 +255,7 @@ class BookingValidationService
         if (isset($data['amenities']) && is_array($data['amenities'])) {
             foreach ($data['amenities'] as $amenityData) {
                 $amenity = Amenity::find($amenityData['amenity_id']);
-                
+
                 if ($amenity) {
                     $amenityCheck = $this->isAmenityAvailable(
                         $amenity,
@@ -268,8 +268,10 @@ class BookingValidationService
                     }
 
                     // Check if amenity is included in package
-                    if (isset($data['package_id']) && 
-                        $this->isAmenityIncludedInPackage($data['package_id'], $amenityData['amenity_id'])) {
+                    if (
+                        isset($data['package_id']) &&
+                        $this->isAmenityIncludedInPackage($data['package_id'], $amenityData['amenity_id'])
+                    ) {
                         $errors[] = "Amenity '{$amenity->amenity_name}' is already included in your selected package.";
                     }
                 }

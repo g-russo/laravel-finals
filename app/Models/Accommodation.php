@@ -48,7 +48,7 @@ class Accommodation extends Model
     // Get status badge color
     public function getStatusColorAttribute()
     {
-        return match($this->availability_status) {
+        return match ($this->availability_status) {
             'available' => 'green',
             'occupied' => 'red',
             'maintenance' => 'yellow',
