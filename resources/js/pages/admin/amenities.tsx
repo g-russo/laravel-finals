@@ -265,7 +265,7 @@ export default function AmenitiesManagement({ amenities, trashedAmenities }: Ame
                                     variant="outline"
                                     size="sm"
                                     onClick={() => handleEdit(row.original)}
-                                    className="hover:bg-orange-50"
+                                    className="hover:bg-cyan-50"
                                 >
                                     <Edit className="h-4 w-4 mr-1" />
                                     Edit
@@ -312,13 +312,13 @@ export default function AmenitiesManagement({ amenities, trashedAmenities }: Ame
                 href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css"
             />
 
-            <div className="bg-gradient-to-br from-gray-50 via-orange-50/30 to-gray-50">
+            <div className="bg-gradient-to-br from-gray-50 via-cyan-50/30 to-gray-50">
                 {/* Header */}
                 <div className="bg-white border-b border-gray-200 shadow-sm">
                     <div className="max-w-full px-8 py-6">
                         <div className="flex items-center justify-between">
                             <div className="flex items-center space-x-4">
-                                <div className="w-12 h-12 bg-gradient-to-br from-orange-500 to-orange-600 rounded-xl flex items-center justify-center shadow-lg">
+                                <div className="w-12 h-12 bg-gradient-to-br from-cyan-500 to-cyan-600 rounded-xl flex items-center justify-center shadow-lg">
                                     <i className="bi bi-gem text-white text-2xl"></i>
                                 </div>
                                 <div>
@@ -345,7 +345,7 @@ export default function AmenitiesManagement({ amenities, trashedAmenities }: Ame
                                 {!showTrashed && (
                                     <Dialog open={isCreateModalOpen} onOpenChange={setIsCreateModalOpen}>
                                         <DialogTrigger asChild>
-                                            <Button className="bg-gradient-to-r from-orange-600 to-orange-700 hover:from-orange-700 hover:to-orange-800 text-white px-6 py-3 rounded-xl font-semibold transition-all duration-200 inline-flex items-center shadow-lg hover:shadow-xl transform hover:-translate-y-0.5">
+                                            <Button className="bg-gradient-to-r from-cyan-600 to-cyan-700 hover:from-cyan-700 hover:to-cyan-800 text-white px-6 py-3 rounded-xl font-semibold transition-all duration-200 inline-flex items-center shadow-lg hover:shadow-xl transform hover:-translate-y-0.5">
                                                 <Plus className="mr-2 h-5 w-5" />
                                                 Add Amenity
                                             </Button>
@@ -461,7 +461,7 @@ export default function AmenitiesManagement({ amenities, trashedAmenities }: Ame
                                                     <Button 
                                                         type="submit" 
                                                         disabled={createProcessing}
-                                                        className="bg-orange-600 hover:bg-orange-700"
+                                                        className="bg-cyan-600 hover:bg-cyan-700"
                                                     >
                                                         {createProcessing ? 'Creating...' : 'Create Amenity'}
                                                     </Button>
@@ -480,8 +480,8 @@ export default function AmenitiesManagement({ amenities, trashedAmenities }: Ame
                     <div className="bg-white rounded-2xl shadow-sm border border-gray-100">
                         <div className="p-6">
                             <div className="flex items-center mb-5">
-                                <div className="w-8 h-8 bg-orange-100 rounded-lg flex items-center justify-center mr-3">
-                                    <Search className="text-orange-600 h-4 w-4" />
+                                <div className="w-8 h-8 bg-cyan-100 rounded-lg flex items-center justify-center mr-3">
+                                    <Search className="text-cyan-600 h-4 w-4" />
                                 </div>
                                 <h2 className="text-lg font-semibold text-gray-900">
                                     {showTrashed ? 'Search Trashed Amenities' : 'Search Amenities'}
@@ -591,7 +591,7 @@ export default function AmenitiesManagement({ amenities, trashedAmenities }: Ame
                             </div>
                             <div>
                                 <h4 className="font-semibold text-gray-900 mb-2">Price</h4>
-                                <p className="text-2xl font-bold text-orange-600">
+                                <p className="text-2xl font-bold text-cyan-600">
                                     {formatPrice(viewingAmenity.price_per_use)}
                                 </p>
                             </div>
@@ -723,7 +723,7 @@ export default function AmenitiesManagement({ amenities, trashedAmenities }: Ame
                             <Button 
                                 type="submit" 
                                 disabled={editProcessing}
-                                className="bg-orange-600 hover:bg-orange-700"
+                                className="bg-cyan-600 hover:bg-cyan-700"
                             >
                                 {editProcessing ? 'Updating...' : 'Update Amenity'}
                             </Button>

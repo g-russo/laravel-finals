@@ -1,11 +1,16 @@
 import { Link, usePage } from '@inertiajs/react';
-import { dashboard, login, register } from '@/routes';
+import { dashboard, login, register, profile } from '@/routes';
 import { type SharedData } from '@/types';
 import { useState } from 'react';
 
 export default function Navigation() {
     const { auth } = usePage<SharedData>().props;
     const [isMenuOpen, setIsMenuOpen] = useState(false);
+    
+    // Determine if user is customer (default role or explicitly 'customer')
+    const isCustomer = auth.user && (!auth.user.role || auth.user.role === 'customer');
+    const profileUrl = isCustomer ? profile() : dashboard();
+    const profileLabel = isCustomer ? 'Profile' : 'Dashboard';
 
     return (
         <header className="fixed top-0 left-0 right-0 z-50 bg-white/95 backdrop-blur-sm border-b border-gray-100 transition-all duration-300">
@@ -20,31 +25,36 @@ export default function Navigation() {
 
                     {/* Desktop Navigation */}
                     <nav className="hidden lg:flex items-center space-x-8">
-                        <Link href="#home" className="text-gray-700 hover:text-orange-600 transition-colors font-medium">
+                        <Link href="/" className="text-gray-700 hover:text-orange-600 transition-colors font-medium">
                             Home
                         </Link>
-                        <Link href="#accommodations" className="text-gray-700 hover:text-orange-600 transition-colors font-medium">
+                        <a href="/#accommodations" className="text-gray-700 hover:text-orange-600 transition-colors font-medium">
                             Accommodations
-                        </Link>
-                        <Link href="#amenities" className="text-gray-700 hover:text-orange-600 transition-colors font-medium">
+                        </a>
+                        <a href="/#amenities" className="text-gray-700 hover:text-orange-600 transition-colors font-medium">
                             Amenities
-                        </Link>
-                        <Link href="#experiences" className="text-gray-700 hover:text-orange-600 transition-colors font-medium">
+                        </a>
+                        <a href="/#experiences" className="text-gray-700 hover:text-orange-600 transition-colors font-medium">
                             Experiences
-                        </Link>
-                        <Link href="#contact" className="text-gray-700 hover:text-orange-600 transition-colors font-medium">
+                        </a>
+                        <a href="/#contact" className="text-gray-700 hover:text-orange-600 transition-colors font-medium">
                             Contact
-                        </Link>
+                        </a>
+                        {auth.user && (
+                            <Link href="/reservations/create" className="text-gray-700 hover:text-orange-600 transition-colors font-medium">
+                                Book Now
+                            </Link>
+                        )}
                     </nav>
 
                     {/* Auth Buttons */}
                     <div className="hidden lg:flex items-center space-x-4">
                         {auth.user ? (
                             <Link
-                                href={dashboard()}
+                                href={profileUrl}
                                 className="bg-orange-600 text-white px-6 py-2 rounded-full hover:bg-orange-700 transition-colors font-medium"
                             >
-                                Dashboard
+                                {profileLabel}
                             </Link>
                         ) : (
                             <>
@@ -85,28 +95,33 @@ export default function Navigation() {
                 <div className="lg:hidden bg-white border-t border-gray-100">
                     <div className="container mx-auto px-4 py-4">
                         <nav className="flex flex-col space-y-4">
-                            <Link href="#home" className="text-gray-700 hover:text-orange-600 transition-colors font-medium">
+                            <Link href="/" className="text-gray-700 hover:text-orange-600 transition-colors font-medium">
                                 Home
                             </Link>
-                            <Link href="#accommodations" className="text-gray-700 hover:text-orange-600 transition-colors font-medium">
+                            <a href="/#accommodations" className="text-gray-700 hover:text-orange-600 transition-colors font-medium">
                                 Accommodations
-                            </Link>
-                            <Link href="#amenities" className="text-gray-700 hover:text-orange-600 transition-colors font-medium">
+                            </a>
+                            <a href="/#amenities" className="text-gray-700 hover:text-orange-600 transition-colors font-medium">
                                 Amenities
-                            </Link>
-                            <Link href="#experiences" className="text-gray-700 hover:text-orange-600 transition-colors font-medium">
+                            </a>
+                            <a href="/#experiences" className="text-gray-700 hover:text-orange-600 transition-colors font-medium">
                                 Experiences
-                            </Link>
-                            <Link href="#contact" className="text-gray-700 hover:text-orange-600 transition-colors font-medium">
+                            </a>
+                            <a href="/#contact" className="text-gray-700 hover:text-orange-600 transition-colors font-medium">
                                 Contact
-                            </Link>
+                            </a>
+                            {auth.user && (
+                                <Link href="/reservations/create" className="text-gray-700 hover:text-orange-600 transition-colors font-medium">
+                                    Book Now
+                                </Link>
+                            )}
                             <div className="flex flex-col space-y-2 pt-4 border-t border-gray-100">
                                 {auth.user ? (
                                     <Link
-                                        href={dashboard()}
+                                        href={profileUrl}
                                         className="bg-orange-600 text-white px-6 py-2 rounded-full hover:bg-orange-700 transition-colors font-medium text-center"
                                     >
-                                        Dashboard
+                                        {profileLabel}
                                     </Link>
                                 ) : (
                                     <>

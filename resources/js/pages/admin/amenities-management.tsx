@@ -1,6 +1,7 @@
 import { useState, FormEvent } from 'react';
 import { Head, router, useForm } from '@inertiajs/react';
 import AppLayout from '@/layouts/app-layout';
+import { formatCurrency } from '@/lib/currency';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
@@ -539,10 +540,7 @@ export default function AmenitiesManagement({ amenities, filters, stats, flash }
                 <div>
                   <p className="font-medium">{amenityToDelete.amenity_name}</p>
                   <p className="text-sm text-gray-600">
-                    ₱{parseFloat(amenityToDelete.price_per_use).toLocaleString('en-PH', { 
-                      minimumFractionDigits: 2, 
-                      maximumFractionDigits: 2 
-                    })} per use
+                    {formatCurrency(parseFloat(amenityToDelete.price_per_use))} per use
                   </p>
                 </div>
               </div>

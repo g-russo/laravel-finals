@@ -1,6 +1,7 @@
 import { useState, useMemo } from 'react';
 import { Head, useForm, router } from '@inertiajs/react';
 import AppLayout from '@/layouts/app-layout';
+import { formatCurrency } from '@/lib/currency';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -189,7 +190,7 @@ export default function PackagesManagement({ packages = [], accommodations = [],
             ),
             cell: ({ row }) => {
                 const price = parseFloat(row.getValue('price'));
-                return <div className="font-medium">₱{price.toLocaleString()}</div>;
+                return <div className="font-medium">{formatCurrency(price)}</div>;
             },
         },
         {
@@ -418,13 +419,13 @@ export default function PackagesManagement({ packages = [], accommodations = [],
         <AppLayout breadcrumbs={breadcrumbs}>
             <Head title="Packages Management" />
             
-            <div className="bg-gradient-to-br from-gray-50 via-orange-50/30 to-gray-50 min-h-screen">
+            <div className="bg-gradient-to-br from-gray-50 via-rose-50/30 to-gray-50 min-h-screen">
                 {/* Header */}
                 <div className="bg-white border-b border-gray-200 shadow-sm">
                     <div className="max-w-full px-8 py-6">
                         <div className="flex items-center justify-between">
                             <div className="flex items-center space-x-4">
-                                <div className="w-12 h-12 bg-gradient-to-br from-orange-500 to-orange-600 rounded-xl flex items-center justify-center shadow-lg">
+                                <div className="w-12 h-12 bg-gradient-to-br from-rose-500 to-rose-600 rounded-xl flex items-center justify-center shadow-lg">
                                     <Package className="text-white text-2xl w-6 h-6" />
                                 </div>
                                 <div>
@@ -445,7 +446,7 @@ export default function PackagesManagement({ packages = [], accommodations = [],
                                 
                                 <Dialog open={isCreateModalOpen} onOpenChange={setIsCreateModalOpen}>
                                     <DialogTrigger asChild>
-                                        <Button className="bg-orange-600 hover:bg-orange-700 text-white shadow-lg">
+                                        <Button className="bg-rose-600 hover:bg-rose-700 text-white shadow-lg">
                                             <Plus className="w-4 h-4 mr-2" />
                                             Add Package
                                         </Button>
@@ -565,7 +566,7 @@ export default function PackagesManagement({ packages = [], accommodations = [],
                                                                         />
                                                                     <label htmlFor={`create-accommodation-${accommodation.accommodation_id}`} className="text-sm font-medium cursor-pointer">
                                                                         {accommodation.accommodation_name}
-                                                                        <span className="text-gray-500 ml-2 text-xs">₱{accommodation.price_per_night?.toLocaleString()}/night</span>
+                                                                        <span className="text-gray-500 ml-2 text-xs">{formatCurrency(accommodation.price_per_night)}/night</span>
                                                                     </label>
                                                                 </div>
                                                                     {createData.accommodations.some(a => a.accommodation_id === accommodation.accommodation_id) && (
@@ -626,7 +627,7 @@ export default function PackagesManagement({ packages = [], accommodations = [],
                                                                         />
                                                                     <label htmlFor={`create-amenity-${amenity.amenity_id}`} className="text-sm font-medium cursor-pointer">
                                                                         {amenity.amenity_name}
-                                                                        <span className="text-gray-500 ml-2 text-xs">₱{amenity.price_per_use?.toLocaleString()}/use</span>
+                                                                        <span className="text-gray-500 ml-2 text-xs">{formatCurrency(amenity.price_per_use)}/use</span>
                                                                     </label>
                                                                 </div>
                                                                     {createData.amenities.some(a => a.amenity_id === amenity.amenity_id) && (
@@ -688,7 +689,7 @@ export default function PackagesManagement({ packages = [], accommodations = [],
                                                 <Button type="button" variant="outline" onClick={() => setIsCreateModalOpen(false)}>
                                                     Cancel
                                                 </Button>
-                                                <Button type="submit" disabled={createProcessing}>
+                                                <Button type="submit" disabled={createProcessing} className="bg-rose-600 hover:bg-rose-700">
                                                     {createProcessing ? 'Creating...' : 'Create Package'}
                                                 </Button>
                                             </div>
@@ -775,7 +776,7 @@ export default function PackagesManagement({ packages = [], accommodations = [],
                                         <p className="text-sm text-gray-600 mb-4">{selectedPackage.description}</p>
                                         
                                         <div className="space-y-2">
-                                            <div><strong>Price:</strong> ₱{parseFloat(selectedPackage.price.toString()).toLocaleString()}</div>
+                                            <div><strong>Price:</strong> {formatCurrency(selectedPackage.price)}</div>
                                             <div><strong>Status:</strong> 
                                                 <span className={`ml-2 px-2 py-1 rounded-full text-xs ${selectedPackage.status === 'active' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}`}>
                                                     {selectedPackage.status}
@@ -921,7 +922,7 @@ export default function PackagesManagement({ packages = [], accommodations = [],
                                     <Button type="button" variant="outline" onClick={() => setIsEditModalOpen(false)}>
                                         Cancel
                                     </Button>
-                                    <Button type="submit" disabled={editProcessing}>
+                                    <Button type="submit" disabled={editProcessing} className="bg-rose-600 hover:bg-rose-700">
                                         {editProcessing ? 'Updating...' : 'Update Package'}
                                     </Button>
                                 </div>

@@ -19,7 +19,7 @@ class UserController extends Controller
     public function index()
     {
         $users = User::orderBy('id')
-            ->get(['id', 'full_name', 'username', 'email', 'role', 'avatar_path']);
+            ->get(['id', 'full_name', 'username', 'email', 'role', 'avatar_path', 'phone_number', 'address', 'city', 'country', 'date_of_birth']);
 
         return Inertia::render('admin/user', [
             'users' => $users,
@@ -34,7 +34,7 @@ class UserController extends Controller
     {
         $trashedUsers = User::onlyTrashed()
             ->orderBy('deleted_at', 'desc')
-            ->get(['id', 'full_name', 'username', 'email', 'role', 'avatar_path', 'deleted_at']);
+            ->get(['id', 'full_name', 'username', 'email', 'role', 'avatar_path', 'phone_number', 'address', 'city', 'country', 'date_of_birth', 'deleted_at']);
 
         return Inertia::render('admin/user', [
             'users' => $trashedUsers,
@@ -87,6 +87,11 @@ class UserController extends Controller
                 'regex:/[0-9]/',      // must contain at least one digit
                 'regex:/[@$!%*#?&]/', // must contain at least one special character
             ],
+            'phone_number' => 'nullable|string|max:20',
+            'address' => 'nullable|string|max:500',
+            'city' => 'nullable|string|max:100',
+            'country' => 'nullable|string|max:100',
+            'date_of_birth' => 'nullable|date|before:today',
             'avatar' => 'nullable|image|mimes:jpeg,png,jpg,webp|max:2048',
         ]);
 
@@ -132,7 +137,7 @@ class UserController extends Controller
             $validated['avatar_path'] = 'initials:' . $initials;
         }
 
-        // Create the user
+        // Create the user with all validated fields
         $user = User::create($validated);
 
         // Create activity log
@@ -153,7 +158,7 @@ class UserController extends Controller
     {
         $user = User::findOrFail($id);
         $users = User::orderBy('id')
-            ->get(['id', 'full_name', 'username', 'email', 'role', 'avatar_path']);
+            ->get(['id', 'full_name', 'username', 'email', 'role', 'avatar_path', 'phone_number', 'address', 'city', 'country', 'date_of_birth']);
 
         return Inertia::render('admin/user', [
             'users' => $users,
@@ -191,6 +196,11 @@ class UserController extends Controller
                 'regex:/[0-9]/',      // must contain at least one digit
                 'regex:/[@$!%*#?&]/', // must contain at least one special character
             ],
+            'phone_number' => 'nullable|string|max:20',
+            'address' => 'nullable|string|max:500',
+            'city' => 'nullable|string|max:100',
+            'country' => 'nullable|string|max:100',
+            'date_of_birth' => 'nullable|date|before:today',
             'avatar' => 'nullable|image|mimes:jpeg,png,jpg,webp|max:2048',
         ]);
 
@@ -237,6 +247,11 @@ class UserController extends Controller
         if (isset($validated['full_name'])) $updateData['full_name'] = $validated['full_name'];
         if (isset($validated['email'])) $updateData['email'] = $validated['email'];
         if (isset($validated['role'])) $updateData['role'] = $validated['role'];
+        if (isset($validated['phone_number'])) $updateData['phone_number'] = $validated['phone_number'];
+        if (isset($validated['address'])) $updateData['address'] = $validated['address'];
+        if (isset($validated['city'])) $updateData['city'] = $validated['city'];
+        if (isset($validated['country'])) $updateData['country'] = $validated['country'];
+        if (isset($validated['date_of_birth'])) $updateData['date_of_birth'] = $validated['date_of_birth'];
         if (isset($validated['avatar_path'])) $updateData['avatar_path'] = $validated['avatar_path'];
 
         $user->update($updateData);

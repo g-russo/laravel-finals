@@ -1,6 +1,7 @@
 import { useState, useMemo } from 'react';
 import { Head, router } from '@inertiajs/react';
 import AppLayout from '@/layouts/app-layout';
+import { formatCurrency } from '@/lib/currency';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import {
@@ -130,7 +131,7 @@ export default function PackageArchive({ packages = [] }: PackageArchiveProps) {
             ),
             cell: ({ row }) => {
                 const price = parseFloat(row.getValue('price'));
-                return <div className="font-medium">₱{price.toLocaleString()}</div>;
+                return <div className="font-medium">{formatCurrency(price)}</div>;
             },
         },
         {

@@ -2,6 +2,7 @@ import { Head, Link } from '@inertiajs/react';
 import { useState, useEffect } from 'react';
 import Navigation from '@/components/Navigation';
 import Footer from '@/components/Footer';
+import { formatCurrency } from '@/lib/currency';
 import AOS from 'aos';
 import 'aos/dist/aos.css';
 
@@ -269,7 +270,7 @@ export default function AccommodationDetail({ accommodation, relatedAccommodatio
                                             <div className="flex items-center justify-between">
                                                 <div>
                                                     <div className="text-orange-600 font-bold text-lg">
-                                                        ₱{related.formatted_price.toLocaleString()}
+                                                        {formatCurrency(related.formatted_price)}
                                                     </div>
                                                     <div className="text-xs text-gray-500">per night</div>
                                                 </div>
@@ -304,10 +305,10 @@ export default function AccommodationDetail({ accommodation, relatedAccommodatio
                                 <i className="bi bi-calendar-check text-orange-600 text-2xl"></i>
                             </div>
                             <h3 className="text-2xl font-bold text-gray-900 mb-2">
-                                Book {accommodation.title}
+                                Ready to Book?
                             </h3>
-                            <p className="text-gray-600 mb-6">
-                                We'll contact you shortly to finalize your reservation details and preferences.
+                            <p className="text-gray-600 mb-4">
+                                Continue to our booking page to select your dates, add amenities, and complete your reservation.
                             </p>
                             <div className="text-center mb-6">
                                 <div className="text-2xl font-bold text-orange-600">
@@ -315,12 +316,20 @@ export default function AccommodationDetail({ accommodation, relatedAccommodatio
                                 </div>
                                 <div className="text-gray-600">per night</div>
                             </div>
-                            <button
-                                onClick={() => setShowBookingModal(false)}
-                                className="bg-orange-600 text-white px-8 py-3 rounded-full hover:bg-orange-700 transition-all duration-300 font-medium w-full"
-                            >
-                                Close
-                            </button>
+                            <div className="flex gap-3">
+                                <button
+                                    onClick={() => setShowBookingModal(false)}
+                                    className="flex-1 bg-gray-200 text-gray-700 px-6 py-3 rounded-full hover:bg-gray-300 transition-all duration-300 font-medium"
+                                >
+                                    Cancel
+                                </button>
+                                <Link
+                                    href="/reservations/create"
+                                    className="flex-1 bg-orange-600 text-white px-6 py-3 rounded-full hover:bg-orange-700 transition-all duration-300 font-medium text-center"
+                                >
+                                    Continue
+                                </Link>
+                            </div>
                         </div>
                     </div>
                 </div>

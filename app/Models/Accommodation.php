@@ -56,4 +56,20 @@ class Accommodation extends Model
             default => 'gray'
         };
     }
+
+    // Relationships
+    public function reservations()
+    {
+        return $this->hasMany(Reservation::class, 'accommodation_id', 'accommodation_id');
+    }
+
+    public function packages()
+    {
+        return $this->belongsToMany(
+            Package::class,
+            'package_accommodations',
+            'accommodation_id',
+            'package_id'
+        )->withPivot('quantity')->withTimestamps();
+    }
 }

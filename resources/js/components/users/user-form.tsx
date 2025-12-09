@@ -13,6 +13,11 @@ interface User {
     email: string;
     role: 'admin' | 'employee' | 'customer';
     avatar_path?: string;
+    phone_number?: string;
+    address?: string;
+    city?: string;
+    country?: string;
+    date_of_birth?: string;
 }
 
 interface UserFormProps {
@@ -24,6 +29,11 @@ interface UserFormProps {
         role: string;
         username: string;
         password: string;
+        phone_number: string;
+        address: string;
+        city: string;
+        country: string;
+        date_of_birth: string;
         avatar: File | null;
     };
     setData: (key: string, value: any) => void;
@@ -313,6 +323,102 @@ export function UserForm({
                         ? 'Auto-generated password if left blank' 
                         : 'Must be at least 8 characters with uppercase, lowercase, digit, and special character'}
                 </p>
+            </div>
+
+            {/* Contact Information Section */}
+            <div className="pt-4 border-t border-gray-200">
+                <h3 className="text-sm font-semibold text-gray-700 mb-4">Contact Information (Optional)</h3>
+                
+                {/* Phone Number */}
+                <div className="mb-4">
+                    <Label htmlFor={`${idPrefix}phone_number`} className={adminStyles.input.label}>
+                        Phone Number
+                    </Label>
+                    <Input
+                        id={`${idPrefix}phone_number`}
+                        type="tel"
+                        value={data.phone_number}
+                        onChange={(e) => setData('phone_number', e.target.value)}
+                        placeholder="+63 912 345 6789"
+                        className={`${adminStyles.input.base} ${errors.phone_number ? 'border-red-500' : ''} mt-1`}
+                    />
+                    {errors.phone_number && (
+                        <p className={`mt-1 text-sm ${adminStyles.text.error}`}>{errors.phone_number}</p>
+                    )}
+                </div>
+
+                {/* Address */}
+                <div className="mb-4">
+                    <Label htmlFor={`${idPrefix}address`} className={adminStyles.input.label}>
+                        Address
+                    </Label>
+                    <Input
+                        id={`${idPrefix}address`}
+                        type="text"
+                        value={data.address}
+                        onChange={(e) => setData('address', e.target.value)}
+                        placeholder="Street, Barangay"
+                        className={`${adminStyles.input.base} ${errors.address ? 'border-red-500' : ''} mt-1`}
+                    />
+                    {errors.address && (
+                        <p className={`mt-1 text-sm ${adminStyles.text.error}`}>{errors.address}</p>
+                    )}
+                </div>
+
+                {/* City and Country */}
+                <div className="grid grid-cols-2 gap-4 mb-4">
+                    <div>
+                        <Label htmlFor={`${idPrefix}city`} className={adminStyles.input.label}>
+                            City
+                        </Label>
+                        <Input
+                            id={`${idPrefix}city`}
+                            type="text"
+                            value={data.city}
+                            onChange={(e) => setData('city', e.target.value)}
+                            placeholder="City"
+                            className={`${adminStyles.input.base} ${errors.city ? 'border-red-500' : ''} mt-1`}
+                        />
+                        {errors.city && (
+                            <p className={`mt-1 text-sm ${adminStyles.text.error}`}>{errors.city}</p>
+                        )}
+                    </div>
+
+                    <div>
+                        <Label htmlFor={`${idPrefix}country`} className={adminStyles.input.label}>
+                            Country
+                        </Label>
+                        <Input
+                            id={`${idPrefix}country`}
+                            type="text"
+                            value={data.country}
+                            onChange={(e) => setData('country', e.target.value)}
+                            placeholder="Philippines"
+                            className={`${adminStyles.input.base} ${errors.country ? 'border-red-500' : ''} mt-1`}
+                        />
+                        {errors.country && (
+                            <p className={`mt-1 text-sm ${adminStyles.text.error}`}>{errors.country}</p>
+                        )}
+                    </div>
+                </div>
+
+                {/* Date of Birth */}
+                <div>
+                    <Label htmlFor={`${idPrefix}date_of_birth`} className={adminStyles.input.label}>
+                        Date of Birth
+                    </Label>
+                    <Input
+                        id={`${idPrefix}date_of_birth`}
+                        type="date"
+                        value={data.date_of_birth}
+                        max={new Date().toISOString().split('T')[0]}
+                        onChange={(e) => setData('date_of_birth', e.target.value)}
+                        className={`${adminStyles.input.base} ${errors.date_of_birth ? 'border-red-500' : ''} mt-1`}
+                    />
+                    {errors.date_of_birth && (
+                        <p className={`mt-1 text-sm ${adminStyles.text.error}`}>{errors.date_of_birth}</p>
+                    )}
+                </div>
             </div>
         </div>
     );

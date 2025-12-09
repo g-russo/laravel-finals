@@ -211,7 +211,7 @@ export default function Login({ status, canResetPassword }: LoginProps) {
                             </Link>
                         </div>
 
-                        {/* Admin/Staff Login Link */}
+                        {/* Admin/Staff Login Link
                         <div className="text-center pt-4 border-t border-gray-200">
                             <p className="text-sm text-gray-500 mb-2">
                                 Are you a staff member?
@@ -223,7 +223,7 @@ export default function Login({ status, canResetPassword }: LoginProps) {
                                 <i className="bi bi-shield-lock"></i>
                                 Access Admin Portal
                             </Link>
-                        </div>
+                        </div> */}
 
                         {status && (
                             <div className="mt-6 p-4 bg-green-50 border border-green-200 rounded-lg text-center text-sm font-medium text-green-700">

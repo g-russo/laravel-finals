@@ -20,6 +20,11 @@ interface User {
   email: string;
   role: 'admin' | 'employee' | 'customer';
   avatar_path?: string;
+  phone_number?: string;
+  address?: string;
+  city?: string;
+  country?: string;
+  date_of_birth?: string;
 }
 
 interface UserEditDialogProps {
@@ -37,13 +42,30 @@ export function UserEditDialog({
   onSuccess,
   asPage = false,
 }: UserEditDialogProps) {
-  const { data, setData, post, processing, errors, reset } = useForm({
+  const { data, setData, post, processing, errors, reset } = useForm<{
+    full_name: string;
+    email: string;
+    role: string;
+    username: string;
+    password: string;
+    phone_number: string;
+    address: string;
+    city: string;
+    country: string;
+    date_of_birth: string;
+    avatar: File | null;
+  }>({
     full_name: user?.full_name || '',
     email: user?.email || '',
     role: user?.role === 'customer' ? 'employee' : (user?.role || 'employee'), // Default to employee if customer
     username: user?.username || '',
     password: '',
-    avatar: null as File | null,
+    phone_number: (user as any)?.phone_number || '',
+    address: (user as any)?.address || '',
+    city: (user as any)?.city || '',
+    country: (user as any)?.country || '',
+    date_of_birth: (user as any)?.date_of_birth || '',
+    avatar: null,
   });
 
   useEffect(() => {
@@ -54,6 +76,11 @@ export function UserEditDialog({
         role: user.role === 'customer' ? 'employee' : user.role,
         username: user.username || '',
         password: '',
+        phone_number: (user as any).phone_number || '',
+        address: (user as any).address || '',
+        city: (user as any).city || '',
+        country: (user as any).country || '',
+        date_of_birth: (user as any).date_of_birth || '',
         avatar: null,
       });
     }

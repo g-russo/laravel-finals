@@ -3,6 +3,7 @@ import { useState, useEffect } from 'react';
 import Navigation from '@/components/Navigation';
 import Footer from '@/components/Footer';
 import { AmenitiesSection } from '@/components/amenities-section';
+import { formatCurrency } from '@/lib/currency';
 import AOS from 'aos';
 import 'aos/dist/aos.css';
 
@@ -356,14 +357,14 @@ export default function Welcome({ accommodations, amenities, stats }: WelcomePro
                                     </div>
                                 </div>
 
-                                <div className="p-6">
+                                    <div className="p-6">
                                     <div className="flex items-start justify-between mb-2">
                                         <h3 className="text-xl font-semibold text-gray-900 group-hover:text-orange-600 transition-colors duration-300 flex-1">
                                             {accommodation.title}
                                         </h3>
                                         <div className="ml-2 text-right">
                                             <div className="text-orange-600 font-bold text-lg group-hover:pulse-glow">
-                                                ₱{accommodation.formatted_price.toLocaleString()}
+                                                {accommodation.formatted_price.toLocaleString()}
                                             </div>
                                             <div className="text-xs text-gray-500">per night</div>
                                         </div>

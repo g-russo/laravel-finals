@@ -2,6 +2,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Edit, Trash2, Eye, Image as ImageIcon } from 'lucide-react';
+import { formatCurrency } from '@/lib/currency';
 
 interface AmenityCardProps {
   amenity: {
@@ -34,10 +35,7 @@ export function AmenityCard({
   };
 
   const formatPrice = (price: string) => {
-    return '₱' + parseFloat(price).toLocaleString('en-PH', { 
-      minimumFractionDigits: 2, 
-      maximumFractionDigits: 2 
-    });
+    return formatCurrency(parseFloat(price));
   };
 
   return (

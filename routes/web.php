@@ -10,6 +10,7 @@ use App\Http\Controllers\PackageController;
 use App\Http\Controllers\WelcomeController;
 use App\Http\Controllers\PublicAccommodationController;
 use App\Http\Controllers\UserController;
+use App\Http\Controllers\ReservationController;
 
 // Public routes
 Route::get('/', [WelcomeController::class, 'index'])->name('home');
@@ -69,6 +70,37 @@ Route::middleware(['auth', 'verified', 'admin'])->prefix('admin')->group(functio
     // Soft delete routes
     Route::post('/users/{id}/restore', [UserController::class, 'restore'])->name('admin.users.restore');
     Route::delete('/users/{id}/force-delete', [UserController::class, 'forceDelete'])->name('admin.users.force-delete');
+
+    // Reservation management routes
+    Route::get('reservations', [ReservationController::class, 'admin'])->name('admin.reservations.index');
+    Route::post('reservations/{reservation}/confirm', [ReservationController::class, 'confirm'])->name('admin.reservations.confirm');
+    
+    // Logs management route
+    Route::get('logs', [\App\Http\Controllers\Admin\LogController::class, 'index'])->name('admin.logs.index');
+});
+
+// User reservation routes - authenticated users only
+Route::middleware(['auth', 'verified'])->prefix('reservations')->group(function () {
+    Route::get('/', [ReservationController::class, 'index'])->name('reservations.index');
+    Route::get('/create', [ReservationController::class, 'create'])->name('reservations.create');
+    Route::post('/', [ReservationController::class, 'store'])->name('reservations.store');
+    Route::get('/{reservation}', [ReservationController::class, 'show'])->name('reservations.show');
+    Route::post('/{reservation}/cancel', [ReservationController::class, 'cancel'])->name('reservations.cancel');
+    Route::post('/check-availability', [ReservationController::class, 'checkAvailability'])->name('reservations.check-availability');
+});
+
+// Customer profile routes
+Route::middleware(['auth', 'verified'])->group(function () {
+    Route::get('/profile', [\App\Http\Controllers\ProfileController::class, 'index'])->name('profile');
+    Route::put('/profile', [\App\Http\Controllers\ProfileController::class, 'update'])->name('customer.profile.update');
+    Route::post('/profile', [\App\Http\Controllers\ProfileController::class, 'update'])->name('customer.profile.update.post');
+    Route::put('/profile/password', [\App\Http\Controllers\ProfileController::class, 'updatePassword'])->name('customer.profile.password');
+});
+
+// Payment routes
+Route::middleware(['auth', 'verified'])->group(function () {
+    Route::get('/payment', [\App\Http\Controllers\PaymentController::class, 'index'])->name('payment.index');
+    Route::post('/payments/{reservation}', [\App\Http\Controllers\PaymentController::class, 'store'])->name('payments.store');
 });
 
 // Redirect dashboard to admin dashboard for backward compatibility

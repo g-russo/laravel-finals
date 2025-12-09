@@ -265,13 +265,13 @@ export default function AccommodationManagement({ accommodations, editingAccommo
                 href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css"
             />
 
-            <div className="bg-gradient-to-br from-gray-50 via-orange-50/30 to-gray-50">
+            <div className="bg-gradient-to-br from-gray-50 via-emerald-50/30 to-gray-50">
                 {/* Header */}
                 <div className="bg-white border-b border-gray-200 shadow-sm">
                     <div className="max-w-full px-8 py-6">
                         <div className="flex items-center justify-between">
                             <div className="flex items-center space-x-4">
-                                <div className="w-12 h-12 bg-gradient-to-br from-orange-500 to-orange-600 rounded-xl flex items-center justify-center shadow-lg">
+                                <div className="w-12 h-12 bg-gradient-to-br from-emerald-500 to-emerald-600 rounded-xl flex items-center justify-center shadow-lg">
                                     <i className="bi bi-building text-white text-2xl"></i>
                                 </div>
                                 <div>
@@ -296,7 +296,7 @@ export default function AccommodationManagement({ accommodations, editingAccommo
                                 </Button>
                                 <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
                                     <DialogTrigger asChild>
-                                        <Button className="bg-gradient-to-r from-orange-600 to-orange-700 hover:from-orange-700 hover:to-orange-800 text-white px-6 py-3 rounded-xl font-semibold transition-all duration-200 inline-flex items-center shadow-lg hover:shadow-xl transform hover:-translate-y-0.5">
+                                        <Button className="bg-gradient-to-r from-emerald-600 to-emerald-700 hover:from-emerald-700 hover:to-emerald-800 text-white px-6 py-3 rounded-xl font-semibold transition-all duration-200 inline-flex items-center shadow-lg hover:shadow-xl transform hover:-translate-y-0.5">
                                             <Plus className="mr-2 h-5 w-5" />
                                             Add Accommodation
                                         </Button>
@@ -324,7 +324,7 @@ export default function AccommodationManagement({ accommodations, editingAccommo
                                                 >
                                                     Cancel
                                                 </Button>
-                                                <Button type="submit" disabled={processing} className="bg-orange-600 hover:bg-orange-700">
+                                                <Button type="submit" disabled={processing} className="bg-emerald-600 hover:bg-emerald-700">
                                                     {processing ? 'Creating...' : 'Create Accommodation'}
                                                 </Button>
                                             </div>
@@ -341,8 +341,8 @@ export default function AccommodationManagement({ accommodations, editingAccommo
                     <div className="bg-white rounded-2xl shadow-sm border border-gray-100">
                         <div className="p-6">
                             <div className="flex items-center mb-5">
-                                <div className="w-8 h-8 bg-orange-100 rounded-lg flex items-center justify-center mr-3">
-                                    <Search className="text-orange-600 h-4 w-4" />
+                                <div className="w-8 h-8 bg-emerald-100 rounded-lg flex items-center justify-center mr-3">
+                                    <Search className="text-emerald-600 h-4 w-4" />
                                 </div>
                                 <h2 className="text-lg font-semibold text-gray-900">Search Accommodations</h2>
                             </div>

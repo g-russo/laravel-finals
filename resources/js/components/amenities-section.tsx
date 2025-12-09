@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
+import { formatCurrency } from '@/lib/currency';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Clock, MapPin, Star, Users, Wifi, Car, Coffee, Dumbbell, Waves, Utensils } from 'lucide-react';
 import { ChevronLeft, ChevronRight, Search } from 'lucide-react';
@@ -380,10 +381,7 @@ export function AmenitiesSection({ amenities }: AmenitiesSectionProps) {
                   />
                   <div className="absolute top-4 right-4">
                     <Badge className="bg-white/95 text-gray-900 shadow-lg font-bold px-4 py-2 text-lg">
-                      ₱{parseFloat(selectedAmenity.price_per_use).toLocaleString('en-PH', { 
-                        minimumFractionDigits: 2, 
-                        maximumFractionDigits: 2 
-                      })} per use
+                      {formatCurrency(parseFloat(selectedAmenity.price_per_use))} per use
                     </Badge>
                   </div>
                 </div>

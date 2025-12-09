@@ -59,6 +59,11 @@ class Package extends Model
         )->withPivot('quantity')->withTimestamps();
     }
 
+    public function reservations()
+    {
+        return $this->hasMany(Reservation::class, 'package_id', 'package_id');
+    }
+
     // Scopes
     public function scopeActive($query)
     {

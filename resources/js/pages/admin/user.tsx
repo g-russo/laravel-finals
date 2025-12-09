@@ -44,6 +44,11 @@ interface User {
     email: string;
     role: 'admin' | 'employee' | 'customer';
     avatar_path?: string;
+    phone_number?: string;
+    address?: string;
+    city?: string;
+    country?: string;
+    date_of_birth?: string;
 }
 
 interface UserManagementProps {
@@ -71,6 +76,11 @@ export default function UserManagement({ users, editingUser: initialEditingUser,
         role: string;
         username: string;
         password: string;
+        phone_number: string;
+        address: string;
+        city: string;
+        country: string;
+        date_of_birth: string;
         avatar: File | null;
     }>({
         full_name: '',
@@ -78,6 +88,11 @@ export default function UserManagement({ users, editingUser: initialEditingUser,
         role: 'employee',
         username: '',
         password: '',
+        phone_number: '',
+        address: '',
+        city: '',
+        country: '',
+        date_of_birth: '',
         avatar: null,
     });
 
