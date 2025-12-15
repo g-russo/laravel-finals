@@ -69,6 +69,14 @@ export default function CreateReservation({ accommodations, amenities, packages 
             }
         }
 
+        // Add package price if booking type is package
+        if (bookingType === 'package' && data.package_id) {
+            const selectedPackage = packages.find(pkg => pkg.id === parseInt(data.package_id));
+            if (selectedPackage && selectedPackage.price) {
+                total = Number(selectedPackage.price);
+            }
+        }
+
         // Add amenities cost
         selectedAmenities.forEach(amenityId => {
             const amenity = amenities.find(a => a.id === amenityId);
@@ -78,7 +86,7 @@ export default function CreateReservation({ accommodations, amenities, packages 
         });
 
         return total;
-    }, [bookingType, selectedAccommodation, data.check_in_date, data.check_out_date, selectedAmenities, amenities]);
+    }, [bookingType, selectedAccommodation, data.check_in_date, data.check_out_date, data.package_id, selectedAmenities, amenities, packages]);
 
     const toggleAmenity = (amenityId: number) => {
         setSelectedAmenities(prev => {
@@ -98,10 +106,10 @@ export default function CreateReservation({ accommodations, amenities, packages 
             booking_date: data.check_in_date,
         }));
 
-        // Create submission data
+        // Create submission data based on booking type
         const submissionData = {
-            accommodation_id: data.accommodation_id,
-            package_id: data.package_id,
+            accommodation_id: bookingType === 'accommodation' && data.accommodation_id ? parseInt(data.accommodation_id) : null,
+            package_id: bookingType === 'package' && data.package_id ? parseInt(data.package_id) : null,
             check_in_date: data.check_in_date,
             check_out_date: data.check_out_date,
             number_of_guests: data.number_of_guests,
@@ -114,15 +122,19 @@ export default function CreateReservation({ accommodations, amenities, packages 
         router.post('/reservations', submissionData, {
             preserveState: false,
             onSuccess: () => {
-                alert('Reservation submitted successfully! Redirecting to payment...');
-                // Redirect to payment page after 1 second
-                setTimeout(() => {
-                    router.visit('/payment');
-                }, 1000);
+                // Success will be handled by redirect to payment page from backend
             },
             onError: (errors) => {
                 console.error('Reservation errors:', errors);
-                alert('There was an error with your reservation. Please check the form and try again.');
+                // Display specific error messages if available
+                const errorMessages = Object.entries(errors).map(([key, value]) => {
+                    if (Array.isArray(value)) {
+                        return value.join(', ');
+                    }
+                    return String(value);
+                }).join('\n');
+                
+                alert(`There was an error with your reservation:\n\n${errorMessages || 'Please check the form and try again.'}`);
             },
         });
     };

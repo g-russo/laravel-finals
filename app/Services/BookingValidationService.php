@@ -193,7 +193,7 @@ class BookingValidationService
             return false;
         }
 
-        return $package->amenities()->where('amenity_id', $amenityId)->exists();
+        return $package->amenities()->where('package_amenities.amenity_id', $amenityId)->exists();
     }
 
     /**

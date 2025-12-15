@@ -83,6 +83,6 @@ class RegisteredUserController extends Controller
         // Auth::login($user);
 
         // Redirect to landing page with verification message
-        return redirect()->route('welcome')->with('status', 'Registration successful! Please check your email to verify your account.');
+        return redirect()->route('home')->with('status', 'Registration successful! Please check your email to verify your account.');
     }
 }

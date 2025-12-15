@@ -474,30 +474,6 @@ export default function Register() {
                                 {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
                             </button>
                         </div>
-                        {data.password && (
-                            <div className="mt-2 space-y-1 text-xs">
-                                <div className={`flex items-center gap-1 ${passwordValidation.minLength ? 'text-green-600' : 'text-gray-500'}`}>
-                                    <span>{passwordValidation.minLength ? '✓' : '○'}</span>
-                                    <span>At least 8 characters</span>
-                                </div>
-                                <div className={`flex items-center gap-1 ${passwordValidation.hasLowercase ? 'text-green-600' : 'text-gray-500'}`}>
-                                    <span>{passwordValidation.hasLowercase ? '✓' : '○'}</span>
-                                    <span>One lowercase letter</span>
-                                </div>
-                                <div className={`flex items-center gap-1 ${passwordValidation.hasUppercase ? 'text-green-600' : 'text-gray-500'}`}>
-                                    <span>{passwordValidation.hasUppercase ? '✓' : '○'}</span>
-                                    <span>One uppercase letter</span>
-                                </div>
-                                <div className={`flex items-center gap-1 ${passwordValidation.hasNumber ? 'text-green-600' : 'text-gray-500'}`}>
-                                    <span>{passwordValidation.hasNumber ? '✓' : '○'}</span>
-                                    <span>One number</span>
-                                </div>
-                                <div className={`flex items-center gap-1 ${passwordValidation.hasSpecial ? 'text-green-600' : 'text-gray-500'}`}>
-                                    <span>{passwordValidation.hasSpecial ? '✓' : '○'}</span>
-                                    <span>One special character (@$!%*?&#)</span>
-                                </div>
-                            </div>
-                        )}
                         <InputError message={errors.password} />
                     </div>
 
@@ -533,6 +509,31 @@ export default function Register() {
                         <InputError message={errors.password_confirmation} />
                     </div>
                 </div>
+
+                {data.password && (
+                    <div className="mt-2 space-y-1 text-xs">
+                        <div className={`flex items-center gap-1 ${passwordValidation.minLength ? 'text-green-600' : 'text-gray-500'}`}>
+                            <span>{passwordValidation.minLength ? '✓' : '○'}</span>
+                            <span>At least 8 characters</span>
+                        </div>
+                        <div className={`flex items-center gap-1 ${passwordValidation.hasLowercase ? 'text-green-600' : 'text-gray-500'}`}>
+                            <span>{passwordValidation.hasLowercase ? '✓' : '○'}</span>
+                            <span>One lowercase letter</span>
+                        </div>
+                        <div className={`flex items-center gap-1 ${passwordValidation.hasUppercase ? 'text-green-600' : 'text-gray-500'}`}>
+                            <span>{passwordValidation.hasUppercase ? '✓' : '○'}</span>
+                            <span>One uppercase letter</span>
+                        </div>
+                        <div className={`flex items-center gap-1 ${passwordValidation.hasNumber ? 'text-green-600' : 'text-gray-500'}`}>
+                            <span>{passwordValidation.hasNumber ? '✓' : '○'}</span>
+                            <span>One number</span>
+                        </div>
+                        <div className={`flex items-center gap-1 ${passwordValidation.hasSpecial ? 'text-green-600' : 'text-gray-500'}`}>
+                            <span>{passwordValidation.hasSpecial ? '✓' : '○'}</span>
+                            <span>One special character (@$!%*?&#)</span>
+                        </div>
+                    </div>
+                )}
 
                 <Button
                     type="submit"

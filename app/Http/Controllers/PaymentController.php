@@ -25,10 +25,18 @@ class PaymentController extends Controller
             ->first();
 
         if ($reservation) {
+            // Get the name - either accommodation or package
+            $bookingName = 'N/A';
+            if ($reservation->accommodation) {
+                $bookingName = $reservation->accommodation->accommodation_name;
+            } elseif ($reservation->package) {
+                $bookingName = $reservation->package->package_name;
+            }
+
             return Inertia::render('Payment', [
                 'reservation' => [
                     'reservation_id' => $reservation->reservation_id,
-                    'accommodation_name' => $reservation->accommodation->accommodation_name,
+                    'accommodation_name' => $bookingName,
                     'check_in_date' => $reservation->check_in_date->format('Y-m-d'),
                     'check_out_date' => $reservation->check_out_date->format('Y-m-d'),
                     'number_of_guests' => $reservation->number_of_guests,

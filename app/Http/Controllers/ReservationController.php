@@ -135,7 +135,7 @@ class ReservationController extends Controller
         ]);
 
         // Validate at least one booking option is selected
-        if (!$validated['accommodation_id'] && !$validated['package_id']) {
+        if (empty($validated['accommodation_id']) && empty($validated['package_id'])) {
             return back()->withErrors([
                 'booking' => 'Please select either an accommodation or a package.'
             ]);
@@ -233,8 +233,8 @@ class ReservationController extends Controller
 
             DB::commit();
 
-            // Return success for Inertia to handle redirect on frontend
-            return back()->with('success', 'Reservation created successfully!');
+            // Redirect to payment page after successful reservation
+            return redirect()->route('payment.index')->with('success', 'Reservation created successfully! Please complete your payment.');
         } catch (\Exception $e) {
             DB::rollBack();
 
@@ -351,11 +351,20 @@ class ReservationController extends Controller
             ->orderBy('check_in_date', 'desc')
             ->paginate(20)
             ->through(function ($reservation) {
+                // Determine booking name
+                $bookingName = 'N/A';
+                if ($reservation->accommodation) {
+                    $bookingName = $reservation->accommodation->accommodation_name;
+                } elseif ($reservation->package) {
+                    $bookingName = $reservation->package->package_name . ' (Package)';
+                }
+
                 return [
                     'reservation_id' => $reservation->reservation_id,
                     'user' => $reservation->user,
                     'accommodation' => $reservation->accommodation,
                     'package' => $reservation->package,
+                    'booking_name' => $bookingName,
                     'check_in_date' => $reservation->check_in_date->format('Y-m-d'),
                     'check_out_date' => $reservation->check_out_date->format('Y-m-d'),
                     'number_of_guests' => $reservation->number_of_guests,
@@ -365,16 +374,24 @@ class ReservationController extends Controller
             });
 
         // Get calendar events (all reservations for calendar view)
-        $calendarEvents = Reservation::with(['user', 'accommodation'])
+        $calendarEvents = Reservation::with(['user', 'accommodation', 'package'])
             ->where('status', '!=', 'cancelled')
             ->get()
             ->map(function ($reservation) {
+                // Determine booking name for calendar
+                $bookingName = 'Unknown';
+                if ($reservation->accommodation) {
+                    $bookingName = $reservation->accommodation->accommodation_name;
+                } elseif ($reservation->package) {
+                    $bookingName = $reservation->package->package_name . ' (Package)';
+                }
+
                 return [
                     'id' => $reservation->reservation_id,
-                    'title' => $reservation->accommodation->accommodation_name ?? 'Unknown',
+                    'title' => $bookingName,
                     'start' => $reservation->check_in_date->format('Y-m-d'),
                     'end' => $reservation->check_out_date->format('Y-m-d'),
-                    'accommodation_name' => $reservation->accommodation->accommodation_name ?? 'N/A',
+                    'accommodation_name' => $bookingName,
                     'guest_name' => $reservation->user->name ?? 'N/A',
                     'guests' => $reservation->number_of_guests,
                     'status' => $reservation->status,

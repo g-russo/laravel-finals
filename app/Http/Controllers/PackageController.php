@@ -9,8 +9,6 @@ use App\Models\Log;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Auth;
-use Intervention\Image\ImageManager;
-use Intervention\Image\Drivers\Gd\Driver;
 use Inertia\Inertia;
 
 class PackageController extends Controller
@@ -110,6 +108,7 @@ class PackageController extends Controller
             'description' => 'required|string',
             'price' => 'required|numeric|min:0',
             'discount_percentage' => 'nullable|numeric|min:0|max:100',
+            'max_guests' => 'required|integer|min:1|max:100',
             'inclusion_details' => 'required|string',
             'status' => 'required|in:active,inactive',
             'image' => 'nullable|image|mimes:jpeg,png,jpg,webp|max:5120', // 5MB max
@@ -121,19 +120,18 @@ class PackageController extends Controller
             'amenities.*.quantity' => 'integer|min:1',
         ]);
 
-        // Handle image upload with WebP conversion
+        // Handle image upload without Intervention Image
         if ($request->hasFile('image')) {
             $image = $request->file('image');
-            $filename = time() . '_' . str_replace(' ', '_', $validated['package_name']) . '.webp';
-            $destinationPath = public_path('packages/' . $filename);
-
+            $filename = time() . '_' . str_replace(' ', '_', $validated['package_name']) . '.' . $image->getClientOriginalExtension();
+            
             // Ensure packages directory exists
             if (!file_exists(public_path('packages'))) {
                 mkdir(public_path('packages'), 0755, true);
             }
 
-            // Convert image to WebP
-            $this->convertToWebp($image->getRealPath(), $destinationPath);
+            // Move uploaded file
+            $image->move(public_path('packages'), $filename);
 
             $validated['image_path'] = 'packages/' . $filename;
         }
@@ -214,6 +212,7 @@ class PackageController extends Controller
             'description' => 'required|string',
             'price' => 'required|numeric|min:0',
             'discount_percentage' => 'nullable|numeric|min:0|max:100',
+            'max_guests' => 'required|integer|min:1|max:100',
             'inclusion_details' => 'required|string',
             'status' => 'required|in:active,inactive',
             'image' => 'nullable|image|mimes:jpeg,png,jpg,webp|max:5120',
@@ -233,16 +232,15 @@ class PackageController extends Controller
             }
 
             $image = $request->file('image');
-            $filename = time() . '_' . str_replace(' ', '_', $validated['package_name']) . '.webp';
-            $destinationPath = public_path('packages/' . $filename);
+            $filename = time() . '_' . str_replace(' ', '_', $validated['package_name']) . '.' . $image->getClientOriginalExtension();
 
             // Ensure packages directory exists
             if (!file_exists(public_path('packages'))) {
                 mkdir(public_path('packages'), 0755, true);
             }
 
-            // Convert image to WebP
-            $this->convertToWebp($image->getRealPath(), $destinationPath);
+            // Move uploaded file
+            $image->move(public_path('packages'), $filename);
 
             $validated['image_path'] = 'packages/' . $filename;
         }
@@ -347,18 +345,4 @@ class PackageController extends Controller
             ->with('success', 'Package permanently deleted.');
     }
 
-    /**
-     * Convert image to WebP format
-     */
-    private function convertToWebp($sourcePath, $destinationPath)
-    {
-        $manager = new ImageManager(new Driver());
-        $image = $manager->read($sourcePath);
-        
-        // Resize if image is too large (optional, adjust as needed)
-        $image->scaleDown(width: 1200);
-        
-        // Save as WebP with 90% quality
-        $image->toWebp(90)->save($destinationPath);
-    }
 }

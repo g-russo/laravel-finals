@@ -17,6 +17,7 @@ class Package extends Model
         'description',
         'price',
         'discount_percentage',
+        'max_guests',
         'inclusion_details',
         'image_path',
         'status',
@@ -25,6 +26,7 @@ class Package extends Model
     protected $casts = [
         'price' => 'decimal:2',
         'discount_percentage' => 'decimal:2',
+        'max_guests' => 'integer',
         'deleted_at' => 'datetime',
     ];
 

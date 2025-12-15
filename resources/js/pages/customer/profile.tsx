@@ -1,8 +1,8 @@
-import { Head, useForm, Link } from '@inertiajs/react';
+import { Head, useForm, Link, router } from '@inertiajs/react';
 import { FormEventHandler, useState } from 'react';
 import Navigation from '@/components/Navigation';
 import Footer from '@/components/Footer';
-import { User, Calendar, Mail, Phone, Globe, Camera, Lock, Eye, EyeOff } from 'lucide-react';
+import { User, Calendar, Mail, Phone, Globe, Camera, Lock, Eye, EyeOff, LogOut } from 'lucide-react';
 import { profile } from '@/routes';
 import { formatCurrency } from '@/lib/currency';
 
@@ -75,6 +75,12 @@ export default function Profile({ user, reservations }: Props) {
         passwordForm.put('/profile/password');
     };
 
+    const handleLogout = () => {
+        if (confirm('Are you sure you want to logout?')) {
+            router.post('/logout');
+        }
+    };
+
     return (
         <>
             <Head title="My Profile" />
@@ -133,6 +139,13 @@ export default function Profile({ user, reservations }: Props) {
                                     >
                                         <Lock size={20} />
                                         <span className="font-medium">Change Password</span>
+                                    </button>
+                                    <button
+                                        onClick={handleLogout}
+                                        className="w-full flex items-center gap-3 px-4 py-3 rounded-lg transition-colors text-red-600 hover:bg-red-50"
+                                    >
+                                        <LogOut size={20} />
+                                        <span className="font-medium">Logout</span>
                                     </button>
                                 </nav>
                             </div>

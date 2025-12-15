@@ -20,9 +20,9 @@ class ProfileController extends Controller
         /** @var User $user */
         $user = Auth::user();
 
-        // Get user's reservations with accommodation details
+        // Get user's reservations with accommodation and package details
         $reservations = $user->reservations()
-            ->with('accommodation')
+            ->with(['accommodation', 'package'])
             ->orderBy('check_in_date', 'desc')
             ->get()
             ->map(function ($reservation) {
@@ -30,14 +30,27 @@ class ProfileController extends Controller
                 $checkOutDate = \Carbon\Carbon::parse($reservation->check_out_date);
                 $now = \Carbon\Carbon::now();
 
-                return [
-                    'id' => $reservation->id,
-                    'accommodation' => [
-                        'id' => $reservation->accommodation->id,
-                        'name' => $reservation->accommodation->name,
-                        'type' => $reservation->accommodation->type,
+                // Determine if this is an accommodation or package reservation
+                $bookingDetails = null;
+                if ($reservation->accommodation) {
+                    $bookingDetails = [
+                        'accomodation_id' => $reservation->accommodation->accommodation_id,
+                        'name' => $reservation->accommodation->accommodation_name,
+                        'type' => $reservation->accommodation->accommodation_type,
                         'images' => $reservation->accommodation->images,
-                    ],
+                    ];
+                } elseif ($reservation->package) {
+                    $bookingDetails = [
+                        'accomodation_id' => $reservation->package->package_id,
+                        'name' => $reservation->package->package_name,
+                        'type' => 'Package',
+                        'images' => $reservation->package->image ? [$reservation->package->image] : [],
+                    ];
+                }
+
+                return [
+                    'id' => $reservation->reservation_id,
+                    'accommodation' => $bookingDetails,
                     'check_in_date' => $checkInDate->format('M d, Y'),
                     'check_out_date' => $checkOutDate->format('M d, Y'),
                     'total_price' => $reservation->total_price,

@@ -43,6 +43,7 @@ interface PackageItem {
     description: string;
     price: number;
     discount_percentage?: number;
+    max_guests?: number;
     inclusion_details: string;
     status: 'active' | 'inactive';
     image_path: string | null;
@@ -103,6 +104,7 @@ export default function PackagesManagement({ packages = [], accommodations = [],
         accommodations: [] as Array<{ accommodation_id: number; quantity: number }>,
         amenities: [] as Array<{ amenity_id: number; quantity: number }>,
         discount_percentage: '',
+        max_guests: '2',
     });
 
     const { data: editData, setData: setEditData, post: editPost, processing: editProcessing, errors: editErrors, reset: resetEdit } = useForm({
@@ -116,6 +118,7 @@ export default function PackagesManagement({ packages = [], accommodations = [],
         accommodations: [] as Array<{ accommodation_id: number; quantity: number }>,
         amenities: [] as Array<{ amenity_id: number; quantity: number }>,
         discount_percentage: '',
+        max_guests: '2',
     });
 
 
@@ -273,6 +276,7 @@ export default function PackagesManagement({ packages = [], accommodations = [],
             description: pkg.description,
             price: pkg.price.toString(),
             discount_percentage: pkg.discount_percentage?.toString() || '',
+            max_guests: pkg.max_guests?.toString() || '2',
             inclusion_details: pkg.inclusion_details,
             status: pkg.status,
             image: null,
@@ -491,6 +495,21 @@ export default function PackagesManagement({ packages = [], accommodations = [],
                                                         className={createErrors.discount_percentage ? 'border-red-500' : ''}
                                                     />
                                                     {createErrors.discount_percentage && <p className="text-red-500 text-sm mt-1">{createErrors.discount_percentage}</p>}
+                                                </div>
+
+                                                <div>
+                                                    <Label htmlFor="max_guests">Maximum Guests</Label>
+                                                    <Input
+                                                        id="max_guests"
+                                                        type="number"
+                                                        min="1"
+                                                        max="100"
+                                                        value={createData.max_guests}
+                                                        onChange={(e) => setCreateData('max_guests', e.target.value)}
+                                                        placeholder="2"
+                                                        className={createErrors.max_guests ? 'border-red-500' : ''}
+                                                    />
+                                                    {createErrors.max_guests && <p className="text-red-500 text-sm mt-1">{createErrors.max_guests}</p>}
                                                 </div>
 
                                                 <div>
@@ -844,7 +863,8 @@ export default function PackagesManagement({ packages = [], accommodations = [],
                         </DialogHeader>
                         {selectedPackage && (
                             <form onSubmit={handleEditSubmit} className="space-y-6 overflow-y-auto max-h-[calc(95vh-180px)]">
-                                <div className="grid grid-cols-2 gap-4">\n                                    <div>
+                                <div className="grid grid-cols-3 gap-4">
+                                    <div>
                                         <Label htmlFor="edit_package_name">Package Name</Label>
                                         <Input
                                             id="edit_package_name"
@@ -865,6 +885,19 @@ export default function PackagesManagement({ packages = [], accommodations = [],
                                             className={editErrors.price ? 'border-red-500' : ''}
                                         />
                                         {editErrors.price && <p className="text-red-500 text-sm">{editErrors.price}</p>}
+                                    </div>
+                                    <div>
+                                        <Label htmlFor="edit_max_guests">Maximum Guests</Label>
+                                        <Input
+                                            id="edit_max_guests"
+                                            type="number"
+                                            min="1"
+                                            max="100"
+                                            value={editData.max_guests}
+                                            onChange={(e) => setEditData('max_guests', e.target.value)}
+                                            className={editErrors.max_guests ? 'border-red-500' : ''}
+                                        />
+                                        {editErrors.max_guests && <p className="text-red-500 text-sm">{editErrors.max_guests}</p>}
                                     </div>
                                 </div>
                                 

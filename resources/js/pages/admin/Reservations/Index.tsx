@@ -18,7 +18,8 @@ interface Accommodation {
 interface Reservation {
     reservation_id: number;
     user: User;
-    accommodation: Accommodation;
+    accommodation: Accommodation | null;
+    booking_name: string;
     check_in_date: string;
     check_out_date: string;
     number_of_guests: number;
@@ -414,7 +415,7 @@ export default function ReservationsIndex({ reservations, calendarEvents, accomm
                                                 <div className="text-sm text-gray-500">{reservation.user.email}</div>
                                             </td>
                                             <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                                                {reservation.accommodation.accommodation_name}
+                                                {reservation.booking_name}
                                             </td>
                                             <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
                                                 {new Date(reservation.check_in_date + 'T00:00:00').toLocaleDateString()}
