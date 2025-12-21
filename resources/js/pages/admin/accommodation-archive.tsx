@@ -130,6 +130,7 @@ export default function AccommodationArchive({ accommodations }: AccommodationAr
                 accessorKey: 'accommodation_id',
                 header: 'ID',
                 cell: (info: any) => info.getValue(),
+                size: 60,
             },
             {
                 accessorKey: 'image_url',
@@ -153,29 +154,32 @@ export default function AccommodationArchive({ accommodations }: AccommodationAr
                     </div>
                 ),
                 enableSorting: false,
+                size: 80,
             },
             {
                 accessorKey: 'accommodation_name',
                 header: 'Name',
                 cell: (info: any) => (
-                    <div className="max-w-xs">
+                    <div className="min-w-[150px] max-w-[200px]">
                         <div className="font-medium text-gray-600 truncate">
                             {info.getValue() as string}
                         </div>
                     </div>
                 ),
+                size: 180,
             },
             {
                 accessorKey: 'description',
                 header: 'Description',
                 cell: (info: any) => (
-                    <div className="max-w-sm">
+                    <div className="min-w-[200px] max-w-[300px]">
                         <p className="text-sm text-gray-400 truncate">
                             {(info.getValue() as string) || '-'}
                         </p>
                     </div>
                 ),
                 enableSorting: false,
+                size: 250,
             },
             {
                 accessorKey: 'capacity',
@@ -185,6 +189,7 @@ export default function AccommodationArchive({ accommodations }: AccommodationAr
                         {info.getValue()} guests
                     </span>
                 ),
+                size: 100,
             },
             {
                 accessorKey: 'price_per_night',
@@ -194,6 +199,7 @@ export default function AccommodationArchive({ accommodations }: AccommodationAr
                         {formatPrice(info.getValue() as number)}
                     </span>
                 ),
+                size: 120,
             },
             {
                 accessorKey: 'availability_status',
@@ -203,6 +209,7 @@ export default function AccommodationArchive({ accommodations }: AccommodationAr
                         {getStatusBadge(info.getValue() as 'available' | 'occupied' | 'maintenance' | 'reserved')}
                     </div>
                 ),
+                size: 120,
             },
             {
                 accessorKey: 'deleted_at',
@@ -212,6 +219,7 @@ export default function AccommodationArchive({ accommodations }: AccommodationAr
                         {info.getValue() ? formatDate(info.getValue() as string) : '-'}
                     </span>
                 ),
+                size: 140,
             },
             {
                 accessorKey: 'actions',
@@ -225,6 +233,7 @@ export default function AccommodationArchive({ accommodations }: AccommodationAr
                     />
                 ),
                 enableSorting: false,
+                size: 120,
             },
         ],
         []
@@ -313,8 +322,8 @@ export default function AccommodationArchive({ accommodations }: AccommodationAr
                     </div>
 
                     {/* Table */}
-                    <div className={adminStyles.table.container}>
-                        <table className="w-full">
+                    <div className={`${adminStyles.table.container} overflow-x-auto`}>
+                        <table className="w-full min-w-max">
                             <thead className={adminStyles.table.header}>
                                 {table.getHeaderGroups().map((headerGroup) => (
                                     <tr key={headerGroup.id}>
