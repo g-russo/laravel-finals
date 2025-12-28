@@ -36,9 +36,11 @@ class AccommodationController extends Controller
         }
 
         $accommodations = $query->orderBy('accommodation_name')->get();
+        $archivedCount = Accommodation::onlyTrashed()->count();
 
         return Inertia::render('admin/accommodation', [
             'accommodations' => $accommodations,
+            'archivedCount' => $archivedCount,
         ]);
     }
 

@@ -445,7 +445,7 @@ export default function PackagesManagement({ packages = [], accommodations = [],
                                     className="border-gray-300 text-gray-700 hover:bg-gray-50"
                                 >
                                     <Trash className="w-4 h-4 mr-2" />
-                                    Archive ({archivedCount})
+                                    Trash ({archivedCount})
                                 </Button>
                                 
                                 <Dialog open={isCreateModalOpen} onOpenChange={setIsCreateModalOpen}>

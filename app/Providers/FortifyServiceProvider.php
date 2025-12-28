@@ -37,8 +37,14 @@ class FortifyServiceProvider extends ServiceProvider
     private function configureAuthentication(): void
     {
         // Customize the authentication process to restrict customer login
+        // Allow login with either email or username
         Fortify::authenticateUsing(function (Request $request) {
-            $user = \App\Models\User::where('email', $request->email)->first();
+            $login = $request->input('email'); // This field accepts either email or username
+
+            // Find user by email or username
+            $user = \App\Models\User::where('email', $login)
+                ->orWhere('username', $login)
+                ->first();
 
             if ($user && \Illuminate\Support\Facades\Hash::check($request->password, $user->password)) {
                 // If user is admin or employee trying to use customer login

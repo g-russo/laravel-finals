@@ -2,7 +2,7 @@ import { Head, useForm, Link, router } from '@inertiajs/react';
 import { FormEventHandler, useState } from 'react';
 import Navigation from '@/components/Navigation';
 import Footer from '@/components/Footer';
-import { User, Calendar, Mail, Phone, Globe, Camera, Lock, Eye, EyeOff, LogOut } from 'lucide-react';
+import { User, Calendar, Mail, Phone, Globe, Camera, Lock, Eye, EyeOff, LogOut, CreditCard, ExternalLink } from 'lucide-react';
 import { profile } from '@/routes';
 import { formatCurrency } from '@/lib/currency';
 
@@ -18,6 +18,7 @@ interface Reservation {
     check_out_date: string;
     total_price: number;
     status: string;
+    payment_status: string;
     is_upcoming: boolean;
     is_past: boolean;
     can_rate: boolean;
@@ -279,16 +280,34 @@ export default function Profile({ user, reservations }: Props) {
                                             {reservations.upcoming.length > 0 ? (
                                                 <div className="space-y-4">
                                                     {reservations.upcoming.map((reservation) => (
-                                                        <div key={reservation.id} className="border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow">
+                                                        <div 
+                                                            key={reservation.id} 
+                                                            className="border border-gray-200 rounded-lg p-4 hover:shadow-lg hover:border-orange-300 transition-all cursor-pointer group"
+                                                            onClick={() => router.visit(`/reservations/${reservation.id}`)}
+                                                        >
                                                             <div className="flex items-center gap-4">
-                                                                <img
-                                                                    src={reservation.accommodation.images?.[0] || '/placeholder.jpg'}
-                                                                    alt={reservation.accommodation.name}
-                                                                    className="w-24 h-24 object-cover rounded-lg"
-                                                                />
+                                                                <div className="relative">
+                                                                    <img
+                                                                        src={reservation.accommodation?.images?.[0] 
+                                                                            ? (reservation.accommodation.images[0].startsWith('http') 
+                                                                                ? reservation.accommodation.images[0] 
+                                                                                : `/storage/${reservation.accommodation.images[0]}`)
+                                                                            : '/placeholder.svg'}
+                                                                        alt={reservation.accommodation?.name || 'Booking'}
+                                                                        className="w-24 h-24 object-cover rounded-lg"
+                                                                        onError={(e) => {
+                                                                            (e.target as HTMLImageElement).src = '/placeholder.svg';
+                                                                        }}
+                                                                    />
+                                                                    <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 rounded-lg transition-colors flex items-center justify-center">
+                                                                        <ExternalLink className="text-white opacity-0 group-hover:opacity-100 transition-opacity" size={20} />
+                                                                    </div>
+                                                                </div>
                                                                 <div className="flex-1">
-                                                                    <h4 className="font-semibold text-lg text-gray-800">{reservation.accommodation.name}</h4>
-                                                                    <p className="text-sm text-gray-600">{reservation.accommodation.type}</p>
+                                                                    <h4 className="font-semibold text-lg text-gray-800 group-hover:text-orange-600 transition-colors">
+                                                                        {reservation.accommodation?.name || 'Booking'}
+                                                                    </h4>
+                                                                    <p className="text-sm text-gray-600">{reservation.accommodation?.type || ''}</p>
                                                                     <p className="text-sm text-gray-600 mt-1">
                                                                         {reservation.check_in_date} - {reservation.check_out_date}
                                                                     </p>
@@ -296,9 +315,26 @@ export default function Profile({ user, reservations }: Props) {
                                                                         {formatCurrency(reservation.total_price)}
                                                                     </p>
                                                                 </div>
-                                                                <span className="px-3 py-1 bg-green-100 text-green-700 rounded-full text-sm font-medium">
-                                                                    {reservation.status}
-                                                                </span>
+                                                                <div className="flex flex-col gap-2 items-end" onClick={(e) => e.stopPropagation()}>
+                                                                    <span className={`px-3 py-1 rounded-full text-sm font-medium ${
+                                                                        reservation.status === 'confirmed' 
+                                                                            ? 'bg-green-100 text-green-700' 
+                                                                            : reservation.status === 'pending'
+                                                                            ? 'bg-yellow-100 text-yellow-700'
+                                                                            : 'bg-gray-100 text-gray-700'
+                                                                    }`}>
+                                                                        {reservation.status}
+                                                                    </span>
+                                                                    {reservation.status === 'pending' && reservation.payment_status === 'unpaid' && (
+                                                                        <Link 
+                                                                            href="/payment"
+                                                                            className="flex items-center gap-1 px-3 py-1 bg-orange-600 text-white rounded-full text-sm font-medium hover:bg-orange-700 transition-colors"
+                                                                        >
+                                                                            <CreditCard size={14} />
+                                                                            Pay Now
+                                                                        </Link>
+                                                                    )}
+                                                                </div>
                                                             </div>
                                                         </div>
                                                     ))}
@@ -314,16 +350,34 @@ export default function Profile({ user, reservations }: Props) {
                                             {reservations.past.length > 0 ? (
                                                 <div className="space-y-4">
                                                     {reservations.past.map((reservation) => (
-                                                        <div key={reservation.id} className="border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow">
+                                                        <div 
+                                                            key={reservation.id} 
+                                                            className="border border-gray-200 rounded-lg p-4 hover:shadow-lg hover:border-orange-300 transition-all cursor-pointer group"
+                                                            onClick={() => router.visit(`/reservations/${reservation.id}`)}
+                                                        >
                                                             <div className="flex items-center gap-4">
-                                                                <img
-                                                                    src={reservation.accommodation.images?.[0] || '/placeholder.jpg'}
-                                                                    alt={reservation.accommodation.name}
-                                                                    className="w-24 h-24 object-cover rounded-lg"
-                                                                />
+                                                                <div className="relative">
+                                                                    <img
+                                                                        src={reservation.accommodation?.images?.[0] 
+                                                                            ? (reservation.accommodation.images[0].startsWith('http') 
+                                                                                ? reservation.accommodation.images[0] 
+                                                                                : `/storage/${reservation.accommodation.images[0]}`)
+                                                                            : '/placeholder.svg'}
+                                                                        alt={reservation.accommodation?.name || 'Booking'}
+                                                                        className="w-24 h-24 object-cover rounded-lg"
+                                                                        onError={(e) => {
+                                                                            (e.target as HTMLImageElement).src = '/placeholder.svg';
+                                                                        }}
+                                                                    />
+                                                                    <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 rounded-lg transition-colors flex items-center justify-center">
+                                                                        <ExternalLink className="text-white opacity-0 group-hover:opacity-100 transition-opacity" size={20} />
+                                                                    </div>
+                                                                </div>
                                                                 <div className="flex-1">
-                                                                    <h4 className="font-semibold text-lg text-gray-800">{reservation.accommodation.name}</h4>
-                                                                    <p className="text-sm text-gray-600">{reservation.accommodation.type}</p>
+                                                                    <h4 className="font-semibold text-lg text-gray-800 group-hover:text-orange-600 transition-colors">
+                                                                        {reservation.accommodation?.name || 'Booking'}
+                                                                    </h4>
+                                                                    <p className="text-sm text-gray-600">{reservation.accommodation?.type || ''}</p>
                                                                     <p className="text-sm text-gray-600 mt-1">
                                                                         {reservation.check_in_date} - {reservation.check_out_date}
                                                                     </p>
@@ -331,8 +385,14 @@ export default function Profile({ user, reservations }: Props) {
                                                                         {formatCurrency(reservation.total_price)}
                                                                     </p>
                                                                 </div>
-                                                                <div className="flex flex-col gap-2">
-                                                                    <span className="px-3 py-1 bg-gray-100 text-gray-700 rounded-full text-sm font-medium">
+                                                                <div className="flex flex-col gap-2" onClick={(e) => e.stopPropagation()}>
+                                                                    <span className={`px-3 py-1 rounded-full text-sm font-medium ${
+                                                                        reservation.status === 'confirmed' 
+                                                                            ? 'bg-green-100 text-green-700' 
+                                                                            : reservation.status === 'cancelled'
+                                                                            ? 'bg-red-100 text-red-700'
+                                                                            : 'bg-gray-100 text-gray-700'
+                                                                    }`}>
                                                                         {reservation.status}
                                                                     </span>
                                                                     {reservation.can_rate && (

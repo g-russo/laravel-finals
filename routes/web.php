@@ -73,7 +73,9 @@ Route::middleware(['auth', 'verified', 'admin'])->prefix('admin')->group(functio
 
     // Reservation management routes
     Route::get('reservations', [ReservationController::class, 'admin'])->name('admin.reservations.index');
+    Route::get('reservations/cancelled', [ReservationController::class, 'cancelled'])->name('admin.reservations.cancelled');
     Route::post('reservations/{reservation}/confirm', [ReservationController::class, 'confirm'])->name('admin.reservations.confirm');
+    Route::delete('reservations/{reservation}', [ReservationController::class, 'destroy'])->name('admin.reservations.destroy');
 
     // Logs management route
     Route::get('logs', [\App\Http\Controllers\Admin\LogController::class, 'index'])->name('admin.logs.index');

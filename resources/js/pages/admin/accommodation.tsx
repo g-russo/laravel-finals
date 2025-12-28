@@ -49,9 +49,10 @@ interface AccommodationManagementProps {
     accommodations: Accommodation[];
     editingAccommodation?: Accommodation;
     openEditDialog?: boolean;
+    archivedCount?: number;
 }
 
-export default function AccommodationManagement({ accommodations, editingAccommodation: initialEditingAccommodation, openEditDialog: initialOpenEditDialog }: AccommodationManagementProps) {
+export default function AccommodationManagement({ accommodations, editingAccommodation: initialEditingAccommodation, openEditDialog: initialOpenEditDialog, archivedCount = 0 }: AccommodationManagementProps) {
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [globalFilter, setGlobalFilter] = useState('');
     const [sorting, setSorting] = useState<SortingState>([]);
@@ -298,8 +299,8 @@ export default function AccommodationManagement({ accommodations, editingAccommo
                                     className="border-gray-300 hover:bg-gray-50 px-4 py-3 rounded-xl font-medium transition-all duration-200 inline-flex items-center"
                                 >
                                     <Link href="/admin/accommodations/archive">
-                                        <i className="bi bi-archive mr-2 text-sm"></i>
-                                        View Archive
+                                        <i className="bi bi-trash mr-2 text-sm"></i>
+                                        Trash ({archivedCount})
                                     </Link>
                                 </Button>
                                 <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>

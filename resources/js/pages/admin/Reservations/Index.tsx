@@ -1,7 +1,7 @@
-import { Head } from '@inertiajs/react';
+import { Head, router } from '@inertiajs/react';
 import { useState, useMemo } from 'react';
 import AppLayout from '@/layouts/app-layout';
-import { Calendar as CalendarIcon, Table, ChevronLeft, ChevronRight, Filter } from 'lucide-react';
+import { Calendar as CalendarIcon, Table, ChevronLeft, ChevronRight, Filter, Eye, XCircle, Trash2, X, Users, MapPin, CreditCard, Clock, CheckCircle, AlertCircle } from 'lucide-react';
 import { formatCurrency } from '@/lib/currency';
 
 interface User {
@@ -20,10 +20,12 @@ interface Reservation {
     user: User;
     accommodation: Accommodation | null;
     booking_name: string;
+    package_name: string | null;
     check_in_date: string;
     check_out_date: string;
     number_of_guests: number;
     status: string;
+    payment_status: string;
     total_cost: number;
     created_at: string;
 }
@@ -34,9 +36,11 @@ interface CalendarEvent {
     start: string;
     end: string;
     accommodation_name: string;
+    package_name: string | null;
     guest_name: string;
     guests: number;
     status: string;
+    payment_status: string;
     total_cost: number;
 }
 
@@ -52,13 +56,15 @@ interface Props {
     reservations: PaginatedData<Reservation>;
     calendarEvents: CalendarEvent[];
     accommodations: Accommodation[];
+    cancelledCount: number;
 }
 
-export default function ReservationsIndex({ reservations, calendarEvents, accommodations }: Props) {
+export default function ReservationsIndex({ reservations, calendarEvents, accommodations, cancelledCount }: Props) {
     const [view, setView] = useState<'calendar' | 'table'>('calendar');
     const [calendarView, setCalendarView] = useState<'month' | 'week' | 'day'>('month');
     const [currentDate, setCurrentDate] = useState(new Date());
     const [selectedAccommodation, setSelectedAccommodation] = useState<number | null>(null);
+    const [selectedEvent, setSelectedEvent] = useState<CalendarEvent | null>(null);
 
     // Filter events by selected accommodation
     const filteredEvents = useMemo(() => {
@@ -149,6 +155,37 @@ export default function ReservationsIndex({ reservations, calendarEvents, accomm
                 return 'bg-blue-100 text-blue-800';
             default:
                 return 'bg-gray-100 text-gray-800';
+        }
+    };
+
+    // Payment status badge color
+    const getPaymentStatusColor = (status: string) => {
+        switch (status) {
+            case 'paid':
+                return 'bg-green-100 text-green-800';
+            case 'unpaid':
+                return 'bg-red-100 text-red-800';
+            case 'refunded':
+                return 'bg-purple-100 text-purple-800';
+            default:
+                return 'bg-gray-100 text-gray-800';
+        }
+    };
+
+    // Action handlers
+    const handleView = (reservationId: number) => {
+        router.visit(`/reservations/${reservationId}`);
+    };
+
+    const handleCancel = (reservationId: number) => {
+        if (confirm('Are you sure you want to cancel this reservation?')) {
+            router.post(`/reservations/${reservationId}/cancel`);
+        }
+    };
+
+    const handleDelete = (reservationId: number) => {
+        if (confirm('Are you sure you want to permanently delete this reservation? This action cannot be undone.')) {
+            router.delete(`/admin/reservations/${reservationId}`);
         }
     };
 
@@ -260,6 +297,13 @@ export default function ReservationsIndex({ reservations, calendarEvents, accomm
                                     </option>
                                 ))}
                             </select>
+                            <button
+                                onClick={() => router.visit('/admin/reservations/cancelled')}
+                                className="flex items-center gap-2 px-4 py-2 border-2 border-gray-200 rounded-lg hover:bg-gray-50 text-gray-700 font-medium transition-all"
+                            >
+                                <XCircle size={18} />
+                                Cancelled ({cancelledCount})
+                            </button>
                         </div>
                     </div>
                 </div>
@@ -333,7 +377,8 @@ export default function ReservationsIndex({ reservations, calendarEvents, accomm
                                                     {events.slice(0, 3).map(event => (
                                                         <div
                                                             key={event.id}
-                                                            className={`text-xs p-1 rounded truncate ${getStatusColor(event.status)}`}
+                                                            onClick={() => setSelectedEvent(event)}
+                                                            className={`text-xs p-1 rounded truncate cursor-pointer hover:opacity-80 transition-opacity ${getStatusColor(event.status)}`}
                                                             title={`${event.accommodation_name} - ${event.guest_name} (${event.guests} guests)`}
                                                         >
                                                             {event.guest_name}
@@ -356,7 +401,11 @@ export default function ReservationsIndex({ reservations, calendarEvents, accomm
                         {calendarView === 'day' && (
                             <div className="space-y-3">
                                 {getEventsForDate(currentDate).map(event => (
-                                    <div key={event.id} className="border border-gray-200 rounded-lg p-4 hover:border-amber-300 transition-all">
+                                    <div 
+                                        key={event.id} 
+                                        onClick={() => setSelectedEvent(event)}
+                                        className="border border-gray-200 rounded-lg p-4 hover:border-amber-300 hover:shadow-md transition-all cursor-pointer"
+                                    >
                                         <div className="flex items-start justify-between">
                                             <div className="flex-1">
                                                 <h3 className="font-semibold text-lg text-gray-800">{event.accommodation_name}</h3>
@@ -397,11 +446,13 @@ export default function ReservationsIndex({ reservations, calendarEvents, accomm
                                         <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">ID</th>
                                         <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Guest</th>
                                         <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Accommodation</th>
+                                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Package</th>
                                         <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Check-in</th>
                                         <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Check-out</th>
-                                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Guests</th>
                                         <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Total Cost</th>
+                                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Payment</th>
                                         <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
                                     </tr>
                                 </thead>
                                 <tbody className="bg-white divide-y divide-gray-200">
@@ -417,22 +468,62 @@ export default function ReservationsIndex({ reservations, calendarEvents, accomm
                                             <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                                                 {reservation.booking_name}
                                             </td>
+                                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                                                {reservation.package_name ? (
+                                                    <span className="px-2 py-1 bg-purple-100 text-purple-700 rounded-full text-xs font-medium">
+                                                        {reservation.package_name}
+                                                    </span>
+                                                ) : (
+                                                    <span className="text-gray-400">—</span>
+                                                )}
+                                            </td>
                                             <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
                                                 {new Date(reservation.check_in_date + 'T00:00:00').toLocaleDateString()}
                                             </td>
                                             <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
                                                 {new Date(reservation.check_out_date + 'T00:00:00').toLocaleDateString()}
                                             </td>
-                                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                                                {reservation.number_of_guests}
-                                            </td>
                                             <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-amber-600">
                                                 {formatCurrency(reservation.total_cost)}
+                                            </td>
+                                            <td className="px-6 py-4 whitespace-nowrap">
+                                                <span className={`px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full ${getPaymentStatusColor(reservation.payment_status)}`}>
+                                                    {reservation.payment_status}
+                                                </span>
                                             </td>
                                             <td className="px-6 py-4 whitespace-nowrap">
                                                 <span className={`px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full ${getStatusColor(reservation.status)}`}>
                                                     {reservation.status}
                                                 </span>
+                                            </td>
+                                            <td className="px-6 py-4 whitespace-nowrap">
+                                                <div className="flex items-center gap-2">
+                                                    <button
+                                                        onClick={() => handleView(reservation.reservation_id)}
+                                                        className="p-1.5 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
+                                                        title="View Details"
+                                                    >
+                                                        <Eye size={18} />
+                                                    </button>
+                                                    {(reservation.status === 'pending' || reservation.status === 'confirmed') && (
+                                                        <button
+                                                            onClick={() => handleCancel(reservation.reservation_id)}
+                                                            className="p-1.5 text-orange-600 hover:bg-orange-50 rounded-lg transition-colors"
+                                                            title="Cancel Reservation"
+                                                        >
+                                                            <XCircle size={18} />
+                                                        </button>
+                                                    )}
+                                                    {reservation.status === 'cancelled' && (
+                                                        <button
+                                                            onClick={() => handleDelete(reservation.reservation_id)}
+                                                            className="p-1.5 text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+                                                            title="Delete Reservation"
+                                                        >
+                                                            <Trash2 size={18} />
+                                                        </button>
+                                                    )}
+                                                </div>
                                             </td>
                                         </tr>
                                     ))}
@@ -456,6 +547,155 @@ export default function ReservationsIndex({ reservations, calendarEvents, accomm
                 )}
                 </div>
             </div>
+
+            {/* Reservation Details Modal */}
+            {selectedEvent && (
+                <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4" onClick={() => setSelectedEvent(null)}>
+                    <div className="bg-white rounded-2xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto" onClick={(e) => e.stopPropagation()}>
+                        {/* Modal Header */}
+                        <div className="sticky top-0 bg-white border-b border-gray-200 px-6 py-4 flex items-center justify-between rounded-t-2xl">
+                            <div>
+                                <h2 className="text-xl font-bold text-gray-900">Reservation Details</h2>
+                                <p className="text-sm text-gray-500">#{selectedEvent.id}</p>
+                            </div>
+                            <button 
+                                onClick={() => setSelectedEvent(null)}
+                                className="p-2 hover:bg-gray-100 rounded-full transition-colors"
+                            >
+                                <X className="w-5 h-5 text-gray-500" />
+                            </button>
+                        </div>
+
+                        {/* Modal Body */}
+                        <div className="p-6 space-y-6">
+                            {/* Status & Payment */}
+                            <div className="flex flex-wrap gap-3">
+                                <span className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-sm font-medium ${getStatusColor(selectedEvent.status)}`}>
+                                    {selectedEvent.status === 'confirmed' && <CheckCircle className="w-4 h-4" />}
+                                    {selectedEvent.status === 'pending' && <Clock className="w-4 h-4" />}
+                                    {selectedEvent.status === 'cancelled' && <XCircle className="w-4 h-4" />}
+                                    {selectedEvent.status.charAt(0).toUpperCase() + selectedEvent.status.slice(1)}
+                                </span>
+                                <span className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-sm font-medium ${
+                                    selectedEvent.payment_status === 'paid' ? 'bg-green-100 text-green-800' :
+                                    selectedEvent.payment_status === 'partial' ? 'bg-yellow-100 text-yellow-800' :
+                                    'bg-red-100 text-red-800'
+                                }`}>
+                                    <CreditCard className="w-4 h-4" />
+                                    {selectedEvent.payment_status === 'paid' ? 'Paid' :
+                                     selectedEvent.payment_status === 'partial' ? 'Partial Payment' : 'Unpaid'}
+                                </span>
+                            </div>
+
+                            {/* Accommodation */}
+                            <div className="bg-amber-50 border border-amber-200 rounded-xl p-4">
+                                <div className="flex items-start gap-3">
+                                    <MapPin className="w-5 h-5 text-amber-600 mt-0.5" />
+                                    <div>
+                                        <h3 className="font-semibold text-gray-900">{selectedEvent.accommodation_name}</h3>
+                                        {selectedEvent.package_name && (
+                                            <p className="text-sm text-amber-700 mt-1">{selectedEvent.package_name}</p>
+                                        )}
+                                    </div>
+                                </div>
+                            </div>
+
+                            {/* Guest Information */}
+                            <div className="bg-gray-50 rounded-xl p-4">
+                                <div className="flex items-center gap-3 mb-3">
+                                    <Users className="w-5 h-5 text-gray-600" />
+                                    <h3 className="font-semibold text-gray-900">Guest Information</h3>
+                                </div>
+                                <div className="grid grid-cols-2 gap-4 text-sm">
+                                    <div>
+                                        <span className="text-gray-500">Guest Name</span>
+                                        <p className="font-medium text-gray-900">{selectedEvent.guest_name}</p>
+                                    </div>
+                                    <div>
+                                        <span className="text-gray-500">Number of Guests</span>
+                                        <p className="font-medium text-gray-900">{selectedEvent.guests} guests</p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            {/* Dates */}
+                            <div className="bg-gray-50 rounded-xl p-4">
+                                <div className="flex items-center gap-3 mb-3">
+                                    <CalendarIcon className="w-5 h-5 text-gray-600" />
+                                    <h3 className="font-semibold text-gray-900">Reservation Dates</h3>
+                                </div>
+                                <div className="grid grid-cols-2 gap-4 text-sm">
+                                    <div>
+                                        <span className="text-gray-500">Check-in</span>
+                                        <p className="font-medium text-gray-900">{new Date(selectedEvent.start).toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}</p>
+                                    </div>
+                                    <div>
+                                        <span className="text-gray-500">Check-out</span>
+                                        <p className="font-medium text-gray-900">{new Date(selectedEvent.end).toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}</p>
+                                    </div>
+                                </div>
+                                <div className="mt-3 pt-3 border-t border-gray-200">
+                                    <span className="text-gray-500 text-sm">Duration</span>
+                                    <p className="font-medium text-gray-900">
+                                        {(() => {
+                                            const start = new Date(selectedEvent.start);
+                                            const end = new Date(selectedEvent.end);
+                                            const diffTime = Math.abs(end.getTime() - start.getTime());
+                                            const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+                                            return diffDays === 1 ? 'Overnight Stay' : `${diffDays}-Day Stay`;
+                                        })()}
+                                    </p>
+                                </div>
+                            </div>
+
+                            {/* Total Cost */}
+                            <div className="bg-amber-50 border border-amber-200 rounded-xl p-4">
+                                <div className="flex items-center justify-between">
+                                    <div className="flex items-center gap-3">
+                                        <CreditCard className="w-5 h-5 text-amber-600" />
+                                        <span className="font-semibold text-gray-900">Total Cost</span>
+                                    </div>
+                                    <span className="text-2xl font-bold text-amber-600">{formatCurrency(selectedEvent.total_cost)}</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* Modal Footer */}
+                        <div className="sticky bottom-0 bg-gray-50 border-t border-gray-200 px-6 py-4 flex justify-between items-center rounded-b-2xl">
+                            <button
+                                onClick={() => router.visit(`/reservations/${selectedEvent.id}`)}
+                                className="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-amber-700 hover:text-amber-800 hover:bg-amber-100 rounded-lg transition-colors"
+                            >
+                                <Eye className="w-4 h-4" />
+                                View Full Details
+                            </button>
+                            <div className="flex gap-2">
+                                {selectedEvent.status !== 'cancelled' && (
+                                    <button
+                                        onClick={() => {
+                                            if (confirm('Are you sure you want to cancel this reservation?')) {
+                                                router.patch(`/reservations/${selectedEvent.id}/cancel`, {}, {
+                                                    onSuccess: () => setSelectedEvent(null)
+                                                });
+                                            }
+                                        }}
+                                        className="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-red-600 hover:text-red-700 hover:bg-red-50 rounded-lg transition-colors"
+                                    >
+                                        <XCircle className="w-4 h-4" />
+                                        Cancel Reservation
+                                    </button>
+                                )}
+                                <button
+                                    onClick={() => setSelectedEvent(null)}
+                                    className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 hover:bg-gray-50 rounded-lg transition-colors"
+                                >
+                                    Close
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            )}
         </AppLayout>
     );
 }

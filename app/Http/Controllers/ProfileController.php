@@ -55,6 +55,7 @@ class ProfileController extends Controller
                     'check_out_date' => $checkOutDate->format('M d, Y'),
                     'total_price' => $reservation->total_price,
                     'status' => $reservation->status,
+                    'payment_status' => $reservation->payment_status,
                     'is_upcoming' => $checkInDate->isFuture(),
                     'is_past' => $checkOutDate->isPast(),
                     'can_rate' => $checkOutDate->isPast() && $reservation->status === 'confirmed',

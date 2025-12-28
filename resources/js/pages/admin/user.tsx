@@ -57,9 +57,10 @@ interface UserManagementProps {
     openEditDialog?: boolean;
     currentUser: User;
     showingTrashed?: boolean;
+    trashedCount?: number;
 }
 
-export default function UserManagement({ users, editingUser: initialEditingUser, openEditDialog: initialOpenEditDialog, currentUser, showingTrashed = false }: UserManagementProps) {
+export default function UserManagement({ users, editingUser: initialEditingUser, openEditDialog: initialOpenEditDialog, currentUser, showingTrashed = false, trashedCount = 0 }: UserManagementProps) {
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [globalFilter, setGlobalFilter] = useState('');
     const [sorting, setSorting] = useState<SortingState>([]);
@@ -297,7 +298,7 @@ export default function UserManagement({ users, editingUser: initialEditingUser,
                                         className="px-6 py-3 rounded-xl font-semibold"
                                     >
                                         <i className={`bi ${showingTrashed ? 'bi-people' : 'bi-trash'} mr-2`}></i>
-                                        {showingTrashed ? 'View Active Users' : 'View Deleted Users'}
+                                        {showingTrashed ? 'View Active Users' : `Trash (${trashedCount})`}
                                     </Button>
                                 )}
                                 {!showingTrashed && (

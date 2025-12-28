@@ -27,28 +27,28 @@ class AdminAuthenticatedSessionController extends Controller
     public function store(Request $request): RedirectResponse
     {
         $request->validate([
-            'email' => 'required|email',
+            'email' => 'required|string', // This field accepts either email or username
             'password' => 'required|string',
         ]);
 
-        $credentials = $request->only('email', 'password');
+        $login = $request->input('email');
         $remember = $request->boolean('remember');
 
-        if (Auth::attempt($credentials, $remember)) {
-            $user = Auth::user();
+        // Find user by email or username
+        $user = \App\Models\User::where('email', $login)
+            ->orWhere('username', $login)
+            ->first();
 
+        if ($user && \Illuminate\Support\Facades\Hash::check($request->password, $user->password)) {
             // Check if user is admin or employee
             if ($user->role === 'admin' || $user->role === 'employee') {
+                Auth::login($user, $remember);
                 $request->session()->regenerate();
 
                 return redirect()->intended(route('admin.dashboard'));
             }
 
-            // If customer tries to login via admin portal, log them out
-            Auth::logout();
-            $request->session()->invalidate();
-            $request->session()->regenerateToken();
-
+            // If customer tries to login via admin portal, don't log them in
             return back()->withErrors([
                 'email' => 'Access denied. This portal is for staff members only.',
             ])->onlyInput('email');

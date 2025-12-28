@@ -312,6 +312,7 @@ class ReservationController extends Controller
 
     /**
      * Admin: Confirm reservation
+     * Note: Reservations can only be confirmed after payment is completed
      */
     public function confirm(Reservation $reservation)
     {
@@ -324,6 +325,13 @@ class ReservationController extends Controller
         if ($reservation->status !== 'pending') {
             return back()->withErrors([
                 'confirmation' => 'Only pending reservations can be confirmed.'
+            ]);
+        }
+
+        // Check if payment is completed before allowing confirmation
+        if ($reservation->payment_status !== 'paid') {
+            return back()->withErrors([
+                'confirmation' => 'Reservation can only be confirmed after payment is completed.'
             ]);
         }
 
@@ -353,10 +361,15 @@ class ReservationController extends Controller
             ->through(function ($reservation) {
                 // Determine booking name
                 $bookingName = 'N/A';
+                $packageName = null;
                 if ($reservation->accommodation) {
                     $bookingName = $reservation->accommodation->accommodation_name;
-                } elseif ($reservation->package) {
-                    $bookingName = $reservation->package->package_name . ' (Package)';
+                }
+                if ($reservation->package) {
+                    $packageName = $reservation->package->package_name;
+                    if (!$reservation->accommodation) {
+                        $bookingName = $packageName . ' (Package)';
+                    }
                 }
 
                 return [
@@ -365,11 +378,13 @@ class ReservationController extends Controller
                     'accommodation' => $reservation->accommodation,
                     'package' => $reservation->package,
                     'booking_name' => $bookingName,
+                    'package_name' => $packageName,
                     'check_in_date' => $reservation->check_in_date->format('Y-m-d'),
                     'check_out_date' => $reservation->check_out_date->format('Y-m-d'),
                     'number_of_guests' => $reservation->number_of_guests,
                     'total_cost' => $reservation->total_price,
                     'status' => $reservation->status,
+                    'payment_status' => $reservation->payment_status,
                 ];
             });
 
@@ -392,9 +407,11 @@ class ReservationController extends Controller
                     'start' => $reservation->check_in_date->format('Y-m-d'),
                     'end' => $reservation->check_out_date->format('Y-m-d'),
                     'accommodation_name' => $bookingName,
-                    'guest_name' => $reservation->user->name ?? 'N/A',
+                    'package_name' => $reservation->package?->package_name ?? null,
+                    'guest_name' => $reservation->user->full_name ?? $reservation->user->name ?? 'N/A',
                     'guests' => $reservation->number_of_guests,
                     'status' => $reservation->status,
+                    'payment_status' => $reservation->status === 'confirmed' ? 'paid' : ($reservation->payment_status ?? 'unpaid'),
                     'total_cost' => $reservation->total_price,
                 ];
             });
@@ -404,10 +421,90 @@ class ReservationController extends Controller
             ->orderBy('accommodation_name')
             ->get();
 
+        // Get cancelled reservations count
+        $cancelledCount = Reservation::where('status', 'cancelled')->count();
+
         return Inertia::render('admin/Reservations/Index', [
             'reservations' => $reservations,
             'calendarEvents' => $calendarEvents,
             'accommodations' => $accommodations,
+            'cancelledCount' => $cancelledCount,
+        ]);
+    }
+
+    /**
+     * Admin: Delete a cancelled reservation
+     */
+    public function destroy(Reservation $reservation)
+    {
+        /** @var \App\Models\User $user */
+        $user = Auth::user();
+        if (!$user->canAccessAdmin()) {
+            abort(403);
+        }
+
+        // Only allow deleting cancelled reservations
+        if ($reservation->status !== 'cancelled') {
+            return back()->withErrors([
+                'deletion' => 'Only cancelled reservations can be deleted.'
+            ]);
+        }
+
+        // Delete associated amenities first
+        $reservation->amenities()->detach();
+        
+        // Delete the reservation
+        $reservation->delete();
+
+        return back()->with('success', 'Reservation deleted successfully.');
+    }
+
+    /**
+     * Admin: List all cancelled reservations
+     */
+    public function cancelled()
+    {
+        /** @var \App\Models\User $user */
+        $user = Auth::user();
+        if (!$user->canAccessAdmin()) {
+            abort(403);
+        }
+
+        $reservations = Reservation::with(['user', 'accommodation', 'package'])
+            ->where('status', 'cancelled')
+            ->orderBy('updated_at', 'desc')
+            ->paginate(20)
+            ->through(function ($reservation) {
+                $bookingName = 'N/A';
+                $packageName = null;
+                if ($reservation->accommodation) {
+                    $bookingName = $reservation->accommodation->accommodation_name;
+                }
+                if ($reservation->package) {
+                    $packageName = $reservation->package->package_name;
+                    if (!$reservation->accommodation) {
+                        $bookingName = $packageName . ' (Package)';
+                    }
+                }
+
+                return [
+                    'reservation_id' => $reservation->reservation_id,
+                    'user' => $reservation->user,
+                    'accommodation' => $reservation->accommodation,
+                    'package' => $reservation->package,
+                    'booking_name' => $bookingName,
+                    'package_name' => $packageName,
+                    'check_in_date' => $reservation->check_in_date->format('Y-m-d'),
+                    'check_out_date' => $reservation->check_out_date->format('Y-m-d'),
+                    'number_of_guests' => $reservation->number_of_guests,
+                    'total_cost' => $reservation->total_price,
+                    'status' => $reservation->status,
+                    'cancelled_at' => $reservation->updated_at->format('Y-m-d H:i'),
+                ];
+            });
+
+        return Inertia::render('admin/Reservations/Cancelled', [
+            'reservations' => $reservations,
         ]);
     }
 }

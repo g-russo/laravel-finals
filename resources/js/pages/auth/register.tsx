@@ -110,7 +110,7 @@ export default function Register() {
 
     return (
         <>
-            <Head title="Register" />
+            <Head title="Sign Up" />
             {/* Bootstrap Icons CDN */}
             <link 
                 rel="stylesheet" 

@@ -150,17 +150,17 @@ export default function AdminLogin({ status, error }: AdminLoginProps) {
                                         <div className="grid gap-6">
                                             <div className="grid gap-2">
                                                 <Label htmlFor="email" className="text-sm font-semibold text-gray-300">
-                                                    Email Address
+                                                    Email or Username
                                                 </Label>
                                                 <Input
                                                     id="email"
-                                                    type="email"
+                                                    type="text"
                                                     name="email"
                                                     required
                                                     autoFocus
                                                     tabIndex={1}
-                                                    autoComplete="email"
-                                                    placeholder="admin@paradiseresort.com"
+                                                    autoComplete="username"
+                                                    placeholder="admin@paradiseresort.com or username"
                                                     className="px-4 py-3 rounded-lg border border-slate-600 focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all bg-slate-900/50 text-white placeholder:text-gray-500"
                                                 />
                                                 <InputError message={errors.email} />

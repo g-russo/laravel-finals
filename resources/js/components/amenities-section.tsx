@@ -193,15 +193,12 @@ export function AmenitiesSection({ amenities }: AmenitiesSectionProps) {
               {/* Carousel Container */}
               <div className="overflow-hidden" data-aos="fade-up" data-aos-delay="400">
                 <div
-                    className={`flex ${showAll ? 'flex-wrap' : 'transition-transform duration-500 ease-out'}`}
+                    className={`flex ${showAll ? 'flex-wrap' : 'transition-transform duration-500 ease-in-out'}`}
                     style={!showAll ? {
                         transform: `translateX(-${currentIndex * (100 / itemsPerView)}%)`
                     } : {}}
                 >
-                  {(showAll ? filteredAmenities : filteredAmenities).map((amenity, index) => {
-                    if (!showAll && (index < currentIndex || index >= currentIndex + itemsPerView)) {
-                      return null;
-                    }
+                  {(showAll ? filteredAmenities : filteredAmenities).map((amenity) => {
                     return (
                       <div
                           key={amenity.amenity_id}
@@ -384,7 +381,7 @@ export function AmenitiesSection({ amenities }: AmenitiesSectionProps) {
                   />
                   <div className="absolute top-4 right-4">
                     <Badge className="bg-white/95 text-gray-900 shadow-lg font-bold px-4 py-2 text-lg">
-                      {formatCurrency(parseFloat(selectedAmenity.price_per_use))} per use
+                      {formatCurrency(typeof selectedAmenity.price_per_use === 'string' ? parseFloat(selectedAmenity.price_per_use) : selectedAmenity.price_per_use)} per use
                     </Badge>
                   </div>
                 </div>

@@ -20,10 +20,12 @@ class UserController extends Controller
     {
         $users = User::orderBy('id')
             ->get(['id', 'full_name', 'username', 'email', 'role', 'avatar_path', 'phone_number', 'address', 'city', 'country', 'date_of_birth']);
+        $trashedCount = User::onlyTrashed()->count();
 
         return Inertia::render('admin/user', [
             'users' => $users,
             'currentUser' => Auth::user(),
+            'trashedCount' => $trashedCount,
         ]);
     }
 
