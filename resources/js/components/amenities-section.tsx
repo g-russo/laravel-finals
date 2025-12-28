@@ -243,9 +243,12 @@ export function AmenitiesSection({ amenities }: AmenitiesSectionProps) {
                                   <i className="bi bi-clock mr-2"></i>
                                   <span>Per use</span>
                               </div>
-                              <button className="bg-gradient-to-r from-orange-600 to-orange-700 hover:from-orange-700 hover:to-orange-800 text-white px-6 py-2 rounded-full font-medium transition-all duration-300 hover:scale-105 shadow-sm hover:shadow-md text-sm group-hover:shadow-lg">
+                              <a 
+                                  href={`/reservations/create?amenity=${amenity.amenity_id}`}
+                                  className="bg-gradient-to-r from-orange-600 to-orange-700 hover:from-orange-700 hover:to-orange-800 text-white px-6 py-2 rounded-full font-medium transition-all duration-300 hover:scale-105 shadow-sm hover:shadow-md text-sm group-hover:shadow-lg"
+                              >
                                   Book Now
-                              </button>
+                              </a>
                             </div>
                           </div>
                         </div>
@@ -420,11 +423,12 @@ export function AmenitiesSection({ amenities }: AmenitiesSectionProps) {
 
                 {/* Action Buttons */}
                 <div className="flex gap-3 pt-4 border-t">
-                  <Button 
-                    className="flex-1 bg-gradient-to-r from-orange-600 to-orange-700 hover:from-orange-700 hover:to-orange-800 text-white font-semibold py-3"
+                  <a 
+                    href={`/reservations/create?amenity=${selectedAmenity.amenity_id}`}
+                    className="flex-1 bg-gradient-to-r from-orange-600 to-orange-700 hover:from-orange-700 hover:to-orange-800 text-white font-semibold py-3 rounded-md text-center flex items-center justify-center"
                   >
                     Book This Amenity
-                  </Button>
+                  </a>
                   <Button 
                     variant="outline" 
                     onClick={() => setIsDetailModalOpen(false)}

@@ -334,9 +334,9 @@ export default function ReservationsIndex({ reservations, calendarEvents, accomm
                                                         <div
                                                             key={event.id}
                                                             className={`text-xs p-1 rounded truncate ${getStatusColor(event.status)}`}
-                                                            title={`${event.accommodation_name} - ${event.guest_name}`}
+                                                            title={`${event.accommodation_name} - ${event.guest_name} (${event.guests} guests)`}
                                                         >
-                                                            {event.accommodation_name}
+                                                            {event.guest_name}
                                                         </div>
                                                     ))}
                                                     {events.length > 3 && (

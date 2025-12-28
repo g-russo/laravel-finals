@@ -217,15 +217,15 @@ export default function Welcome({ accommodations, amenities, stats }: WelcomePro
                             >
                                 {slides[currentSlide].description}
                             </p>
-                            <button
-                                onClick={() => setShowModal(true)}
-                                className="bg-orange-600 text-white px-8 py-4 rounded-full text-lg font-semibold hover:bg-orange-700 transition-all duration-300 transform hover:scale-105 shadow-lg"
+                            <Link
+                                href="/reservations/create"
+                                className="inline-block bg-orange-600 text-white px-8 py-4 rounded-full text-lg font-semibold hover:bg-orange-700 transition-all duration-300 transform hover:scale-105 shadow-lg"
                                 data-aos="zoom-in"
                                 data-aos-delay="600"
                                 data-aos-duration="800"
                             >
                                 {slides[currentSlide].cta}
-                            </button>
+                            </Link>
                         </div>
                     </div>
                 </div>
@@ -399,10 +399,10 @@ export default function Welcome({ accommodations, amenities, stats }: WelcomePro
                                             </div>
                                         </div>
                                         <Link
-                                            href={`/accommodations/${accommodation.id}`}
+                                            href={`/reservations/create?accommodation=${accommodation.id}`}
                                             className="bg-gradient-to-r from-orange-600 to-orange-700 hover:from-orange-700 hover:to-orange-800 text-white px-4 py-2 rounded-lg font-medium transition-all duration-300 hover:scale-105 shadow-sm hover:shadow-md text-sm"
                                         >
-                                            View Details
+                                            Book Now
                                         </Link>
                                     </div>
                                 </div>

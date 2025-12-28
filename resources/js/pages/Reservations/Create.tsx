@@ -1,5 +1,5 @@
-import { Head, useForm, router } from '@inertiajs/react';
-import { FormEventHandler, useState, useMemo } from 'react';
+import { Head, useForm, router, usePage } from '@inertiajs/react';
+import { FormEventHandler, useState, useMemo, useEffect } from 'react';
 import Navigation from '@/components/Navigation';
 import Footer from '@/components/Footer';
 import { Calendar, Users, Clock, CheckCircle } from 'lucide-react';
@@ -51,6 +51,34 @@ export default function CreateReservation({ accommodations, amenities, packages 
         amenities: [] as Array<{ amenity_id: number; booking_date: string }>,
         special_requests: '',
     });
+
+    // Read accommodation and amenity query parameters and pre-select them
+    useEffect(() => {
+        const urlParams = new URLSearchParams(window.location.search);
+        const accommodationParam = urlParams.get('accommodation');
+        const amenityParam = urlParams.get('amenity');
+        
+        if (accommodationParam) {
+            // Find the accommodation by ID
+            const preSelectedAccommodation = accommodations.find(
+                acc => acc.id === parseInt(accommodationParam)
+            );
+            
+            if (preSelectedAccommodation) {
+                setData('accommodation_id', accommodationParam);
+                setBookingType('accommodation');
+            }
+        }
+
+        // Pre-select amenity if provided
+        if (amenityParam) {
+            const amenityId = parseInt(amenityParam);
+            const amenity = amenities.find(a => a.id === amenityId);
+            if (amenity && !selectedAmenities.includes(amenityId)) {
+                setSelectedAmenities(prev => [...prev, amenityId]);
+            }
+        }
+    }, [accommodations, amenities]);
 
     const selectedAccommodation = useMemo(() => {
         return accommodations.find(acc => acc.id === parseInt(data.accommodation_id));
@@ -327,6 +355,21 @@ export default function CreateReservation({ accommodations, amenities, packages 
                                 <div>
                                     <h2 className="text-2xl font-bold text-gray-800 mb-4">Add Amenities</h2>
                                     <p className="text-gray-600 mb-4">Enhance your stay with additional services</p>
+                                    
+                                    {/* Monday Pool Maintenance Warning */}
+                                    {data.check_in_date && new Date(data.check_in_date).getDay() === 1 && (
+                                        <div className="mb-4 p-4 bg-yellow-50 border border-yellow-200 rounded-xl flex items-start gap-3">
+                                            <Clock className="text-yellow-600 flex-shrink-0 mt-0.5" size={20} />
+                                            <div>
+                                                <p className="text-yellow-800 font-medium">Pool Maintenance Notice</p>
+                                                <p className="text-yellow-700 text-sm mt-1">
+                                                    Pool amenities are closed on Mondays from 8:00 AM to 2:00 PM for routine maintenance.
+                                                    Please plan your pool activities accordingly.
+                                                </p>
+                                            </div>
+                                        </div>
+                                    )}
+
                                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                         {amenities.map((amenity) => (
                                             <div

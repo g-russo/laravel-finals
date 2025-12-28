@@ -1,4 +1,4 @@
-import { Head, useForm } from '@inertiajs/react';
+import { Head, useForm, router } from '@inertiajs/react';
 import { FormEventHandler } from 'react';
 import Navigation from '@/components/Navigation';
 import Footer from '@/components/Footer';
@@ -33,12 +33,23 @@ export default function Payment({ reservation }: Props) {
         e.preventDefault();
         
         if (reservation) {
-            post(`/payments/${reservation.reservation_id}`, {
+            // For demo purposes, use placeholder values for non-credit card payments
+            const submissionData = {
+                payment_method: data.payment_method,
+                card_number: data.payment_method === 'credit_card' ? data.card_number : 'DEMO-0000-0000-0000',
+                card_name: data.payment_method === 'credit_card' ? data.card_name : 'Demo Payment',
+                expiry_date: data.payment_method === 'credit_card' ? data.expiry_date : '12/99',
+                cvv: data.payment_method === 'credit_card' ? data.cvv : '000',
+                billing_address: data.billing_address,
+            };
+
+            router.post(`/payments/${reservation.reservation_id}`, submissionData, {
                 onSuccess: () => {
                     alert('Payment successful! Your booking is confirmed.');
                 },
-                onError: () => {
-                    alert('Payment failed. Please try again.');
+                onError: (errors) => {
+                    console.error('Payment errors:', errors);
+                    alert('Payment failed. Please check your details and try again.');
                 }
             });
         }
