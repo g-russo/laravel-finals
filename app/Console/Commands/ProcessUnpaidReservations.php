@@ -76,10 +76,10 @@ class ProcessUnpaidReservations extends Command
                 try {
                     Mail::to($reservation->user->email)
                         ->send(new PaymentReminderMail($reservation));
-                    
+
                     $count++;
                     $this->line("  Sent reminder to: {$reservation->user->email} for reservation #{$reservation->reservation_id}");
-                    
+
                     Log::info('Payment reminder sent', [
                         'reservation_id' => $reservation->reservation_id,
                         'user_email' => $reservation->user->email,

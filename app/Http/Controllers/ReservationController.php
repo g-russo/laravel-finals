@@ -452,7 +452,7 @@ class ReservationController extends Controller
 
         // Delete associated amenities first
         $reservation->amenities()->detach();
-        
+
         // Delete the reservation
         $reservation->delete();
 

@@ -215,7 +215,7 @@ class AccommodationController extends Controller
     public function forceDelete($id)
     {
         $accommodation = Accommodation::onlyTrashed()->findOrFail($id);
-        
+
         // Delete associated image if exists
         if ($accommodation->image_url) {
             $imagePath = public_path($accommodation->image_url);
