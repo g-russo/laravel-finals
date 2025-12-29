@@ -1,6 +1,7 @@
 import { Head, Link, router } from '@inertiajs/react';
 import Navigation from '@/components/Navigation';
 import Footer from '@/components/Footer';
+import { FlashToastHandler } from '@/components/toast-provider';
 import { formatCurrency } from '@/lib/currency';
 import { 
     Calendar, 
@@ -147,6 +148,7 @@ export default function Show({ reservation }: Props) {
 
     return (
         <>
+            <FlashToastHandler />
             <Head title={`Reservation #${reservation.id}`} />
             <Navigation />
 

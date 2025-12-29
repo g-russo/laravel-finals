@@ -2,6 +2,8 @@ import { Head, useForm, router } from '@inertiajs/react';
 import { FormEventHandler } from 'react';
 import Navigation from '@/components/Navigation';
 import Footer from '@/components/Footer';
+import { FlashToastHandler } from '@/components/toast-provider';
+import { showToast } from '@/hooks/use-flash-messages';
 import { CreditCard, Building2, Wallet, CheckCircle, AlertCircle } from 'lucide-react';
 import { formatCurrency } from '@/lib/currency';
 
@@ -45,11 +47,11 @@ export default function Payment({ reservation }: Props) {
 
             router.post(`/payments/${reservation.reservation_id}`, submissionData, {
                 onSuccess: () => {
-                    alert('Payment successful! Your booking is confirmed.');
+                    showToast.success('Payment successful! Your booking is confirmed.');
                 },
                 onError: (errors) => {
                     console.error('Payment errors:', errors);
-                    alert('Payment failed. Please check your details and try again.');
+                    showToast.error('Payment failed. Please check your details and try again.');
                 }
             });
         }
@@ -88,6 +90,7 @@ export default function Payment({ reservation }: Props) {
 
     return (
         <>
+            <FlashToastHandler />
             <Head title="Payment" />
             <Navigation />
 

@@ -2,6 +2,7 @@ import { Head, useForm, Link, router } from '@inertiajs/react';
 import { FormEventHandler, useState } from 'react';
 import Navigation from '@/components/Navigation';
 import Footer from '@/components/Footer';
+import { FlashToastHandler } from '@/components/toast-provider';
 import { User, Calendar, Mail, Phone, Globe, Camera, Lock, Eye, EyeOff, LogOut, CreditCard, ExternalLink } from 'lucide-react';
 import { profile } from '@/routes';
 import { formatCurrency } from '@/lib/currency';
@@ -84,6 +85,7 @@ export default function Profile({ user, reservations }: Props) {
 
     return (
         <>
+            <FlashToastHandler />
             <Head title="My Profile" />
             <Navigation />
             

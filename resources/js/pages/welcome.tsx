@@ -3,6 +3,7 @@ import { useState, useEffect } from 'react';
 import Navigation from '@/components/Navigation';
 import Footer from '@/components/Footer';
 import { AmenitiesSection } from '@/components/amenities-section';
+import { FlashToastHandler } from '@/components/toast-provider';
 import { formatCurrency } from '@/lib/currency';
 import AOS from 'aos';
 import 'aos/dist/aos.css';
@@ -89,6 +90,7 @@ export default function Welcome({ accommodations, amenities, stats }: WelcomePro
 
     return (
         <>
+            <FlashToastHandler />
             <Head title="Experience Paradise with a Resort">
                 <link rel="preconnect" href="https://fonts.bunny.net" />
                 <link

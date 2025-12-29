@@ -1,6 +1,7 @@
 import { useState, useMemo } from 'react';
 import { Head, useForm, router } from '@inertiajs/react';
 import AppLayout from '@/layouts/app-layout';
+import { showToast } from '@/hooks/use-flash-messages';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import {
@@ -138,11 +139,11 @@ export default function UserManagement({ users, editingUser: initialEditingUser,
     const handleDeleteClick = (user: User) => {
         // Check permissions before showing delete dialog
         if (currentUser.role === 'employee') {
-            alert('Employees are not authorized to delete users!');
+            showToast.error('Employees are not authorized to delete users!');
             return;
         }
         if (currentUser.role === 'admin' && user.role === 'admin') {
-            alert('Admins cannot delete other admin accounts!');
+            showToast.error('Admins cannot delete other admin accounts!');
             return;
         }
         setUserToDelete(user);

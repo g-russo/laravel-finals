@@ -2,6 +2,8 @@ import { Head, useForm, router, usePage } from '@inertiajs/react';
 import { FormEventHandler, useState, useMemo, useEffect } from 'react';
 import Navigation from '@/components/Navigation';
 import Footer from '@/components/Footer';
+import { FlashToastHandler } from '@/components/toast-provider';
+import { showToast } from '@/hooks/use-flash-messages';
 import { Calendar, Users, Clock, CheckCircle } from 'lucide-react';
 import { formatCurrency } from '@/lib/currency';
 
@@ -160,15 +162,18 @@ export default function CreateReservation({ accommodations, amenities, packages 
                         return value.join(', ');
                     }
                     return String(value);
-                }).join('\n');
+                }).join(' | ');
                 
-                alert(`There was an error with your reservation:\n\n${errorMessages || 'Please check the form and try again.'}`);
+                showToast.error(errorMessages || 'Please check the form and try again.', {
+                    description: 'There was an error with your reservation'
+                });
             },
         });
     };
 
     return (
         <>
+            <FlashToastHandler />
             <Head title="Book Your Stay" />
             <Navigation />
 

@@ -2,6 +2,7 @@ import { Head, Link } from '@inertiajs/react';
 import { useState, useEffect } from 'react';
 import Navigation from '@/components/Navigation';
 import Footer from '@/components/Footer';
+import { FlashToastHandler } from '@/components/toast-provider';
 import { formatCurrency } from '@/lib/currency';
 import AOS from 'aos';
 import 'aos/dist/aos.css';
@@ -54,6 +55,7 @@ export default function AccommodationDetail({ accommodation, relatedAccommodatio
 
     return (
         <>
+            <FlashToastHandler />
             <Head title={`${accommodation.title} - Paradise Resort`}>
                 <link
                     href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css"
