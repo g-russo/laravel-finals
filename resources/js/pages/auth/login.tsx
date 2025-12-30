@@ -5,9 +5,7 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Spinner } from '@/components/ui/spinner';
-import { register } from '@/routes';
 import { store } from '@/routes/login';
-import { request } from '@/routes/password';
 import { Form, Head, Link } from '@inertiajs/react';
 import { useEffect } from 'react';
 import AOS from 'aos';
@@ -144,7 +142,7 @@ export default function Login({ status, canResetPassword }: LoginProps) {
                                     </Label>
                                     {canResetPassword && (
                                         <TextLink
-                                            href={request()}
+                                            href="/forgot-password"
                                             className="text-sm text-orange-600 hover:text-orange-700 font-medium transition-colors"
                                             tabIndex={5}
                                         >
@@ -203,7 +201,7 @@ export default function Login({ status, canResetPassword }: LoginProps) {
                                 Don't have an account yet?
                             </p>
                             <Link 
-                                href={register()}
+                                href="/register"
                                 className="inline-block w-full py-3 px-4 rounded-lg border-2 border-orange-600 text-orange-600 font-semibold hover:bg-orange-50 transition-colors duration-300"
                                 tabIndex={5}
                             >

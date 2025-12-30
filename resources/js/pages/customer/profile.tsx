@@ -4,7 +4,6 @@ import Navigation from '@/components/Navigation';
 import Footer from '@/components/Footer';
 import { FlashToastHandler } from '@/components/toast-provider';
 import { User, Calendar, Mail, Phone, Globe, Camera, Lock, Eye, EyeOff, LogOut, CreditCard, ExternalLink } from 'lucide-react';
-import { profile } from '@/routes';
 import { formatCurrency } from '@/lib/currency';
 
 interface Reservation {

@@ -485,124 +485,69 @@ export default function Welcome({ accommodations, amenities, packages, stats, ha
             {/* Amenities Section */}
             <AmenitiesSection amenities={amenities} />
 
-            {/* Packages Section */}
-            <section id="packages" className="py-20 bg-gray-50">
-                <div className="container mx-auto px-4 lg:px-8">
-                    <div className="text-center mb-16">
-                        <div 
-                            className="inline-block w-16 h-0.5 bg-orange-600 mb-4"
-                            data-aos="fade-right"
-                            data-aos-duration="600"
-                        ></div>
-                        <h2 
-                            className="text-4xl md:text-5xl font-bold text-gray-900 mb-4"
-                            data-aos="fade-up"
-                            data-aos-duration="800"
-                        >
-                            Special Packages
-                        </h2>
-                        <p 
-                            className="text-xl text-gray-600 max-w-3xl mx-auto"
-                            data-aos="fade-up"
-                            data-aos-delay="200"
-                            data-aos-duration="800"
-                        >
-                            Discover our exclusive packages designed to give you the ultimate resort experience at incredible value.
-                        </p>
-                    </div>
-
-                    {packages && packages.length > 0 ? (
-                        <>
-                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-                                {packages.slice(0, 3).map((pkg, index) => (
-                                    <div
-                                        key={pkg.id}
-                                        className="bg-white rounded-2xl overflow-hidden shadow-lg hover:shadow-xl transition-all duration-300 group"
-                                        data-aos="fade-up"
-                                        data-aos-delay={index * 100}
-                                    >
-                                        <div className="relative overflow-hidden h-48">
-                                            <img
-                                                src={pkg.image_path ? (pkg.image_path.startsWith('http') ? pkg.image_path : `/storage/${pkg.image_path}`) : 'https://images.unsplash.com/photo-1571896349842-33c89424de2d?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=800&q=80'}
-                                                alt={pkg.name}
-                                                className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
-                                                onError={(e) => {
-                                                    (e.target as HTMLImageElement).src = 'https://images.unsplash.com/photo-1571896349842-33c89424de2d?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=800&q=80';
-                                                }}
-                                            />
-                                            <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent"></div>
-                                            
-                                            {pkg.discount_percentage > 0 && (
-                                                <div className="absolute top-4 right-4 bg-red-500 text-white px-3 py-1 rounded-full text-sm font-bold shadow-lg">
-                                                    {pkg.discount_percentage}% OFF
-                                                </div>
-                                            )}
-
-                                            <div className="absolute bottom-4 left-4">
-                                                <h3 className="text-xl font-bold text-white">{pkg.name}</h3>
-                                            </div>
-                                        </div>
-
-                                        <div className="p-6">
-                                            <p className="text-gray-600 text-sm mb-4 line-clamp-2">
-                                                {pkg.description}
-                                            </p>
-                                            
-                                            <div className="flex items-center justify-between mb-4">
-                                                <div>
-                                                    {pkg.discount_percentage > 0 ? (
-                                                        <>
-                                                            <span className="text-gray-400 line-through text-sm mr-2">
-                                                                ₱{pkg.price.toLocaleString()}
-                                                            </span>
-                                                            <span className="text-orange-600 font-bold text-lg">
-                                                                ₱{(pkg.price - (pkg.price * pkg.discount_percentage / 100)).toLocaleString()}
-                                                            </span>
-                                                        </>
-                                                    ) : (
-                                                        <span className="text-orange-600 font-bold text-lg">
-                                                            ₱{pkg.price.toLocaleString()}
-                                                        </span>
-                                                    )}
-                                                </div>
-                                                <span className="text-sm text-gray-500">
-                                                    <i className="bi bi-people mr-1"></i>
-                                                    Up to {pkg.max_guests}
-                                                </span>
-                                            </div>
-
-                                            <Link
-                                                href={`/reservations/create?package=${pkg.id}`}
-                                                className="block w-full text-center bg-gradient-to-r from-orange-600 to-orange-700 hover:from-orange-700 hover:to-orange-800 text-white py-2 rounded-lg font-medium transition-all duration-300"
-                                            >
-                                                Book Package
-                                            </Link>
-                                        </div>
-                                    </div>
-                                ))}
-                            </div>
-
-                            <div className="text-center mt-12" data-aos="fade-up" data-aos-delay="400">
-                                <Link
-                                    href="/packages"
-                                    className="inline-flex items-center bg-gradient-to-r from-orange-600 to-orange-700 hover:from-orange-700 hover:to-orange-800 text-white px-8 py-4 rounded-full text-lg font-semibold transition-all duration-300 hover:scale-105 shadow-lg hover:shadow-xl group"
-                                >
-                                    <span>View All Packages</span>
-                                    <i className="bi bi-arrow-right ml-2 transition-transform duration-300 group-hover:translate-x-1"></i>
-                                </Link>
-                            </div>
-                        </>
-                    ) : (
-                        <div className="text-center py-16" data-aos="fade-up">
-                            <div className="w-24 h-24 mx-auto mb-6 bg-gradient-to-br from-gray-100 to-gray-200 rounded-full flex items-center justify-center">
-                                <i className="bi bi-box-seam text-4xl text-gray-400"></i>
-                            </div>
-                            <h3 className="text-2xl font-bold text-gray-900 mb-4">Packages Coming Soon</h3>
-                            <p className="text-gray-600 mb-8 max-w-md mx-auto">
-                                We're preparing exciting new packages for you. Check back soon for amazing deals!
+            {/* Video Experience Section */}
+            <section id="experiences" className="py-20 bg-gray-900 relative overflow-hidden">
+                <div className="absolute inset-0 bg-gradient-to-r from-orange-600/20 to-orange-800/20"></div>
+                <div className="absolute inset-0 opacity-10">
+                    <div className="absolute top-10 left-10 w-20 h-20 bg-orange-600 rounded-full floating"></div>
+                    <div className="absolute top-20 right-20 w-16 h-16 bg-orange-400 rounded-full floating" style={{animationDelay: '1s'}}></div>
+                    <div className="absolute bottom-20 left-20 w-24 h-24 bg-orange-500 rounded-full floating" style={{animationDelay: '0.5s'}}></div>
+                </div>
+                <div className="container mx-auto px-4 lg:px-8 relative z-10">
+                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+                        <div data-aos="fade-right" data-aos-duration="1000">
+                            <div 
+                                className="inline-block w-16 h-0.5 bg-orange-600 mb-4"
+                                data-aos="fade-right"
+                                data-aos-delay="200"
+                            ></div>
+                            <h2 
+                                className="text-4xl md:text-5xl font-bold text-white mb-6"
+                                data-aos="fade-up"
+                                data-aos-delay="300"
+                                data-aos-duration="800"
+                            >
+                                Experience Paradise
+                            </h2>
+                            <p 
+                                className="text-xl text-gray-300 mb-8"
+                                data-aos="fade-up"
+                                data-aos-delay="400"
+                                data-aos-duration="800"
+                            >
+                                Immerse yourself in the beauty, culture, and adventures that await you at Paradise Resort. From stunning beaches to exciting water sports, every moment is designed to create unforgettable memories.
                             </p>
+                            <a 
+                                href="https://www.youtube.com/watch?v=AXeVCu6aKZk"
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="inline-block bg-orange-600 text-white px-8 py-4 rounded-full text-lg font-semibold hover:bg-orange-700 transition-all duration-300 hover:scale-105 group relative overflow-hidden"
+                                data-aos="zoom-in"
+                                data-aos-delay="600"
+                            >
+                                <span className="relative z-10">Discover More</span>
+                                <div className="absolute inset-0 bg-orange-700 transform -translate-x-full group-hover:translate-x-0 transition-transform duration-300"></div>
+                            </a>
                         </div>
-                    )}
+                        <div 
+                            className="relative"
+                            data-aos="fade-left"
+                            data-aos-delay="300"
+                            data-aos-duration="1000"
+                        >
+                            <div className="relative rounded-2xl overflow-hidden shadow-2xl group">
+                                <iframe
+                                    className="w-full h-80 lg:h-96 transition-transform duration-500"
+                                    src="https://www.youtube.com/embed/AXeVCu6aKZk?si=Et7f8JjLfOh9HCE7"
+                                    title="Paradise Resort Experience"
+                                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                                    allowFullScreen
+                                ></iframe>
+                                <div className="absolute -top-4 -right-4 w-8 h-8 bg-orange-600 rounded-full pulse-glow"></div>
+                                <div className="absolute -bottom-4 -left-4 w-6 h-6 bg-orange-400 rounded-full floating"></div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </section>
 
