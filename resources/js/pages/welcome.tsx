@@ -500,7 +500,7 @@ export default function Welcome({ accommodations, amenities, stats }: WelcomePro
                             <div className="relative rounded-2xl overflow-hidden shadow-2xl group">
                                 <iframe
                                     className="w-full h-80 lg:h-96 transition-transform duration-500"
-                                    src="https://www.youtube.com/embed/qtRBMkipXBo?si=VohtJI2i6uDg965U"
+                                    src="https://www.youtube.com/embed/AXeVCu6aKZk?si=Et7f8JjLfOh9HCE7"
                                     title="Paradise Resort Experience"
                                     allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                                     allowFullScreen
