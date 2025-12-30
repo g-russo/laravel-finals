@@ -130,15 +130,15 @@ class PackageController extends Controller
             $image = $request->file('image');
             $filename = time() . '_' . str_replace(' ', '_', $validated['package_name']) . '.' . $image->getClientOriginalExtension();
             
-            // Ensure packages directory exists
-            if (!file_exists(public_path('packages'))) {
-                mkdir(public_path('packages'), 0755, true);
+            // Ensure package-images directory exists
+            if (!file_exists(public_path('package-images'))) {
+                mkdir(public_path('package-images'), 0755, true);
             }
 
             // Move uploaded file
-            $image->move(public_path('packages'), $filename);
+            $image->move(public_path('package-images'), $filename);
 
-            $validated['image_path'] = 'packages/' . $filename;
+            $validated['image_path'] = 'package-images/' . $filename;
         }
 
         // Remove arrays from validated data for package creation
@@ -244,15 +244,15 @@ class PackageController extends Controller
             $image = $request->file('image');
             $filename = time() . '_' . str_replace(' ', '_', $validated['package_name']) . '.' . $image->getClientOriginalExtension();
 
-            // Ensure packages directory exists
-            if (!file_exists(public_path('packages'))) {
-                mkdir(public_path('packages'), 0755, true);
+            // Ensure package-images directory exists
+            if (!file_exists(public_path('package-images'))) {
+                mkdir(public_path('package-images'), 0755, true);
             }
 
             // Move uploaded file
-            $image->move(public_path('packages'), $filename);
+            $image->move(public_path('package-images'), $filename);
 
-            $validated['image_path'] = 'packages/' . $filename;
+            $validated['image_path'] = 'package-images/' . $filename;
         }
 
         // Handle accommodations and amenities

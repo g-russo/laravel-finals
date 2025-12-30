@@ -98,9 +98,12 @@ class PublicPageController extends Controller
                 ];
             });
 
+        // Check if any package has a discount for the modal
+        $hasDiscounts = $packages->contains(fn($pkg) => $pkg['discount_percentage'] > 0);
+
         return Inertia::render('public/Packages', [
             'packages' => $packages,
-            'showWelcomeModal' => false,
+            'showWelcomeModal' => $hasDiscounts,
         ]);
     }
 }

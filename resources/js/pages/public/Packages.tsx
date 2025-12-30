@@ -57,13 +57,44 @@ export default function Packages({ packages, showWelcomeModal = false }: Package
         }
     }, [showWelcomeModal, packages.length]);
 
-    const getPackageImage = (pkg: Package): string => {
+    // Local package images for fast loading
+    const packageImages = [
+        '/package-images/LuxuryPoolVilla.avif',
+        '/package-images/ResortInfinityPool.avif',
+        '/package-images/HotelRoomwithView.avif',
+        '/package-images/BeachResortAerial.avif',
+        '/package-images/MaldivesOverwaterBungaloo.avif',
+        '/package-images/ResortPoolSunset.avif',
+        '/package-images/LuxuryHotelLobby.avif',
+        '/package-images/TropicalResort.avif',
+        '/package-images/BeachCabana.avif',
+        '/package-images/HotelwMountainView.avif',
+        '/package-images/LuxurySpaResort.avif',
+        '/package-images/CozyHotelRoom.avif',
+        '/package-images/BEachResortPool.avif',
+        '/package-images/LuxuryBedroom.avif',
+        '/package-images/ModernVillaExterior.avif',
+    ];
+
+    const getPackageImage = (pkg: Package, index: number = 0): string => {
         if (pkg.image_path) {
-            return pkg.image_path.startsWith('http') 
-                ? pkg.image_path 
-                : `/storage/${pkg.image_path}`;
+            // Handle different path formats
+            if (pkg.image_path.startsWith('http')) {
+                return pkg.image_path;
+            }
+            // For paths that already include full path
+            if (pkg.image_path.startsWith('/')) {
+                return pkg.image_path;
+            }
+            // For relative paths stored in public folder (package-images/ or packages/)
+            return `/${pkg.image_path}`;
         }
-        return 'https://images.unsplash.com/photo-1571896349842-33c89424de2d?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=800&q=80';
+        // Return a different image based on package id or index for variety
+        return packageImages[(pkg.id || index) % packageImages.length];
+    };
+
+    const getFallbackImage = (index: number): string => {
+        return packageImages[index % packageImages.length];
     };
 
     const calculateDiscountedPrice = (price: number, discount: number): number => {
@@ -120,11 +151,11 @@ export default function Packages({ packages, showWelcomeModal = false }: Package
                                 >
                                     <div className="relative overflow-hidden">
                                         <img
-                                            src={getPackageImage(pkg)}
+                                            src={getPackageImage(pkg, index)}
                                             alt={pkg.name}
                                             className="w-full h-56 object-cover group-hover:scale-110 transition-transform duration-700"
                                             onError={(e) => {
-                                                (e.target as HTMLImageElement).src = 'https://images.unsplash.com/photo-1571896349842-33c89424de2d?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=800&q=80';
+                                                (e.target as HTMLImageElement).src = getFallbackImage(index);
                                             }}
                                         />
                                         <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent"></div>
