@@ -120,6 +120,11 @@ class PackageController extends Controller
             'amenities.*.quantity' => 'integer|min:1',
         ]);
 
+        // Set default value for discount_percentage if empty or null
+        if (!isset($validated['discount_percentage']) || $validated['discount_percentage'] === '' || $validated['discount_percentage'] === null) {
+            $validated['discount_percentage'] = 0;
+        }
+
         // Handle image upload without Intervention Image
         if ($request->hasFile('image')) {
             $image = $request->file('image');
@@ -223,6 +228,11 @@ class PackageController extends Controller
             'amenities.*.amenity_id' => 'exists:amenities,amenity_id',
             'amenities.*.quantity' => 'integer|min:1',
         ]);
+
+        // Set default value for discount_percentage if empty or null
+        if (!isset($validated['discount_percentage']) || $validated['discount_percentage'] === '' || $validated['discount_percentage'] === null) {
+            $validated['discount_percentage'] = 0;
+        }
 
         // Handle image upload if provided
         if ($request->hasFile('image')) {

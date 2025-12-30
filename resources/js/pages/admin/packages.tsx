@@ -1,5 +1,6 @@
 import { useState, useMemo } from 'react';
 import { Head, useForm, router } from '@inertiajs/react';
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import AppLayout from '@/layouts/app-layout';
 import { formatCurrency } from '@/lib/currency';
 import { Button } from '@/components/ui/button';
@@ -30,7 +31,7 @@ import {
     type ColumnDef,
     type SortingState,
 } from '@tanstack/react-table';
-import { ChevronUp, ChevronDown, ChevronsUpDown, Plus, Search, Eye, Edit, Trash2, Upload, RotateCcw, Trash, Package } from 'lucide-react';
+import { ChevronUp, ChevronDown, ChevronsUpDown, Plus, Search, Eye, Edit, Trash2, Upload, RotateCcw, Trash, Package, AlertCircle } from 'lucide-react';
 
 const breadcrumbs = [
     { title: 'Dashboard', href: '/admin/dashboard' },
@@ -362,6 +363,10 @@ export default function PackagesManagement({ packages = [], accommodations = [],
                 setIsCreateModalOpen(false);
                 resetCreate();
             },
+            onError: () => {
+                // Keep modal open and errors will be displayed
+            },
+            preserveScroll: true,
         });
     };
 
@@ -374,6 +379,10 @@ export default function PackagesManagement({ packages = [], accommodations = [],
                     resetEdit();
                     setSelectedPackage(null);
                 },
+                onError: () => {
+                    // Keep modal open and errors will be displayed
+                },
+                preserveScroll: true,
             });
         }
     };
@@ -464,6 +473,20 @@ export default function PackagesManagement({ packages = [], accommodations = [],
                                         </DialogHeader>
                                         
                                         <form onSubmit={handleCreateSubmit} className="space-y-4 overflow-y-auto max-h-[calc(95vh-180px)]">
+                                            {/* Error Alert */}
+                                            {Object.keys(createErrors).length > 0 && (
+                                                <Alert variant="destructive" className="mb-4">
+                                                    <AlertCircle className="h-4 w-4" />
+                                                    <AlertTitle>Error</AlertTitle>
+                                                    <AlertDescription>
+                                                        <ul className="list-disc list-inside space-y-1">
+                                                            {Object.entries(createErrors).map(([key, message]) => (
+                                                                <li key={key}>{message}</li>
+                                                            ))}
+                                                        </ul>
+                                                    </AlertDescription>
+                                                </Alert>
+                                            )}
                                             <div className="grid grid-cols-3 gap-4">
                                                 <div>
                                                     <Label htmlFor="package_name">Package Name</Label>
@@ -863,6 +886,20 @@ export default function PackagesManagement({ packages = [], accommodations = [],
                         </DialogHeader>
                         {selectedPackage && (
                             <form onSubmit={handleEditSubmit} className="space-y-6 overflow-y-auto max-h-[calc(95vh-180px)]">
+                                {/* Error Alert */}
+                                {Object.keys(editErrors).length > 0 && (
+                                    <Alert variant="destructive" className="mb-4">
+                                        <AlertCircle className="h-4 w-4" />
+                                        <AlertTitle>Error</AlertTitle>
+                                        <AlertDescription>
+                                            <ul className="list-disc list-inside space-y-1">
+                                                {Object.entries(editErrors).map(([key, message]) => (
+                                                    <li key={key}>{message}</li>
+                                                ))}
+                                            </ul>
+                                        </AlertDescription>
+                                    </Alert>
+                                )}
                                 <div className="grid grid-cols-3 gap-4">
                                     <div>
                                         <Label htmlFor="edit_package_name">Package Name</Label>
