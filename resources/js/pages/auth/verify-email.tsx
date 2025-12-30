@@ -2,14 +2,14 @@
 import TextLink from '@/components/text-link';
 import { Button } from '@/components/ui/button';
 import { Spinner } from '@/components/ui/spinner';
-import { logout } from '@/routes';
-import { send } from '@/routes/verification';
-import { Form, Head, Link } from '@inertiajs/react';
+import { Head, Link, useForm } from '@inertiajs/react';
 import { useEffect } from 'react';
 import AOS from 'aos';
 import 'aos/dist/aos.css';
 
 export default function VerifyEmail({ status }: { status?: string }) {
+    const { post, processing } = useForm({});
+    
     useEffect(() => {
         AOS.init({
             duration: 800,
@@ -18,6 +18,11 @@ export default function VerifyEmail({ status }: { status?: string }) {
             offset: 100,
         });
     }, []);
+
+    const handleResend = (e: React.FormEvent) => {
+        e.preventDefault();
+        post('/email/verification-notification');
+    };
 
     return (
         <>
@@ -122,56 +127,54 @@ export default function VerifyEmail({ status }: { status?: string }) {
                                 </div>
                             )}
 
-                            <Form {...send.form()} className="space-y-6">
-                                {({ processing }) => (
-                                    <>
-                                        <Button 
-                                            disabled={processing}
-                                            className="w-full bg-orange-600 hover:bg-orange-700 text-white py-3 rounded-lg font-semibold transition-all duration-300 transform hover:scale-105 disabled:opacity-50"
-                                        >
-                                            {processing && <Spinner />}
-                                            {processing ? 'Sending...' : 'Resend Verification Email'}
-                                        </Button>
+                            <form onSubmit={handleResend} className="space-y-6">
+                                <Button 
+                                    disabled={processing}
+                                    className="w-full bg-orange-600 hover:bg-orange-700 text-white py-3 rounded-lg font-semibold transition-all duration-300 transform hover:scale-105 disabled:opacity-50"
+                                >
+                                    {processing && <Spinner />}
+                                    {processing ? 'Sending...' : 'Resend Verification Email'}
+                                </Button>
 
-                                        <div className="relative">
-                                            <div className="absolute inset-0 flex items-center">
-                                                <div className="w-full border-t border-gray-200"></div>
-                                            </div>
-                                            <div className="relative flex justify-center text-sm">
-                                                <span className="px-2 bg-white/80 text-gray-500">Or</span>
-                                            </div>
-                                        </div>
+                                <div className="relative">
+                                    <div className="absolute inset-0 flex items-center">
+                                        <div className="w-full border-t border-gray-200"></div>
+                                    </div>
+                                    <div className="relative flex justify-center text-sm">
+                                        <span className="px-2 bg-white/80 text-gray-500">Or</span>
+                                    </div>
+                                </div>
 
-                                        <div className="text-center">
-                                            <TextLink
-                                                href={logout()}
-                                                className="inline-flex items-center gap-2 text-orange-600 hover:text-orange-700 font-medium transition-colors"
-                                            >
-                                                <i className="bi bi-box-arrow-left"></i>
-                                                Log out and try again
-                                            </TextLink>
-                                        </div>
+                                <div className="text-center">
+                                    <Link
+                                        href="/logout"
+                                        method="post"
+                                        as="button"
+                                        className="inline-flex items-center gap-2 text-orange-600 hover:text-orange-700 font-medium transition-colors"
+                                    >
+                                        <i className="bi bi-box-arrow-left"></i>
+                                        Log out and try again
+                                    </Link>
+                                </div>
 
-                                        {/* Mobile-only info section */}
-                                        <div className="lg:hidden mt-8 pt-6 border-t border-gray-200">
-                                            <div className="space-y-4 text-sm text-gray-600">
-                                                <div className="flex items-center gap-3">
-                                                    <i className="bi bi-envelope-check text-orange-500"></i>
-                                                    <span>Check your inbox for the verification email</span>
-                                                </div>
-                                                <div className="flex items-center gap-3">
-                                                    <i className="bi bi-folder2-open text-orange-500"></i>
-                                                    <span>Don't forget to check your spam folder</span>
-                                                </div>
-                                                <div className="flex items-center gap-3">
-                                                    <i className="bi bi-clock-history text-orange-500"></i>
-                                                    <span>Link expires in 24 hours</span>
-                                                </div>
-                                            </div>
+                                {/* Mobile-only info section */}
+                                <div className="lg:hidden mt-8 pt-6 border-t border-gray-200">
+                                    <div className="space-y-4 text-sm text-gray-600">
+                                        <div className="flex items-center gap-3">
+                                            <i className="bi bi-envelope-check text-orange-500"></i>
+                                            <span>Check your inbox for the verification email</span>
                                         </div>
-                                    </>
-                                )}
-                            </Form>
+                                        <div className="flex items-center gap-3">
+                                            <i className="bi bi-folder2-open text-orange-500"></i>
+                                            <span>Don't forget to check your spam folder</span>
+                                        </div>
+                                        <div className="flex items-center gap-3">
+                                            <i className="bi bi-clock-history text-orange-500"></i>
+                                            <span>Link expires in 24 hours</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </form>
                         </div>
                     </div>
                 </div>

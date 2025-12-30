@@ -1,5 +1,4 @@
 import { Link, usePage } from '@inertiajs/react';
-import { dashboard, login, register, profile } from '@/routes';
 import { type SharedData } from '@/types';
 import { useState } from 'react';
 
@@ -9,7 +8,7 @@ export default function Navigation() {
     
     // Determine if user is customer (default role or explicitly 'customer')
     const isCustomer = auth.user && (!auth.user.role || auth.user.role === 'customer');
-    const profileUrl = isCustomer ? profile() : dashboard();
+    const profileUrl = isCustomer ? '/profile' : '/dashboard';
     const profileLabel = isCustomer ? 'Profile' : 'Dashboard';
 
     return (
@@ -59,13 +58,13 @@ export default function Navigation() {
                         ) : (
                             <>
                                 <Link
-                                    href={login()}
+                                    href="/login"
                                     className="text-gray-700 hover:text-orange-600 transition-colors font-medium"
                                 >
                                     Sign In
                                 </Link>
                                 <Link
-                                    href={register()}
+                                    href="/register"
                                     className="bg-orange-600 text-white px-6 py-2 rounded-full hover:bg-orange-700 transition-colors font-medium"
                                 >
                                     Register
@@ -126,13 +125,13 @@ export default function Navigation() {
                                 ) : (
                                     <>
                                         <Link
-                                            href={login()}
+                                            href="/login"
                                             className="text-gray-700 hover:text-orange-600 transition-colors font-medium text-center"
                                         >
                                             Sign In
                                         </Link>
                                         <Link
-                                            href={register()}
+                                            href="/register"
                                             className="bg-orange-600 text-white px-6 py-2 rounded-full hover:bg-orange-700 transition-colors font-medium text-center"
                                         >
                                             Register

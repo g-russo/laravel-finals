@@ -79,8 +79,8 @@ Route::middleware(['auth', 'verified', 'admin'])->prefix('admin')->group(functio
     // Reservation management routes
     Route::get('reservations', [ReservationController::class, 'admin'])->name('admin.reservations.index');
     Route::get('reservations/cancelled', [ReservationController::class, 'cancelled'])->name('admin.reservations.cancelled');
-    Route::post('reservations/{reservation}/confirm', [ReservationController::class, 'confirm'])->name('admin.reservations.confirm');
-    Route::delete('reservations/{reservation}', [ReservationController::class, 'destroy'])->name('admin.reservations.destroy');
+    Route::post('reservations/{reservation:reservation_id}/confirm', [ReservationController::class, 'confirm'])->name('admin.reservations.confirm');
+    Route::delete('reservations/{reservation:reservation_id}', [ReservationController::class, 'destroy'])->name('admin.reservations.destroy');
 
     // Logs management route
     Route::get('logs', [\App\Http\Controllers\Admin\LogController::class, 'index'])->name('admin.logs.index');
@@ -91,8 +91,8 @@ Route::middleware(['auth', 'verified'])->prefix('reservations')->group(function 
     Route::get('/', [ReservationController::class, 'index'])->name('reservations.index');
     Route::get('/create', [ReservationController::class, 'create'])->name('reservations.create');
     Route::post('/', [ReservationController::class, 'store'])->name('reservations.store');
-    Route::get('/{reservation}', [ReservationController::class, 'show'])->name('reservations.show');
-    Route::post('/{reservation}/cancel', [ReservationController::class, 'cancel'])->name('reservations.cancel');
+    Route::get('/{reservation:reservation_id}', [ReservationController::class, 'show'])->name('reservations.show');
+    Route::post('/{reservation:reservation_id}/cancel', [ReservationController::class, 'cancel'])->name('reservations.cancel');
     Route::post('/check-availability', [ReservationController::class, 'checkAvailability'])->name('reservations.check-availability');
 });
 
@@ -107,7 +107,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
 // Payment routes
 Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/payment', [\App\Http\Controllers\PaymentController::class, 'index'])->name('payment.index');
-    Route::post('/payments/{reservation}', [\App\Http\Controllers\PaymentController::class, 'store'])->name('payments.store');
+    Route::post('/payments/{reservation:reservation_id}', [\App\Http\Controllers\PaymentController::class, 'store'])->name('payments.store');
 });
 
 // Redirect dashboard to admin dashboard for backward compatibility

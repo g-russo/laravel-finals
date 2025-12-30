@@ -31,14 +31,118 @@ export default function Payment({ reservation }: Props) {
         billing_address: '',
     });
 
+    // Format card number: add space after every 4 digits, limit to 16 digits
+    const handleCardNumberChange = (value: string) => {
+        // Remove all non-digits
+        const digitsOnly = value.replace(/\D/g, '');
+        // Limit to 16 digits
+        const truncated = digitsOnly.slice(0, 16);
+        // Add spaces after every 4 digits
+        const formatted = truncated.replace(/(\d{4})(?=\d)/g, '$1 ');
+        setData('card_number', formatted);
+    };
+
+    // Limit cardholder name to 64 characters
+    const handleCardNameChange = (value: string) => {
+        if (value.length <= 64) {
+            setData('card_name', value);
+        }
+    };
+
+    // Format expiry date: MM/YY with validation
+    const handleExpiryDateChange = (value: string) => {
+        // Remove all non-digits
+        let digitsOnly = value.replace(/\D/g, '');
+        // Limit to 4 digits
+        digitsOnly = digitsOnly.slice(0, 4);
+        
+        // Validate month (01-12)
+        if (digitsOnly.length >= 2) {
+            let month = parseInt(digitsOnly.slice(0, 2), 10);
+            if (month > 12) month = 12;
+            if (month < 1 && digitsOnly.slice(0, 2) !== '0' && digitsOnly.slice(0, 2) !== '00') month = 1;
+            digitsOnly = month.toString().padStart(2, '0') + digitsOnly.slice(2);
+        }
+        
+        // Add slash after month
+        let formatted = digitsOnly;
+        if (digitsOnly.length > 2) {
+            formatted = digitsOnly.slice(0, 2) + '/' + digitsOnly.slice(2);
+        }
+        
+        setData('expiry_date', formatted);
+    };
+
+    // CVV: 3 digits (001-999)
+    const handleCvvChange = (value: string) => {
+        // Remove all non-digits
+        const digitsOnly = value.replace(/\D/g, '');
+        // Limit to 3 digits
+        const truncated = digitsOnly.slice(0, 3);
+        setData('cvv', truncated);
+    };
+
+    // Limit billing address to 256 characters
+    const handleBillingAddressChange = (value: string) => {
+        if (value.length <= 256) {
+            setData('billing_address', value);
+        }
+    };
+
+    // Validate expiry date is not in the past
+    const isExpiryDateValid = () => {
+        if (!data.expiry_date || data.expiry_date.length !== 5) return false;
+        const [month, year] = data.expiry_date.split('/');
+        const expMonth = parseInt(month, 10);
+        const expYear = parseInt('20' + year, 10);
+        const now = new Date();
+        const currentMonth = now.getMonth() + 1;
+        const currentYear = now.getFullYear();
+        
+        if (expYear < currentYear) return false;
+        if (expYear === currentYear && expMonth < currentMonth) return false;
+        return true;
+    };
+
+    // Validate card number is 12-16 digits
+    const isCardNumberValid = () => {
+        const digitsOnly = data.card_number.replace(/\D/g, '');
+        return digitsOnly.length >= 12 && digitsOnly.length <= 16;
+    };
+
+    // Validate CVV is 001-999 (3 digits)
+    const isCvvValid = () => {
+        return data.cvv.length === 3 && /^\d{3}$/.test(data.cvv);
+    };
+
     const handleSubmit: FormEventHandler = (e) => {
         e.preventDefault();
+        
+        // Frontend validation for credit card
+        if (data.payment_method === 'credit_card') {
+            if (!isCardNumberValid()) {
+                showToast.error('Card number must be 12-16 digits');
+                return;
+            }
+            if (!data.card_name.trim()) {
+                showToast.error('Please enter the cardholder name');
+                return;
+            }
+            if (!isExpiryDateValid()) {
+                showToast.error('Please enter a valid expiry date (not expired)');
+                return;
+            }
+            if (!isCvvValid()) {
+                showToast.error('CVV must be 3 digits');
+                return;
+            }
+        }
         
         if (reservation) {
             // For demo purposes, use placeholder values for non-credit card payments
             const submissionData = {
                 payment_method: data.payment_method,
-                card_number: data.payment_method === 'credit_card' ? data.card_number : 'DEMO-0000-0000-0000',
+                card_number: data.payment_method === 'credit_card' ? data.card_number.replace(/\s/g, '') : 'DEMO-0000-0000-0000',
                 card_name: data.payment_method === 'credit_card' ? data.card_name : 'Demo Payment',
                 expiry_date: data.payment_method === 'credit_card' ? data.expiry_date : '12/99',
                 cvv: data.payment_method === 'credit_card' ? data.cvv : '000',
@@ -160,16 +264,20 @@ export default function Payment({ reservation }: Props) {
                                             <input
                                                 type="text"
                                                 value={data.card_number}
-                                                onChange={(e) => setData('card_number', e.target.value)}
+                                                onChange={(e) => handleCardNumberChange(e.target.value)}
                                                 placeholder="1234 5678 9012 3456"
                                                 maxLength={19}
                                                 className={`w-full px-4 py-3 border-2 rounded-xl focus:ring-2 focus:ring-orange-500 focus:border-transparent ${
-                                                    errors.card_number ? 'border-red-500' : 'border-gray-200'
+                                                    errors.card_number || (data.card_number && !isCardNumberValid()) ? 'border-red-500' : 'border-gray-200'
                                                 }`}
                                             />
                                             {errors.card_number && (
                                                 <p className="text-red-500 text-sm mt-1">{errors.card_number}</p>
                                             )}
+                                            {data.card_number && !isCardNumberValid() && !errors.card_number && (
+                                                <p className="text-red-500 text-sm mt-1">Card number must be 12-16 digits</p>
+                                            )}
+                                            <p className="text-gray-400 text-xs mt-1">12-16 digits required</p>
                                         </div>
 
                                         <div>
@@ -179,8 +287,9 @@ export default function Payment({ reservation }: Props) {
                                             <input
                                                 type="text"
                                                 value={data.card_name}
-                                                onChange={(e) => setData('card_name', e.target.value)}
+                                                onChange={(e) => handleCardNameChange(e.target.value)}
                                                 placeholder="John Doe"
+                                                maxLength={64}
                                                 className={`w-full px-4 py-3 border-2 rounded-xl focus:ring-2 focus:ring-orange-500 focus:border-transparent ${
                                                     errors.card_name ? 'border-red-500' : 'border-gray-200'
                                                 }`}
@@ -188,6 +297,7 @@ export default function Payment({ reservation }: Props) {
                                             {errors.card_name && (
                                                 <p className="text-red-500 text-sm mt-1">{errors.card_name}</p>
                                             )}
+                                            <p className="text-gray-400 text-xs mt-1">{data.card_name.length}/64 characters</p>
                                         </div>
 
                                         <div className="grid grid-cols-2 gap-4">
@@ -198,15 +308,18 @@ export default function Payment({ reservation }: Props) {
                                                 <input
                                                     type="text"
                                                     value={data.expiry_date}
-                                                    onChange={(e) => setData('expiry_date', e.target.value)}
+                                                    onChange={(e) => handleExpiryDateChange(e.target.value)}
                                                     placeholder="MM/YY"
                                                     maxLength={5}
                                                     className={`w-full px-4 py-3 border-2 rounded-xl focus:ring-2 focus:ring-orange-500 focus:border-transparent ${
-                                                        errors.expiry_date ? 'border-red-500' : 'border-gray-200'
+                                                        errors.expiry_date || (data.expiry_date.length === 5 && !isExpiryDateValid()) ? 'border-red-500' : 'border-gray-200'
                                                     }`}
                                                 />
                                                 {errors.expiry_date && (
                                                     <p className="text-red-500 text-sm mt-1">{errors.expiry_date}</p>
+                                                )}
+                                                {data.expiry_date.length === 5 && !isExpiryDateValid() && !errors.expiry_date && (
+                                                    <p className="text-red-500 text-sm mt-1">Card has expired</p>
                                                 )}
                                             </div>
 
@@ -217,15 +330,18 @@ export default function Payment({ reservation }: Props) {
                                                 <input
                                                     type="text"
                                                     value={data.cvv}
-                                                    onChange={(e) => setData('cvv', e.target.value)}
+                                                    onChange={(e) => handleCvvChange(e.target.value)}
                                                     placeholder="123"
-                                                    maxLength={4}
+                                                    maxLength={3}
                                                     className={`w-full px-4 py-3 border-2 rounded-xl focus:ring-2 focus:ring-orange-500 focus:border-transparent ${
-                                                        errors.cvv ? 'border-red-500' : 'border-gray-200'
+                                                        errors.cvv || (data.cvv && !isCvvValid()) ? 'border-red-500' : 'border-gray-200'
                                                     }`}
                                                 />
                                                 {errors.cvv && (
                                                     <p className="text-red-500 text-sm mt-1">{errors.cvv}</p>
+                                                )}
+                                                {data.cvv && !isCvvValid() && !errors.cvv && (
+                                                    <p className="text-red-500 text-sm mt-1">CVV must be 3 digits</p>
                                                 )}
                                             </div>
                                         </div>
@@ -236,8 +352,9 @@ export default function Payment({ reservation }: Props) {
                                             </label>
                                             <textarea
                                                 value={data.billing_address}
-                                                onChange={(e) => setData('billing_address', e.target.value)}
+                                                onChange={(e) => handleBillingAddressChange(e.target.value)}
                                                 rows={3}
+                                                maxLength={256}
                                                 placeholder="Enter your billing address"
                                                 className={`w-full px-4 py-3 border-2 rounded-xl focus:ring-2 focus:ring-orange-500 focus:border-transparent ${
                                                     errors.billing_address ? 'border-red-500' : 'border-gray-200'
@@ -246,6 +363,7 @@ export default function Payment({ reservation }: Props) {
                                             {errors.billing_address && (
                                                 <p className="text-red-500 text-sm mt-1">{errors.billing_address}</p>
                                             )}
+                                            <p className="text-gray-400 text-xs mt-1">{data.billing_address.length}/256 characters</p>
                                         </div>
                                     </div>
                                 )}

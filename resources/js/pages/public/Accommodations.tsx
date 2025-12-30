@@ -108,7 +108,7 @@ export default function Accommodations({ accommodations }: AccommodationsProps) 
                                             </h3>
                                             <div className="ml-2 text-right">
                                                 <div className="text-orange-600 font-bold text-lg">
-                                                    {accommodation.formatted_price.toLocaleString()}
+                                                    ₱{accommodation.formatted_price.toLocaleString('en-PH')}
                                                 </div>
                                                 <div className="text-xs text-gray-500">per night</div>
                                             </div>
