@@ -24,3 +24,6 @@ Route::middleware('guest')->group(function () {
     Route::post('reset-password', [NewPasswordController::class, 'store'])
         ->name('password.store');
 });
+
+// Email verification routes are handled by Laravel Fortify
+// See config/fortify.php and app/Providers/FortifyServiceProvider.php
