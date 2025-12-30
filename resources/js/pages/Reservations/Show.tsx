@@ -114,6 +114,13 @@ export default function Show({ reservation }: Props) {
         }
     };
 
+    const isReservationPast = () => {
+        const checkOutDate = new Date(reservation.check_out_date + 'T00:00:00');
+        const today = new Date();
+        today.setHours(0, 0, 0, 0); // Reset time to start of day for fair comparison
+        return checkOutDate < today;
+    };
+
     const formatDate = (dateStr: string) => {
         return new Date(dateStr + 'T00:00:00').toLocaleDateString('en-US', {
             weekday: 'long',
@@ -392,7 +399,7 @@ export default function Show({ reservation }: Props) {
                                             Complete Payment
                                         </Link>
                                     )}
-                                    {(reservation.status === 'pending' || reservation.status === 'confirmed') && (
+                                    {(reservation.status === 'pending' || reservation.status === 'confirmed') && !isReservationPast() && (
                                         <button
                                             onClick={handleCancel}
                                             className="w-full flex items-center justify-center gap-2 border border-red-300 text-red-600 py-3 rounded-lg font-medium hover:bg-red-50 transition-colors"

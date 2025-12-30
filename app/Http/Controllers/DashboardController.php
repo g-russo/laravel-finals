@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\User;
 use App\Models\Accommodation;
 use App\Models\Amenity;
+use App\Models\Package;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Schema;
 use Inertia\Inertia;
@@ -65,6 +66,10 @@ class DashboardController extends Controller
                 'total_amenities' => Amenity::count(),
                 'active_amenities' => Amenity::count(), // Assuming all amenities are active
                 'premium_amenities' => Amenity::where('price_per_use', '>', 500)->count(),
+
+                // Package stats
+                'total_packages' => Package::count(),
+                'active_packages' => Package::count(), // Assuming all packages are active
             ],
         ]);
     }

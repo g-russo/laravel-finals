@@ -110,11 +110,6 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::post('/payments/{reservation:reservation_id}', [\App\Http\Controllers\PaymentController::class, 'store'])->name('payments.store');
 });
 
-// Redirect dashboard to admin dashboard for backward compatibility
-Route::middleware(['auth', 'verified'])->group(function () {
-    Route::get('dashboard', DashboardController::class)->name('dashboard');
-});
-
 require __DIR__ . '/admin-auth.php';
 require __DIR__ . '/settings.php';
 require __DIR__ . '/auth.php';

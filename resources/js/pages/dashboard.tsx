@@ -1,6 +1,5 @@
 import { PlaceholderPattern } from '@/components/ui/placeholder-pattern';
 import AppLayout from '@/layouts/app-layout';
-import { dashboard } from '@/routes';
 import { type BreadcrumbItem } from '@/types';
 import { Head, router } from '@inertiajs/react';
 import { useState } from 'react';
@@ -12,7 +11,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 const breadcrumbs: BreadcrumbItem[] = [
     {
         title: 'Dashboard',
-        href: dashboard().url,
+        href: '/admin/dashboard',
     },
 ];
 
@@ -58,12 +57,12 @@ export default function Dashboard({ users, filters, stats }: { users: Paginated<
 
   const onSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    router.get(dashboard().url, { search }, { preserveState: true, replace: true });
+    router.get('/admin/dashboard', { search }, { preserveState: true, replace: true });
   };
 
   const onClear = () => {
     setSearch('');
-    router.get(dashboard().url, {}, { preserveState: true, replace: true });
+    router.get('/admin/dashboard', {}, { preserveState: true, replace: true });
   };
 
   return (
@@ -371,10 +370,10 @@ export default function Dashboard({ users, filters, stats }: { users: Paginated<
                     </div>
                     <Button 
                       className="w-full bg-gradient-to-r from-orange-600 to-pink-600 hover:from-orange-700 hover:to-pink-700 text-white"
-                      disabled
+                      onClick={() => router.visit('/admin/packages?create=true')}
                     >
                       <i className="bi bi-plus-circle mr-2"></i>
-                      Create Package (Coming Soon)
+                      Create Package
                     </Button>
                   </div>
                 </div>

@@ -8,7 +8,7 @@ export default function Navigation() {
     
     // Determine if user is customer (default role or explicitly 'customer')
     const isCustomer = auth.user && (!auth.user.role || auth.user.role === 'customer');
-    const profileUrl = isCustomer ? '/profile' : '/dashboard';
+    const profileUrl = isCustomer ? '/profile' : '/admin/dashboard';
     const profileLabel = isCustomer ? 'Profile' : 'Dashboard';
 
     return (

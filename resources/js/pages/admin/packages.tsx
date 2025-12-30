@@ -1,5 +1,5 @@
-import { useState, useMemo } from 'react';
-import { Head, useForm, router } from '@inertiajs/react';
+import { useState, useMemo, useEffect } from 'react';
+import { Head, useForm, router, usePage } from '@inertiajs/react';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import AppLayout from '@/layouts/app-layout';
 import { formatCurrency } from '@/lib/currency';
@@ -94,6 +94,16 @@ export default function PackagesManagement({ packages = [], accommodations = [],
     const [selectedPackage, setSelectedPackage] = useState<PackageItem | null>(null);
     const [search, setSearch] = useState('');
     const [sorting, setSorting] = useState<SortingState>([]);
+
+    // Auto-open create modal if redirected from dashboard
+    useEffect(() => {
+        const urlParams = new URLSearchParams(window.location.search);
+        if (urlParams.get('create') === 'true') {
+            setIsCreateModalOpen(true);
+            // Clean up URL parameter
+            window.history.replaceState({}, '', '/admin/packages');
+        }
+    }, []);
 
     const { data: createData, setData: setCreateData, post: createPost, processing: createProcessing, errors: createErrors, reset: resetCreate } = useForm({
         package_name: '',
