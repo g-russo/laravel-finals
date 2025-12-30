@@ -65,8 +65,24 @@ class ReservationController extends Controller
                     'price' => $package->price,
                     'max_guests' => $package->max_guests,
                     'description' => $package->description,
-                    'accommodations' => $package->accommodations,
-                    'amenities' => $package->amenities,
+                    'accommodations' => $package->accommodations->map(function ($acc) {
+                        return [
+                            'id' => $acc->accommodation_id,
+                            'name' => $acc->accommodation_name,
+                            'capacity' => $acc->capacity,
+                            'description' => $acc->description,
+                            'quantity' => $acc->pivot->quantity ?? 1,
+                        ];
+                    }),
+                    'amenities' => $package->amenities->map(function ($amenity) {
+                        return [
+                            'id' => $amenity->amenity_id,
+                            'name' => $amenity->amenity_name,
+                            'price' => $amenity->price_per_use,
+                            'description' => $amenity->description,
+                            'quantity' => $amenity->pivot->quantity ?? 1,
+                        ];
+                    }),
                 ];
             });
 
