@@ -16,6 +16,8 @@ return new class extends Migration
             $table->string('package_name');
             $table->text('description');
             $table->decimal('price', 10, 2);
+            $table->decimal('discount_percentage', 5, 2)->default(0);
+            $table->integer('max_guests')->default(2);
             $table->text('inclusion_details');
             $table->string('image_path')->nullable();
             $table->enum('status', ['active', 'inactive'])->default('active');

@@ -12,7 +12,9 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('packages', function (Blueprint $table) {
-            $table->integer('max_guests')->default(2)->after('discount_percentage');
+            if (!Schema::hasColumn('packages', 'max_guests')) {
+                $table->integer('max_guests')->default(2)->after('discount_percentage');
+            }
         });
     }
 
