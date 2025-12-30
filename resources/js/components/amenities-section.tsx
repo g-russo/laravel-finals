@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { Link } from '@inertiajs/react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -317,6 +318,13 @@ export function AmenitiesSection({ amenities }: AmenitiesSectionProps) {
                     {showAll ? 'Show Less' : 'View All Amenities'}
                     <i className={`bi ${showAll ? 'bi-arrow-up' : 'bi-arrow-right'} ml-2 transition-transform duration-300 group-hover:translate-x-1`}></i>
                   </button>
+                  <div className="w-px h-6 bg-gray-300"></div>
+                  <Link 
+                    href="/amenities"
+                    className="text-gray-600 hover:text-orange-600 font-medium transition-colors duration-300 flex items-center"
+                  >
+                    View Page <i className="bi bi-box-arrow-up-right ml-1 text-sm"></i>
+                  </Link>
                 </div>
               </div>
             </div>

@@ -28,18 +28,18 @@ export default function Navigation() {
                         <Link href="/" className="text-gray-700 hover:text-orange-600 transition-colors font-medium">
                             Home
                         </Link>
-                        <a href="/#accommodations" className="text-gray-700 hover:text-orange-600 transition-colors font-medium">
+                        <Link href="/accommodations" className="text-gray-700 hover:text-orange-600 transition-colors font-medium">
                             Accommodations
-                        </a>
-                        <a href="/#amenities" className="text-gray-700 hover:text-orange-600 transition-colors font-medium">
+                        </Link>
+                        <Link href="/amenities" className="text-gray-700 hover:text-orange-600 transition-colors font-medium">
                             Amenities
-                        </a>
-                        <a href="/#experiences" className="text-gray-700 hover:text-orange-600 transition-colors font-medium">
-                            Experiences
-                        </a>
-                        <a href="/#contact" className="text-gray-700 hover:text-orange-600 transition-colors font-medium">
+                        </Link>
+                        <Link href="/packages" className="text-gray-700 hover:text-orange-600 transition-colors font-medium">
+                            Packages
+                        </Link>
+                        <Link href="/contact" className="text-gray-700 hover:text-orange-600 transition-colors font-medium">
                             Contact
-                        </a>
+                        </Link>
                         {auth.user && (
                             <Link href="/reservations/create" className="text-gray-700 hover:text-orange-600 transition-colors font-medium">
                                 Book Now
@@ -98,18 +98,18 @@ export default function Navigation() {
                             <Link href="/" className="text-gray-700 hover:text-orange-600 transition-colors font-medium">
                                 Home
                             </Link>
-                            <a href="/#accommodations" className="text-gray-700 hover:text-orange-600 transition-colors font-medium">
+                            <Link href="/accommodations" className="text-gray-700 hover:text-orange-600 transition-colors font-medium">
                                 Accommodations
-                            </a>
-                            <a href="/#amenities" className="text-gray-700 hover:text-orange-600 transition-colors font-medium">
+                            </Link>
+                            <Link href="/amenities" className="text-gray-700 hover:text-orange-600 transition-colors font-medium">
                                 Amenities
-                            </a>
-                            <a href="/#experiences" className="text-gray-700 hover:text-orange-600 transition-colors font-medium">
-                                Experiences
-                            </a>
-                            <a href="/#contact" className="text-gray-700 hover:text-orange-600 transition-colors font-medium">
+                            </Link>
+                            <Link href="/packages" className="text-gray-700 hover:text-orange-600 transition-colors font-medium">
+                                Packages
+                            </Link>
+                            <Link href="/contact" className="text-gray-700 hover:text-orange-600 transition-colors font-medium">
                                 Contact
-                            </a>
+                            </Link>
                             {auth.user && (
                                 <Link href="/reservations/create" className="text-gray-700 hover:text-orange-600 transition-colors font-medium">
                                     Book Now

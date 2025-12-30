@@ -26,6 +26,25 @@ interface Amenity {
     image_path: string | null;
 }
 
+interface Package {
+    id: number;
+    name: string;
+    description: string;
+    price: number;
+    discount_percentage: number;
+    max_guests: number;
+    inclusion_details: string;
+    image_path: string | null;
+    accommodations: Array<{
+        accommodation_id: number;
+        accommodation_name: string;
+    }>;
+    amenities: Array<{
+        amenity_id: number;
+        amenity_name: string;
+    }>;
+}
+
 interface Stats {
     total_accommodations: number;
     available_accommodations: number;
@@ -36,12 +55,15 @@ interface Stats {
 interface WelcomeProps {
     accommodations: Accommodation[];
     amenities: Amenity[];
+    packages: Package[];
     stats: Stats;
+    hasPackages: boolean;
 }
 
-export default function Welcome({ accommodations, amenities, stats }: WelcomeProps) {
+export default function Welcome({ accommodations, amenities, packages, stats, hasPackages }: WelcomeProps) {
     const [currentSlide, setCurrentSlide] = useState(0);
     const [showModal, setShowModal] = useState(false);
+    const [showPackageModal, setShowPackageModal] = useState(false);
 
     const slides = [
         {
@@ -79,6 +101,19 @@ export default function Welcome({ accommodations, amenities, stats }: WelcomePro
             offset: 100,
         });
     }, []);
+
+    // Show package modal for first-time visitors if packages are available
+    useEffect(() => {
+        if (hasPackages && packages.length > 0) {
+            const hasSeenPackageModal = localStorage.getItem('hasSeenPackageModal');
+            if (!hasSeenPackageModal) {
+                setTimeout(() => {
+                    setShowPackageModal(true);
+                }, 2000);
+                localStorage.setItem('hasSeenPackageModal', 'true');
+            }
+        }
+    }, [hasPackages, packages.length]);
 
     const nextSlide = () => {
         setCurrentSlide((prev) => (prev + 1) % slides.length);
@@ -450,66 +485,124 @@ export default function Welcome({ accommodations, amenities, stats }: WelcomePro
             {/* Amenities Section */}
             <AmenitiesSection amenities={amenities} />
 
-            {/* Video Experience Section */}
-            <section id="experiences" className="py-20 bg-gray-900 relative overflow-hidden">
-                <div className="absolute inset-0 bg-gradient-to-r from-orange-600/20 to-orange-800/20"></div>
-                <div className="absolute inset-0 opacity-10">
-                    <div className="absolute top-10 left-10 w-20 h-20 bg-orange-600 rounded-full floating"></div>
-                    <div className="absolute top-20 right-20 w-16 h-16 bg-orange-400 rounded-full floating" style={{animationDelay: '1s'}}></div>
-                    <div className="absolute bottom-20 left-20 w-24 h-24 bg-orange-500 rounded-full floating" style={{animationDelay: '0.5s'}}></div>
-                </div>
-                <div className="container mx-auto px-4 lg:px-8 relative z-10">
-                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
-                        <div data-aos="fade-right" data-aos-duration="1000">
-                            <div 
-                                className="inline-block w-16 h-0.5 bg-orange-600 mb-4"
-                                data-aos="fade-right"
-                                data-aos-delay="200"
-                            ></div>
-                            <h2 
-                                className="text-4xl md:text-5xl font-bold text-white mb-6"
-                                data-aos="fade-up"
-                                data-aos-delay="300"
-                                data-aos-duration="800"
-                            >
-                                Experience Paradise
-                            </h2>
-                            <p 
-                                className="text-xl text-gray-300 mb-8"
-                                data-aos="fade-up"
-                                data-aos-delay="400"
-                                data-aos-duration="800"
-                            >
-                                Immerse yourself in the beauty, culture, and adventures that await you at Paradise Resort. From stunning beaches to exciting water sports, every moment is designed to create unforgettable memories.
-                            </p>
-                            <button 
-                                className="bg-orange-600 text-white px-8 py-4 rounded-full text-lg font-semibold hover:bg-orange-700 transition-all duration-300 hover:scale-105 group relative overflow-hidden"
-                                data-aos="zoom-in"
-                                data-aos-delay="600"
-                            >
-                                <span className="relative z-10">Discover More</span>
-                                <div className="absolute inset-0 bg-orange-700 transform -translate-x-full group-hover:translate-x-0 transition-transform duration-300"></div>
-                            </button>
-                        </div>
+            {/* Packages Section */}
+            <section id="packages" className="py-20 bg-gray-50">
+                <div className="container mx-auto px-4 lg:px-8">
+                    <div className="text-center mb-16">
                         <div 
-                            className="relative"
-                            data-aos="fade-left"
-                            data-aos-delay="300"
-                            data-aos-duration="1000"
+                            className="inline-block w-16 h-0.5 bg-orange-600 mb-4"
+                            data-aos="fade-right"
+                            data-aos-duration="600"
+                        ></div>
+                        <h2 
+                            className="text-4xl md:text-5xl font-bold text-gray-900 mb-4"
+                            data-aos="fade-up"
+                            data-aos-duration="800"
                         >
-                            <div className="relative rounded-2xl overflow-hidden shadow-2xl group">
-                                <iframe
-                                    className="w-full h-80 lg:h-96 transition-transform duration-500"
-                                    src="https://www.youtube.com/embed/AXeVCu6aKZk?si=Et7f8JjLfOh9HCE7"
-                                    title="Paradise Resort Experience"
-                                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                                    allowFullScreen
-                                ></iframe>
-                                <div className="absolute -top-4 -right-4 w-8 h-8 bg-orange-600 rounded-full pulse-glow"></div>
-                                <div className="absolute -bottom-4 -left-4 w-6 h-6 bg-orange-400 rounded-full floating"></div>
-                            </div>
-                        </div>
+                            Special Packages
+                        </h2>
+                        <p 
+                            className="text-xl text-gray-600 max-w-3xl mx-auto"
+                            data-aos="fade-up"
+                            data-aos-delay="200"
+                            data-aos-duration="800"
+                        >
+                            Discover our exclusive packages designed to give you the ultimate resort experience at incredible value.
+                        </p>
                     </div>
+
+                    {packages && packages.length > 0 ? (
+                        <>
+                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                                {packages.slice(0, 3).map((pkg, index) => (
+                                    <div
+                                        key={pkg.id}
+                                        className="bg-white rounded-2xl overflow-hidden shadow-lg hover:shadow-xl transition-all duration-300 group"
+                                        data-aos="fade-up"
+                                        data-aos-delay={index * 100}
+                                    >
+                                        <div className="relative overflow-hidden h-48">
+                                            <img
+                                                src={pkg.image_path ? (pkg.image_path.startsWith('http') ? pkg.image_path : `/storage/${pkg.image_path}`) : 'https://images.unsplash.com/photo-1571896349842-33c89424de2d?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=800&q=80'}
+                                                alt={pkg.name}
+                                                className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
+                                                onError={(e) => {
+                                                    (e.target as HTMLImageElement).src = 'https://images.unsplash.com/photo-1571896349842-33c89424de2d?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=800&q=80';
+                                                }}
+                                            />
+                                            <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent"></div>
+                                            
+                                            {pkg.discount_percentage > 0 && (
+                                                <div className="absolute top-4 right-4 bg-red-500 text-white px-3 py-1 rounded-full text-sm font-bold shadow-lg">
+                                                    {pkg.discount_percentage}% OFF
+                                                </div>
+                                            )}
+
+                                            <div className="absolute bottom-4 left-4">
+                                                <h3 className="text-xl font-bold text-white">{pkg.name}</h3>
+                                            </div>
+                                        </div>
+
+                                        <div className="p-6">
+                                            <p className="text-gray-600 text-sm mb-4 line-clamp-2">
+                                                {pkg.description}
+                                            </p>
+                                            
+                                            <div className="flex items-center justify-between mb-4">
+                                                <div>
+                                                    {pkg.discount_percentage > 0 ? (
+                                                        <>
+                                                            <span className="text-gray-400 line-through text-sm mr-2">
+                                                                ₱{pkg.price.toLocaleString()}
+                                                            </span>
+                                                            <span className="text-orange-600 font-bold text-lg">
+                                                                ₱{(pkg.price - (pkg.price * pkg.discount_percentage / 100)).toLocaleString()}
+                                                            </span>
+                                                        </>
+                                                    ) : (
+                                                        <span className="text-orange-600 font-bold text-lg">
+                                                            ₱{pkg.price.toLocaleString()}
+                                                        </span>
+                                                    )}
+                                                </div>
+                                                <span className="text-sm text-gray-500">
+                                                    <i className="bi bi-people mr-1"></i>
+                                                    Up to {pkg.max_guests}
+                                                </span>
+                                            </div>
+
+                                            <Link
+                                                href={`/reservations/create?package=${pkg.id}`}
+                                                className="block w-full text-center bg-gradient-to-r from-orange-600 to-orange-700 hover:from-orange-700 hover:to-orange-800 text-white py-2 rounded-lg font-medium transition-all duration-300"
+                                            >
+                                                Book Package
+                                            </Link>
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+
+                            <div className="text-center mt-12" data-aos="fade-up" data-aos-delay="400">
+                                <Link
+                                    href="/packages"
+                                    className="inline-flex items-center bg-gradient-to-r from-orange-600 to-orange-700 hover:from-orange-700 hover:to-orange-800 text-white px-8 py-4 rounded-full text-lg font-semibold transition-all duration-300 hover:scale-105 shadow-lg hover:shadow-xl group"
+                                >
+                                    <span>View All Packages</span>
+                                    <i className="bi bi-arrow-right ml-2 transition-transform duration-300 group-hover:translate-x-1"></i>
+                                </Link>
+                            </div>
+                        </>
+                    ) : (
+                        <div className="text-center py-16" data-aos="fade-up">
+                            <div className="w-24 h-24 mx-auto mb-6 bg-gradient-to-br from-gray-100 to-gray-200 rounded-full flex items-center justify-center">
+                                <i className="bi bi-box-seam text-4xl text-gray-400"></i>
+                            </div>
+                            <h3 className="text-2xl font-bold text-gray-900 mb-4">Packages Coming Soon</h3>
+                            <p className="text-gray-600 mb-8 max-w-md mx-auto">
+                                We're preparing exciting new packages for you. Check back soon for amazing deals!
+                            </p>
+                        </div>
+                    )}
                 </div>
             </section>
 
@@ -571,6 +664,68 @@ export default function Welcome({ accommodations, amenities, stats }: WelcomePro
                                 <span className="relative z-10">Close</span>
                                 <div className="absolute inset-0 bg-orange-700 transform scale-x-0 group-hover:scale-x-100 transition-transform duration-300 origin-left"></div>
                             </button>
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {/* Welcome Package Modal - Shows for first-time visitors when packages are available */}
+            {showPackageModal && packages && packages.length > 0 && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+                    <div 
+                        className="absolute inset-0 bg-black/60 backdrop-blur-sm"
+                        onClick={() => setShowPackageModal(false)}
+                    ></div>
+                    <div 
+                        className="relative bg-white rounded-2xl p-8 max-w-lg w-full mx-4 shadow-2xl transform transition-all animate-in zoom-in-95 duration-300"
+                    >
+                        <button
+                            onClick={() => setShowPackageModal(false)}
+                            className="absolute top-4 right-4 text-gray-400 hover:text-gray-600 transition-colors"
+                        >
+                            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                            </svg>
+                        </button>
+
+                        <div className="text-center">
+                            <div className="w-20 h-20 bg-gradient-to-br from-orange-400 to-orange-600 rounded-full flex items-center justify-center mx-auto mb-6 animate-bounce">
+                                <i className="bi bi-gift text-4xl text-white"></i>
+                            </div>
+                            <h3 className="text-2xl font-bold text-gray-900 mb-3">
+                                🎉 Special Packages Available!
+                            </h3>
+                            <p className="text-gray-600 mb-6">
+                                Welcome to Paradise Resort! We have <span className="font-bold text-orange-600">{packages.length} exclusive package{packages.length > 1 ? 's' : ''}</span> available right now with amazing discounts. Don't miss out on these limited-time offers!
+                            </p>
+                            
+                            {/* Preview of top package */}
+                            {packages[0] && packages[0].discount_percentage > 0 && (
+                                <div className="bg-orange-50 rounded-lg p-4 mb-6 text-left">
+                                    <div className="flex items-center justify-between">
+                                        <span className="font-semibold text-gray-900">{packages[0].name}</span>
+                                        <span className="bg-red-500 text-white px-2 py-0.5 rounded-full text-xs font-bold">
+                                            {packages[0].discount_percentage}% OFF
+                                        </span>
+                                    </div>
+                                    <p className="text-sm text-gray-500 mt-1">Starting from ₱{(packages[0].price - (packages[0].price * packages[0].discount_percentage / 100)).toLocaleString()}</p>
+                                </div>
+                            )}
+                            
+                            <div className="flex flex-col sm:flex-row gap-3 justify-center">
+                                <Link
+                                    href="/packages"
+                                    className="bg-gradient-to-r from-orange-600 to-orange-700 text-white px-6 py-3 rounded-full font-semibold hover:from-orange-700 hover:to-orange-800 transition-all duration-300 hover:scale-105"
+                                >
+                                    View All Packages
+                                </Link>
+                                <button
+                                    onClick={() => setShowPackageModal(false)}
+                                    className="border border-gray-300 text-gray-700 px-6 py-3 rounded-full font-semibold hover:bg-gray-50 transition-all duration-300"
+                                >
+                                    Maybe Later
+                                </button>
+                            </div>
                         </div>
                     </div>
                 </div>

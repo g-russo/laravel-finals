@@ -7,12 +7,15 @@ use App\Models\Amenity;
 use App\Models\Package;
 use Inertia\Inertia;
 
-class WelcomeController extends Controller
+class PublicPageController extends Controller
 {
-    public function index()
+    /**
+     * Display all accommodations page.
+     */
+    public function accommodations()
     {
         $accommodations = Accommodation::where('availability_status', 'available')
-            ->take(8)
+            ->orderBy('accommodation_name')
             ->get()
             ->map(function ($accommodation) {
                 return [
@@ -22,11 +25,20 @@ class WelcomeController extends Controller
                     'price' => $accommodation->price_per_night,
                     'capacity' => $accommodation->capacity,
                     'image' => $accommodation->image_url ?? $accommodation->image_path,
-                    'formatted_price' => '₱' . number_format($accommodation->price_per_night, 2),
+                    'formatted_price' => $accommodation->price_per_night,
                 ];
             });
 
-        // GET ALL AMENITIES (remove any limit)
+        return Inertia::render('public/Accommodations', [
+            'accommodations' => $accommodations,
+        ]);
+    }
+
+    /**
+     * Display all amenities page.
+     */
+    public function amenities()
+    {
         $amenities = Amenity::orderBy('amenity_name')
             ->get()
             ->map(function ($amenity) {
@@ -39,10 +51,27 @@ class WelcomeController extends Controller
                 ];
             });
 
-        // Get active packages
+        return Inertia::render('public/Amenities', [
+            'amenities' => $amenities,
+        ]);
+    }
+
+    /**
+     * Display contact page.
+     */
+    public function contact()
+    {
+        return Inertia::render('public/Contact');
+    }
+
+    /**
+     * Display all packages page.
+     */
+    public function packages()
+    {
         $packages = Package::active()
             ->with(['accommodations', 'amenities'])
-            ->take(6)
+            ->orderBy('package_name')
             ->get()
             ->map(function ($package) {
                 return [
@@ -69,19 +98,9 @@ class WelcomeController extends Controller
                 ];
             });
 
-        $stats = [
-            'total_accommodations' => Accommodation::count(),
-            'available_accommodations' => Accommodation::where('availability_status', 'available')->count(),
-            'premium_suites' => Accommodation::where('price_per_night', '>=', 20000)->count(),
-            'years_experience' => 15,
-        ];
-
-        return Inertia::render('welcome', [
-            'accommodations' => $accommodations,
-            'amenities' => $amenities, // All 12 amenities
+        return Inertia::render('public/Packages', [
             'packages' => $packages,
-            'stats' => $stats,
-            'hasPackages' => $packages->count() > 0,
+            'showWelcomeModal' => false,
         ]);
     }
 }

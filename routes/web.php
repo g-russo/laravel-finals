@@ -9,12 +9,17 @@ use App\Http\Controllers\AmenityController;
 use App\Http\Controllers\PackageController;
 use App\Http\Controllers\WelcomeController;
 use App\Http\Controllers\PublicAccommodationController;
+use App\Http\Controllers\PublicPageController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\ReservationController;
 
 // Public routes
 Route::get('/', [WelcomeController::class, 'index'])->name('home');
+Route::get('/accommodations', [PublicPageController::class, 'accommodations'])->name('public.accommodations');
 Route::get('/accommodations/{id}', [PublicAccommodationController::class, 'show'])->name('accommodation.show');
+Route::get('/amenities', [PublicPageController::class, 'amenities'])->name('public.amenities');
+Route::get('/packages', [PublicPageController::class, 'packages'])->name('public.packages');
+Route::get('/contact', [PublicPageController::class, 'contact'])->name('public.contact');
 
 // This section has been moved to the consolidated admin routes below
 

@@ -1,3 +1,5 @@
+import { Link } from '@inertiajs/react';
+
 export default function Footer() {
     return (
         <footer id="contact" className="bg-gray-900 text-white py-16">
@@ -37,10 +39,11 @@ export default function Footer() {
                     <div>
                         <h4 className="text-lg font-semibold mb-4">Quick Links</h4>
                         <ul className="space-y-2 text-gray-300">
-                            <li><a href="#home" className="hover:text-orange-600 transition-colors duration-300">Home</a></li>
-                            <li><a href="#accommodations" className="hover:text-orange-600 transition-colors duration-300">Accommodations</a></li>
-                            <li><a href="#amenities" className="hover:text-orange-600 transition-colors duration-300">Amenities</a></li>
-                            <li><a href="#experiences" className="hover:text-orange-600 transition-colors duration-300">Experiences</a></li>
+                            <li><Link href="/" className="hover:text-orange-600 transition-colors duration-300">Home</Link></li>
+                            <li><Link href="/accommodations" className="hover:text-orange-600 transition-colors duration-300">Accommodations</Link></li>
+                            <li><Link href="/amenities" className="hover:text-orange-600 transition-colors duration-300">Amenities</Link></li>
+                            <li><Link href="/packages" className="hover:text-orange-600 transition-colors duration-300">Packages</Link></li>
+                            <li><Link href="/contact" className="hover:text-orange-600 transition-colors duration-300">Contact</Link></li>
                         </ul>
                     </div>
                     
