@@ -44,6 +44,7 @@ class DatabaseSeeder extends Seeder
         $this->call([
             AccommodationSeeder::class,
             AmenitySeeder::class,
+            PackageSeeder::class,
         ]);
     }
 
