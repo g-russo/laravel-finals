@@ -482,14 +482,17 @@ export default function Welcome({ accommodations, amenities, stats }: WelcomePro
                             >
                                 Immerse yourself in the beauty, culture, and adventures that await you at Paradise Resort. From stunning beaches to exciting water sports, every moment is designed to create unforgettable memories.
                             </p>
-                            <button 
-                                className="bg-orange-600 text-white px-8 py-4 rounded-full text-lg font-semibold hover:bg-orange-700 transition-all duration-300 hover:scale-105 group relative overflow-hidden"
+                            <a 
+                                href="https://www.youtube.com/watch?v=AXeVCu6aKZk"
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="inline-block bg-orange-600 text-white px-8 py-4 rounded-full text-lg font-semibold hover:bg-orange-700 transition-all duration-300 hover:scale-105 group relative overflow-hidden"
                                 data-aos="zoom-in"
                                 data-aos-delay="600"
                             >
                                 <span className="relative z-10">Discover More</span>
                                 <div className="absolute inset-0 bg-orange-700 transform -translate-x-full group-hover:translate-x-0 transition-transform duration-300"></div>
-                            </button>
+                            </a>
                         </div>
                         <div 
                             className="relative"
