@@ -2,6 +2,7 @@ import { Head, Link } from '@inertiajs/react';
 import Navigation from '@/components/Navigation';
 import Footer from '@/components/Footer';
 import { FlashToastHandler } from '@/components/toast-provider';
+import { formatCurrency } from '@/lib/currency';
 import { useEffect } from 'react';
 import AOS from 'aos';
 import 'aos/dist/aos.css';
@@ -108,7 +109,7 @@ export default function Accommodations({ accommodations }: AccommodationsProps) 
                                             </h3>
                                             <div className="ml-2 text-right">
                                                 <div className="text-orange-600 font-bold text-lg">
-                                                    ₱{accommodation.formatted_price.toLocaleString('en-PH')}
+                                                    {formatCurrency(accommodation.formatted_price).replace(', ', ',')}
                                                 </div>
                                                 <div className="text-xs text-gray-500">per night</div>
                                             </div>
